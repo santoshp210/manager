@@ -68,6 +68,7 @@ import {
   managedSSHPubKeyFactory,
   managedStatsFactory,
   monitorFactory,
+  namespaceFactory,
   nodeBalancerConfigFactory,
   nodeBalancerConfigNodeFactory,
   nodeBalancerFactory,
@@ -513,6 +514,30 @@ const vpc = [
   rest.post('*/v4beta/vpcs/:vpcId/subnets', (req, res, ctx) => {
     const subnet = subnetFactory.build({ ...(req.body as any) });
     return res(ctx.json(subnet));
+  }),
+];
+
+const cloudView = [
+  rest.get('*/cloudview/namespaces', (req, res, ctx) => {
+    return res(ctx.json(makeResourcePage(namespaceFactory.buildList(10))));
+  }),
+  rest.post('*/cloudview/namespaces', async (req, res, ctx) => {
+    await sleep(2000);
+    return res(ctx.json({}));
+  }),
+  rest.get('*/cloudview/namespaces/:id/keys', async (req, res, ctx) => {
+    await sleep(2000);
+    return res(
+      ctx.json({
+        active_keys: [
+          {
+            api_key:
+              'r1LtHY0f2PPAttUFxppB29yhhddTECvzmNICVJyHtBM0Wfo613L9Ya5mrOmshUpx',
+            expiry: '2024-04-12T16:08:55',
+          },
+        ],
+      })
+    );
   }),
 ];
 
@@ -2064,4 +2089,5 @@ export const handlers = [
   ...databases,
   ...aclb,
   ...vpc,
+  ...cloudView,
 ];
