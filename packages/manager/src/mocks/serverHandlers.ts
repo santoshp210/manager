@@ -519,7 +519,7 @@ const vpc = [
 
 const cloudView = [
   rest.get('*/cloudview/namespaces', (req, res, ctx) => {
-    return res(ctx.json(makeResourcePage(namespaceFactory.buildList(10))));
+    return res(ctx.json(makeResourcePage(namespaceFactory.buildList(95))));
   }),
   rest.post('*/cloudview/namespaces', async (req, res, ctx) => {
     await sleep(2000);
@@ -532,7 +532,7 @@ const cloudView = [
         active_keys: [
           {
             api_key:
-              'r1LtHY0f2PPAttUFxppB29yhhddTECvzmNICVJyHtBM0Wfo613L9Ya5mrOmshUpx',
+              'ACF2A5BzXPiYCNp6uUO5m8dYELTBXdio',
             expiry: '2024-04-12T16:08:55',
           },
         ],
