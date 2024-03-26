@@ -606,6 +606,39 @@ const cloudView = [
       })
     );
   }),
+  rest.get('*/cloudview/dashboards', (req, res, ctx) => {
+    // await sleep(3000);
+    return res(
+      ctx.json([
+        {
+          created: '2024-04-12T16:08:55',
+          filters: [{}],
+          id: '12',
+          instance_id: '35',
+          label: 'dashboard_1',
+          namespace_id: '9',
+          service_type: 'aclb',
+          updated: '2024-04-12T16:08:55',
+          widgets: [
+            {
+              aggregate_function: 'max',
+              fiters: [
+                {
+                  key: 'filter1',
+                  operator: 'eq',
+                  value: '5',
+                },
+              ],
+              group_by: 'group_by_1',
+              label: 'widget 1',
+              metric: 'http2xx',
+              y_label: 'qps',
+            },
+          ],
+        },
+      ])
+    );
+  }),
 ];
 
 const nanodeType = linodeTypeFactory.build({ id: 'g6-nanode-1' });
