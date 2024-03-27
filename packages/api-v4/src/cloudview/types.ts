@@ -73,3 +73,27 @@ export interface ServiceTypes {
     }[];
   }[];
 }
+
+interface Filter {
+  key: string;
+  operator: string;
+  value: string;
+}
+export interface Dashboards {
+  id: number;
+  service_type: string;
+  instance_id: number;
+  namespace_id: number;
+  widgets: {
+    label: string;
+    metric: string;
+    aggregate_function: string;
+    group_by: string;
+    y_label: string;
+    filters: Filter[];
+  }[];
+  label: string;
+  filters: Filter[];
+  created: string;
+  updated: string;
+}
