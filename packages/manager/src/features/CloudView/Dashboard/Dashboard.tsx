@@ -2,7 +2,7 @@ import * as React from 'react';
 import { CircleProgress } from 'src/components/CircleProgress';
 import { ErrorState } from 'src/components/ErrorState/ErrorState';
 import { Placeholder } from 'src/components/Placeholder/Placeholder';
-import { useCloudViewDashboardByIdQuery } from 'src/queries/cloudview/dashboards';
+import { useCloudViewDashboardByIdQuery, useCloudViewDashboards } from 'src/queries/cloudview/dashboards';
 import CloudViewIcon from 'src/assets/icons/entityIcons/cv_overview.svg';
 import { GlobalFilters } from '../Overview/GlobalFilters';
 import { GlobalFiltersObject } from '../Models/GlobalFilterProperties';
@@ -19,16 +19,21 @@ export const Dashboard = (props: any) => { //todo define a proper properties cla
 
     const [dashboardFilters, setDashboardFilters] = React.useState<GlobalFiltersObject>({} as GlobalFiltersObject);    
 
-
-    if (props.needDefault && props.dashboardId) {
-        var dashboardId = props.dashboardId;
-    } else {
-        dashboardId = 1
-    }
-
+    const {data: dashboards } = useCloudViewDashboards();
+    // console.log(dashboards);
+    let dashboardId = undefined;
+    dashboardId = dashboards?.data[0].id;
 
     const { data: dashboard, isError: dashboardLoadError,
         isLoading: dashboardLoadLoding} = useCloudViewDashboardByIdQuery(dashboardId);
+
+    // if (props.needDefault && props.dashboardId) {
+    //     var dashboardId = props.dashboardId; 
+    // } else {
+    //     dashboardId = 1
+    // }
+
+    console.log(dashboardId);
 
     if (dashboardLoadLoding) {
         return <CircleProgress />
@@ -48,10 +53,10 @@ export const Dashboard = (props: any) => { //todo define a proper properties cla
 
         if(dashboard!=undefined) {            
             return dashboard.widgets.map((element, index) => {                
-                return <Grid xs={6}><CloudViewGraph key={index} {...cloudViewGraphProperties} title={element.label} dashboardFilters={{...dashboardFilters}}
+                return <Grid xs={6} key={index}><CloudViewGraph key={index} {...cloudViewGraphProperties} title={element.label} dashboardFilters={{...dashboardFilters}}
                 /></Grid>
             });             
-
+ 
         } else {
             return (<Placeholder
                 subtitle="No visualizations are available at this moment.
