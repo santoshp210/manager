@@ -1,10 +1,18 @@
 import { API_ROOT } from '../constants';
 import Request, { setMethod, setURL } from '../request';
-import { Dashboards } from './types';
+import { Dashboard } from './types';
 import { ResourcePage as Page } from '../types';
 
-export const getDashboards = () =>
-  Request<Page<Dashboards>>(
-    setURL(`${API_ROOT}/cloudview/dashboards`),
+export const getDashboardById = (dashboardId?: number) =>
+  Request<Dashboard>(
+    setURL(
+      `${API_ROOT}/cloudview/dashboards/${encodeURIComponent(dashboardId!)}`
+    ),
     setMethod('GET')
   );
+
+export const getDashboards = () =>
+  Request<Page<Dashboard>>(
+    setURL(`${API_ROOT}/cloudview/dashboards`),
+    setMethod('GET')
+);
