@@ -13,6 +13,7 @@ import {
 } from '../shared/ResourceSelect';
 import { CloudViewServiceSelect } from '../shared/ServicetypeSelect';
 import { CloudViewTimeRangeSelect } from '../shared/TimeRangeSelect';
+import { CloudViewMultiResourceSelect } from '../shared/ResourceMultiSelect';
 
 export const GlobalFilters = React.memo(() => {
   const theme = useTheme();
@@ -78,7 +79,7 @@ export const GlobalFilters = React.memo(() => {
         <Grid sx={{ fontSize: 'medium', marginLeft: 6 }}>
           <div>Resource</div>
         </Grid>
-        <Grid sx={{ marginLeft: 2, width: 200 }}>
+        <Grid sx={{ marginLeft: 2, width: 400}}>
           <StyledCloudViewResourceSelect
             handleResourceChange={handleResourceChange}
             region={selectedRegion}
@@ -86,19 +87,19 @@ export const GlobalFilters = React.memo(() => {
             disabled={!selectedService}
           />
         </Grid>
-        <Grid sx={{ marginLeft: 8 }}>
+        {/* <Grid sx={{ marginLeft: 8 }}>
           <StyledCloudViewIntervalSelect
             handleIntervalChange={handleIntervalChange}
           />
-        </Grid>
-        <Grid sx={{ marginLeft: 3 }}>
+        </Grid> */}
+        {/* <Grid sx={{ marginLeft: 3 }}>
           <StyledCloudViewTimeRangeSelect
             defaultValue={'Past 30 Minutes'}
             handleStatsChange={handleTimeRangeChange}
             hideLabel
             label="Select Time Range"
           />
-        </Grid>
+        </Grid> */}
       </StyledGrid>
     </Grid>
   );
@@ -110,23 +111,23 @@ const StyledCloudViewRegionSelect = styled(CloudViewRegionSelect, {
   width: 100,
 });
 
-const StyledCloudViewResourceSelect = styled(CloudViewResourceSelect, {
+const StyledCloudViewResourceSelect = styled(CloudViewMultiResourceSelect, {
   label: 'StyledCloudViewResourceSelect',
 })({
-  width: 100,
+  width: 500,
 });
 
-const StyledCloudViewTimeRangeSelect = styled(CloudViewTimeRangeSelect, {
-  label: 'StyledCloudViewTimeRangeSelect',
-})({
-  width: 150,
-});
+// const StyledCloudViewTimeRangeSelect = styled(CloudViewTimeRangeSelect, {
+//   label: 'StyledCloudViewTimeRangeSelect',
+// })({
+//   width: 150,
+// });
 
-const StyledCloudViewIntervalSelect = styled(CloudViewIntervalSelect, {
-  label: 'StyledCloudViewIntervalSelect',
-})({
-  width: 40,
-});
+// const StyledCloudViewIntervalSelect = styled(CloudViewIntervalSelect, {
+//   label: 'StyledCloudViewIntervalSelect',
+// })({
+//   width: 40,
+// });
 
 const StyledGrid = styled(Grid, { label: 'StyledGrid' })(({ theme }) => ({
   alignItems: 'end',
