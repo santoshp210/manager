@@ -20,10 +20,12 @@ export const CloudViewMultiResourceSelect = (
   const resourceOptions: any = {};
 
   const [selectedResource, setResource] = React.useState<any>([]);
-  const [resourceInputValue, setResourceInputValue] = React.useState('');
-
+  // const [resourceInputValue, setResourceInputValue] = React.useState<any>('');
   const filterResourcesByRegion = (resourcesList: any[]) => {
     return resourcesList?.filter((resource: any) => {
+      if (props.region == undefined) {
+        return true;
+      }
       if (resource.region) {
         return resource.region === props.region;
       } else if (resource.regions) {
@@ -35,13 +37,9 @@ export const CloudViewMultiResourceSelect = (
   };
 
   const getResourceList = () => {
-    if (props.region) {
-      return props.resourceType && resourceOptions[props.resourceType]
-        ? filterResourcesByRegion(resourceOptions[props.resourceType]?.data)
-        : [];
-    }
+    // console.log(resourceOptions[props.resourceType!]);
     return props.resourceType && resourceOptions[props.resourceType]
-      ? resourceOptions[props.resourceType]?.data
+      ? filterResourcesByRegion(resourceOptions[props.resourceType]?.data)
       : [];
   };
 
@@ -59,8 +57,8 @@ export const CloudViewMultiResourceSelect = (
 
   React.useEffect(() => {
     setResource([]);
-    setResourceInputValue('');
-    props.handleResourceChange([]);
+    // setResourceInputValue('');
+    // props.handleResourceChange([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.region, props.resourceType]);
 
@@ -69,20 +67,18 @@ export const CloudViewMultiResourceSelect = (
       onChange={(_: any, resource: any) => {
         setResource(resource);
       }}
-      onInputChange={(event, newInputValue) => {
-        setResourceInputValue(newInputValue);
-      }}
       autoHighlight
       clearOnBlur
+      data-testid={'Resource-select'}
       disabled={props.disabled}
-      inputValue={resourceInputValue}
+      // inputValue={resourceInputValue}
       isOptionEqualToValue={(option, value) => option.label === value.label}
       label=""
       limitTags={2}
       multiple
-      options={getResourceList()}
+      options={getResourceList()? getResourceList(): []}
       placeholder="Select a resource"
-      value={selectedResource}
+      value={selectedResource ? selectedResource : []}
     />
   );
 };
