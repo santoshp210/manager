@@ -7,13 +7,13 @@ import { WithStartAndEnd } from 'src/features/Longview/request.types';
 
 import { CloudViewIntervalSelect } from '../shared/IntervalSelect';
 import { CloudViewRegionSelect } from '../shared/RegionSelect';
+import { CloudViewMultiResourceSelect } from '../shared/ResourceMultiSelect';
 import {
   CloudViewResourceSelect,
   CloudViewResourceTypes,
 } from '../shared/ResourceSelect';
 import { CloudViewServiceSelect } from '../shared/ServicetypeSelect';
 import { CloudViewTimeRangeSelect } from '../shared/TimeRangeSelect';
-import { CloudViewMultiResourceSelect } from '../shared/ResourceMultiSelect';
 
 export const GlobalFilters = React.memo(() => {
   const theme = useTheme();
@@ -70,7 +70,7 @@ export const GlobalFilters = React.memo(() => {
             handleRegionChange={handleRegionChange}
           />
         </Grid>
-        <Grid sx={{ marginLeft: 4, fontSize: 'medium' }}>
+        <Grid sx={{ fontSize: 'medium', marginLeft: 4 }}>
           <div>Service Type</div>
         </Grid>
         <Grid sx={{ marginLeft: 0.2, width: 100 }}>
@@ -79,12 +79,12 @@ export const GlobalFilters = React.memo(() => {
         <Grid sx={{ fontSize: 'medium', marginLeft: 6 }}>
           <div>Resource</div>
         </Grid>
-        <Grid sx={{ marginLeft: 2, width: 400}}>
+        <Grid sx={{ marginLeft: 2, width: 400 }}>
           <StyledCloudViewResourceSelect
+            disabled={!selectedService}
             handleResourceChange={handleResourceChange}
             region={selectedRegion}
             resourceType={selectedService}
-            disabled={!selectedService}
           />
         </Grid>
         {/* <Grid sx={{ marginLeft: 8 }}>

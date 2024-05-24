@@ -76,7 +76,7 @@ export const CloudViewMultiResourceSelect = (
       label=""
       limitTags={2}
       multiple
-      options={getResourceList()? getResourceList(): []}
+      options={getResourceList()}
       placeholder="Select a resource"
       value={selectedResource ? selectedResource : []}
     />
