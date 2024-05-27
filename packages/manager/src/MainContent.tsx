@@ -244,7 +244,7 @@ export const MainContent = () => {
       preferences ?? {},
       flags?.mainContentBanner?.key
     );
-  const showCloudPulse = Boolean(flags.aclp?.enabled);
+  const showCloudPulse = Boolean(flags.aclp);
   /**
    * this is the case where the user has successfully completed signup
    * but needs a manual review from Customer Support. In this case,
