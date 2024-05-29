@@ -3,15 +3,8 @@ import {
   CreateAlertDefinitionPayload,
   createAlertDefinition,
 } from '@linode/api-v4/lib/cloudpulse';
-import {
-  APIError,
-  Filter,
-  Params,
-  ResourcePage,
-} from '@linode/api-v4/lib/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
-import { queryPresets } from '../base';
+import { APIError } from '@linode/api-v4/lib/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const queryKey = 'aclp-alerts';
 

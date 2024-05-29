@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { Route, Switch } from 'react-router-dom';
 
 import { LandingHeader } from 'src/components/LandingHeader/LandingHeader';
-import { Paper } from 'src/components/Paper';
-import { CloudPulseTabs } from './CloudPulseTabs';
 import { SuspenseLoader } from 'src/components/SuspenseLoader';
-import { Switch, Route } from 'react-router-dom';
+
+import { CloudPulseTabs } from './CloudPulseTabs';
 
 export const CloudPulseLanding = () => {
   return (

@@ -462,6 +462,12 @@ const aclb = [
   }),
 ];
 
+const alerts = [
+  http.post('*/monitor/cloudpulse/alerts', () => {
+    return HttpResponse.json({});
+  }),
+];
+
 const vpc = [
   http.get('*/v4beta/vpcs', () => {
     const vpcsWithSubnet1 = vpcFactory.buildList(5, {
@@ -2292,4 +2298,5 @@ export const handlers = [
   ...databases,
   ...aclb,
   ...vpc,
+  ...alerts,
 ];

@@ -5,7 +5,7 @@ import { createAlertDefinitionSchema } from '@linode/validation';
 
 export const createAlertDefinition = (data: CreateAlertDefinitionPayload) =>
   Request<Alert>(
-    setURL(`${API_ROOT}/monitor/alerts`),
+    setURL(`${API_ROOT}/monitor/cloudpulse/alerts`),
     setMethod('POST'),
     setData(data, createAlertDefinitionSchema)
   );
