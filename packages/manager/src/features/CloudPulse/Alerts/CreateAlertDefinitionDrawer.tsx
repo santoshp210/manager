@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { APIError } from '@linode/api-v4';
 import { CreateAlertDefinitionPayload } from '@linode/api-v4/lib/cloudpulse/types';
 import { createAlertDefinitionSchema } from '@linode/validation';
@@ -13,28 +14,44 @@ import { FormControlLabel } from 'src/components/FormControlLabel';
 import { Notice } from 'src/components/Notice/Notice';
 import { Radio } from 'src/components/Radio/Radio';
 import { RadioGroup } from 'src/components/RadioGroup';
-import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
 import { TextField } from 'src/components/TextField';
 import { useCreateAlertDefinition } from 'src/queries/cloudpulse/alerts';
-import { useRegionsQuery } from 'src/queries/regions/regions';
 import { getErrorMap } from 'src/utilities/errorUtils';
 import {
   handleFieldErrors,
   handleGeneralErrors,
 } from 'src/utilities/formikErrorUtils';
 
+import { CloudViewRegionSelect } from '../shared/RegionSelect';
+import { CloudViewMultiResourceSelect } from '../shared/ResourceMultiSelect';
+import { CloudPulseServiceSelect } from '../shared/ServicetypeSelect';
+import { MetricCriteriaField } from './Custom/Metrics/MetricCriteria';
+import { NotificationChannels } from './Custom/NotificationChannels';
+import { TriggerConditions } from './Custom/TriggerConditions';
+
 export interface CreateAlertDefinitionDrawerProps {
+  createAlertPayload?: CreateAlertDefinitionPayload;
   onClose: () => void;
   open: boolean;
 }
 
+type Type = 'anomaly' | 'threshold';
 const initialValues: CreateAlertDefinitionPayload = {
-  alertSeverity: '',
-  name: null,
+  alertName: null,
+  criteria: [],
+  notifications: [],
   region: null,
-  resources: [],
-  service_type: '',
+  resourceId: [],
+  serviceType: null,
+  severity: '',
+  triggerCondition: {
+    criteriaCondition: '',
+    evaluationInterval: '',
+    evaluationPeriod: '',
+    triggerOccurrence: '',
+  },
+  type: '',
 };
 
 export const CreateAlertDefinitionDrawer = React.memo(
@@ -42,12 +59,10 @@ export const CreateAlertDefinitionDrawer = React.memo(
     const { onClose, open } = props;
     const { mutateAsync } = useCreateAlertDefinition();
     const { enqueueSnackbar } = useSnackbar();
-    const { data: regions } = useRegionsQuery();
 
     const {
       errors,
       handleBlur,
-      handleChange,
       handleSubmit,
       isSubmitting,
       resetForm,
@@ -93,12 +108,18 @@ export const CreateAlertDefinitionDrawer = React.memo(
         resetForm();
       }
     }, [open, resetForm]);
-    type Type = 'anomaly' | 'threshold';
     const [mode, setMode] = React.useState<Type>('threshold');
+
+    React.useEffect(() => {
+      setFieldValue('type', mode.toString());
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mode]);
+
+    const [scrapeInterval, setScrapeInterval] = React.useState<string>('');
 
     const generalError = status?.generalError;
     return (
-      <Drawer onClose={onClose} open={open} title="Create Alert Definition">
+      <Drawer onClose={onClose} open={open} title={''}>
         <form onSubmit={handleSubmit}>
           {generalError && (
             <Notice
@@ -129,22 +150,22 @@ export const CreateAlertDefinitionDrawer = React.memo(
             inputProps={{
               autoFocus: true,
             }}
-            errorText={errors.name}
+            errorText={errors.alertName}
             label="Name"
             onBlur={handleBlur}
-            onChange={handleChange}
-            value={values.name}
+            onChange={(event) => setFieldValue('alertName', event.target.value)}
           />
           <TextField
             inputProps={{
               autoFocus: true,
             }}
+            onChange={(event) =>
+              setFieldValue('description', event.target.value)
+            }
             errorText={errors.description}
             label="Description"
             onBlur={handleBlur}
-            onChange={handleChange}
             optional
-            value={values.description}
           />
           <TagsInput
             onChange={(tags) =>
@@ -158,45 +179,61 @@ export const CreateAlertDefinitionDrawer = React.memo(
             }
             disabled={false}
           />
-          <Autocomplete
-            options={[
-              { label: 'Linodes', value: 'Linodes' },
-              { label: 'ACLB', value: 'ACLB' },
-            ]}
-            inputMode="none"
-            label={'Services'}
-            placeholder="Select a service type"
+          <CloudPulseServiceSelect
+            handleServiceChange={(value) => {
+              setFieldValue('serviceType', value);
+            }}
           />
-          <RegionSelect
-            handleSelection={(value) => {
+          <CloudViewRegionSelect
+            handleRegionChange={(value) => {
               setFieldValue('region', value);
             }}
-            currentCapability={undefined}
-            errorText={errors.region}
-            label="Region"
-            regions={regions ? regions : []}
-            selectedId={values.region}
+          />
+          <CloudViewMultiResourceSelect
+            handleResourceChange={(resources) => {
+              setFieldValue('resourceId', resources);
+            }}
+            disabled={false}
+            region={values.region ? values.region : ''}
+            resourceType={values.serviceType ? values.serviceType : ''}
           />
           <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.value === value.value
+            }
+            onChange={(_, value) => {
+              setFieldValue('severity', value?.value);
+            }}
             options={[
-              { label: 'Resource 1', value: 'Resource 1' },
-              { label: 'Resource 2', value: 'Resource 2' },
-              { label: 'Resource 3', value: 'Resource 3' },
-              { label: 'Resource 4', value: 'Resource 4' },
-            ]}
-            label={'Resources'}
-            multiple
-            placeholder="Select the resources"
-          />
-          <Autocomplete
-            options={[
-              { label: '0', value: '0' },
-              { label: '1', value: '1' },
-              { label: '2', value: '2' },
-              { label: '3', value: '3' },
+              { label: 'Info', value: '0' },
+              { label: 'Low', value: '1' },
+              { label: 'Medium', value: '2' },
+              { label: 'Severe', value: '3' },
             ]}
             label={'Alert severity'}
             textFieldProps={{ labelTooltipText: 'Alert Severity' }}
+          />
+          <MetricCriteriaField
+            handleMetricChange={(value) => {
+              const criterias = [value];
+              setFieldValue('criteria', criterias);
+            }}
+            setScrapeInterval={(interval) => {
+              setScrapeInterval(interval);
+            }}
+            serviceType={values.serviceType ? values.serviceType : ''}
+          />
+          <TriggerConditions
+            handleConditionChange={(value) =>
+              setFieldValue('triggerCondition', value)
+            }
+            pollingInterval={scrapeInterval}
+          />
+          <NotificationChannels
+            handleNotificationChange={(value) => {
+              const notifications = [value];
+              setFieldValue('notifications', notifications);
+            }}
           />
           <ActionsPanel
             primaryButtonProps={{
