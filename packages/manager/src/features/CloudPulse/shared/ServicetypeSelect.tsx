@@ -37,15 +37,17 @@ export const CloudPulseServiceSelect = React.memo(
     if (isLoading) {
       return <Autocomplete disabled label="Service" options={[]} />;
     }
+
     return (
       <Autocomplete
+        isOptionEqualToValue={(option, value) => {
+          return option.value === value.value;
+        }}
         onChange={(_: any, service) => {
           setService(service);
-          // props.handleServiceChange(service?.label);
         }}
         disableClearable
         fullWidth
-        isOptionEqualToValue={(option, value) => option.value === value.value}
         label="Service"
         noMarginTop
         options={getServicesList()}

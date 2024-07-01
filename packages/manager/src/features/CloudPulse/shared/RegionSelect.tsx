@@ -5,27 +5,25 @@ import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
 import { useRegionsQuery } from 'src/queries/regions/regions';
 
 export interface CloudViewRegionSelectProps {
-  defaultValue?: string;
   handleRegionChange: (region: string | undefined) => void;
 }
 
 export const CloudViewRegionSelect = React.memo(
   (props: CloudViewRegionSelectProps) => {
     const { data: regions } = useRegionsQuery();
-    const defaultCalls = React.useRef(false);
+    // const { handleRegionChange } = props;
 
-    const getPrefferedRegion = () => {
-      if (!defaultCalls.current) {
-        defaultCalls.current = true;
-        props.handleRegionChange(props.defaultValue);
-      }
-      return props.defaultValue;
-    };
+    const [region, setRegion] = React.useState<string>('');
+
+    React.useEffect(() => {
+      props.handleRegionChange(region);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [region]);
 
     return (
       <RegionSelect
         handleSelection={(value) => {
-          props.handleRegionChange(value);
+          setRegion(value);
         }}
         currentCapability={undefined}
         fullWidth
@@ -33,7 +31,7 @@ export const CloudViewRegionSelect = React.memo(
         label="Region"
         noMarginTop
         regions={regions ? regions : []}
-        selectedId={getPrefferedRegion()!}
+        selectedId={region}
       />
     );
   }

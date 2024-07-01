@@ -9,7 +9,10 @@ interface MetricDataFieldProps {
 }
 
 export const MetricDataField = React.memo((props: MetricDataFieldProps) => {
-  const [selectedMetric, setSelectedMetric] = React.useState<AvailableMetrics>();
+  const [
+    selectedMetric,
+    setSelectedMetric,
+  ] = React.useState<AvailableMetrics>();
 
   React.useEffect(() => {
     props.handleDataFieldChange(selectedMetric?.metric);
@@ -19,6 +22,7 @@ export const MetricDataField = React.memo((props: MetricDataFieldProps) => {
     <Autocomplete
       label={'Data field'}
       onChange={(_, metric: any) => setSelectedMetric(metric)}
+      // getOptionLabel={(option) => option.label}
       options={props.metricDefinitions ? props.metricDefinitions : []}
       textFieldProps={{ labelTooltipText: 'Data Fields' }}
       value={selectedMetric}

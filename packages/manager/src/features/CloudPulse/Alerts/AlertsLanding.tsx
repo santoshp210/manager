@@ -22,11 +22,18 @@ export const AlertsLanding = React.memo(() => {
       <Paper>
         <LandingHeader
           title={
-            //   <Switch>
+            ''
             //     <Route component={CloudPulseTabs} />
             //   </Switch>
-            'Recent alert activity'
-          }
+          } //   <Switch>
+          // title={
+          //   <EntityHeader>
+          //     <Route component={AlertTabs} />
+          //     {/* <Button onClick={toggleDrawer(true)} buttonType="primary">
+          //     Create
+          //   </Button> */}
+          //   </EntityHeader>
+          // }
           breadcrumbProps={{ pathname: '/' }}
           createButtonText="Create alert Definition"
           entity="Alert"

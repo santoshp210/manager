@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Theme, Typography, useTheme } from '@mui/material';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -47,6 +47,7 @@ export const NotificationChannels = React.memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedActions]);
 
+    const theme = useTheme<Theme>();
     return (
       <>
         <Typography sx={{ paddingTop: '25px' }} variant="h3">
@@ -57,7 +58,7 @@ export const NotificationChannels = React.memo(
         </Typography>
         <Box
           sx={{
-            backgroundColor: '#F4F5F6',
+            backgroundColor: theme.bg.app,
             marginTop: '10px',
             padding: '10px',
           }}
@@ -65,6 +66,9 @@ export const NotificationChannels = React.memo(
           <Stack>
             <Typography>Channel Settings</Typography>
             <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               onChange={(_, value) => {
                 changeActionValues(value?.value, 'notification_type');
               }}

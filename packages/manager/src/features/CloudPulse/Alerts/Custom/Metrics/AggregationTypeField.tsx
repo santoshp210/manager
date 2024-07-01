@@ -31,10 +31,11 @@ export const AggregationTypeField = React.memo(
         onChange={(_, value) => {
           setSelectedAggregationType(value);
         }}
-        isOptionEqualToValue={(option, value) => option == value}
+        isOptionEqualToValue={(option, value) => option.value === value.value}
         label={'Aggregation type'}
         options={options}
         value={selectedAggregationType}
+        sx={{width: "108px"}}
       ></Autocomplete>
     );
   }

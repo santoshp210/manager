@@ -103,23 +103,23 @@ export const CreateAlertDefinitionDrawer = React.memo(
       validateOnChange: false,
       validationSchema: createAlertDefinitionSchema,
     });
-    React.useEffect(() => {
-      if (open) {
-        resetForm();
-      }
-    }, [open, resetForm]);
-    const [mode, setMode] = React.useState<Type>('threshold');
+    // React.useEffect(() => {
+    //   if (open) {
+    //     resetForm();
+    //   }
+    // }, [open, resetForm]);
+    // const [mode, setMode] = React.useState<Type>('threshold');
 
-    React.useEffect(() => {
-      setFieldValue('type', mode.toString());
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mode]);
+    // React.useEffect(() => {
+    //   setFieldValue('type', mode.toString());
+    //   // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [mode]);
 
     const [scrapeInterval, setScrapeInterval] = React.useState<string>('');
 
     const generalError = status?.generalError;
     return (
-      <Drawer onClose={onClose} open={open} title={''}>
+      <Drawer onClose={onClose} open={open} title={'Create'}>
         <form onSubmit={handleSubmit}>
           {generalError && (
             <Notice
@@ -129,31 +129,17 @@ export const CreateAlertDefinitionDrawer = React.memo(
               variant="error"
             />
           )}
-          <Box>Type</Box>
-          <RadioGroup
-            onChange={(_, value) => setMode(value as Type)}
-            row
-            value={mode}
-          >
-            <FormControlLabel
-              control={<Radio />}
-              label={'Static threshold'}
-              value="threshold"
-            />
-            <FormControlLabel
-              control={<Radio />}
-              label={'Anomaly Detection'}
-              value="anomaly"
-            />
-          </RadioGroup>
           <TextField
             inputProps={{
               autoFocus: true,
             }}
+            onChange={(event) => {
+              setFieldValue('alertName', event.target.value);
+              setFieldValue('type', 'anomaly');
+            }}
             errorText={errors.alertName}
             label="Name"
             onBlur={handleBlur}
-            onChange={(event) => setFieldValue('alertName', event.target.value)}
           />
           <TextField
             inputProps={{
@@ -205,12 +191,12 @@ export const CreateAlertDefinitionDrawer = React.memo(
               setFieldValue('severity', value?.value);
             }}
             options={[
-              { label: 'Info', value: '0' },
-              { label: 'Low', value: '1' },
-              { label: 'Medium', value: '2' },
-              { label: 'Severe', value: '3' },
+              { label: 'Info - 3', value: '3' },
+              { label: 'Low -2 ', value: '2' },
+              { label: 'Medium - 1', value: '1' },
+              { label: 'Severe - 0', value: '0' },
             ]}
-            label={'Alert severity'}
+            label={'Severity'}
             textFieldProps={{ labelTooltipText: 'Alert Severity' }}
           />
           <MetricCriteriaField
