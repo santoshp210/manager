@@ -16,7 +16,7 @@ interface TriggerCondition {
 
 interface TriggerConditionProps {
   handleConditionChange: (value: any) => void;
-  pollingInterval: string;
+  // scrapingInterval: string;
 }
 export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
   const [
@@ -37,26 +37,26 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCondition]);
 
-  const getIntervalOptions = () => {
-    if (props.pollingInterval.endsWith('s')) {
-      return [
-        {
-          label: props.pollingInterval,
-          value: props.pollingInterval.slice(0, -1),
-        },
-      ];
-    } else if (props.pollingInterval.endsWith('m')) {
-      const val: number = +props.pollingInterval.slice(0, -1);
-      return [
-        {
-          label: props.pollingInterval,
-          value: (val * 60).toString(),
-        },
-      ];
-    } else {
-      return [];
-    }
-  };
+  // const getIntervalOptions = () => {
+  //   if (props.scrapingInterval.endsWith('s')) {
+  //     return [
+  //       {
+  //         label: props.scrapingInterval,
+  //         value: props.scrapingInterval.slice(0, -1),
+  //       },
+  //     ];
+  //   } else if (props.scrapingInterval.endsWith('m')) {
+  //     const val: number = +props.scrapingInterval.slice(0, -1);
+  //     return [
+  //       {
+  //         label: props.scrapingInterval,
+  //         value: (val * 60).toString(),
+  //       },
+  //     ];
+  //   } else {
+  //     return [];
+  //   }
+  // };
 
   const theme = useTheme<Theme>();
   // const options = React.useMemo(() => {
@@ -82,10 +82,11 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
               changeConditionValues(value?.value, 'evaluationPeriod');
             }}
             options={[
-              { label: '30s', value: '30' },
               { label: '1m', value: '60' },
               { label: '5m', value: '300' },
+              { label: '15m', value: '900' },
               { label: '30m', value: '1800' },
+              { label: '1hr', value: '3600' },
             ]}
             label={'Evaluation period'}
             size={'small'}
@@ -125,6 +126,9 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
               spacing={1}
             >
               <StyledOperatorAutocomplete
+                isOptionEqualToValue={(option, value) =>
+                  option.label === value.label
+                }
                 onChange={(_, value) => {
                   changeConditionValues(value?.value, 'criteriaCondition');
                 }}
@@ -136,7 +140,9 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                 noMarginTop={true}
                 size={'small'}
               />
-              <Typography variant={'inherit'}>criteria are met for</Typography>
+              <Typography variant={'inherit'}>
+                criteria are met for at least
+              </Typography>
               <StyledTextFieldThreshold
                 onChange={(event) =>
                   changeConditionValues(event.target.value, 'triggerOccurrence')

@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { ServiceTypes, Services } from '@linode/api-v4';
+import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -9,11 +10,15 @@ export type CloudPulseResourceTypes = '' | 'ACLB' | 'linode' | undefined;
 
 interface CloudPulseServiceSelectProps {
   handleServiceChange: (service: string | undefined) => void;
+  name: string;
 }
 
 export const CloudPulseServiceSelect = React.memo(
   (props: CloudPulseServiceSelectProps) => {
     const { data: serviceOptions, isError, isLoading } = useCloudViewServices();
+
+    const formik = useFormikContext();
+    const values = formik.getFieldProps(props.name).value;
 
     const [selectedService, setService] = React.useState<any>('');
 
@@ -30,8 +35,8 @@ export const CloudPulseServiceSelect = React.memo(
     };
 
     React.useEffect(() => {
-      props.handleServiceChange(selectedService.value);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      formik.setFieldValue(`${props.name}`, selectedService.value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedService]);
 
     if (isLoading) {
@@ -43,8 +48,8 @@ export const CloudPulseServiceSelect = React.memo(
         isOptionEqualToValue={(option, value) => {
           return option.value === value.value;
         }}
-        onChange={(_: any, service) => {
-          setService(service);
+        onChange={(_: any, newValue) => {
+          setService(newValue);
         }}
         disableClearable
         fullWidth

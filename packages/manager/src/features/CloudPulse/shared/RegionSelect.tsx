@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
@@ -6,6 +7,7 @@ import { useRegionsQuery } from 'src/queries/regions/regions';
 
 export interface CloudViewRegionSelectProps {
   handleRegionChange: (region: string | undefined) => void;
+  name: string;
 }
 
 export const CloudViewRegionSelect = React.memo(
@@ -13,17 +15,13 @@ export const CloudViewRegionSelect = React.memo(
     const { data: regions } = useRegionsQuery();
     // const { handleRegionChange } = props;
 
-    const [region, setRegion] = React.useState<string>('');
-
-    React.useEffect(() => {
-      props.handleRegionChange(region);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [region]);
+    const formik = useFormikContext();
+    const values = formik.getFieldProps(props.name).value;
 
     return (
       <RegionSelect
         handleSelection={(value) => {
-          setRegion(value);
+          formik.setFieldValue(`${props.name}`, value);
         }}
         currentCapability={undefined}
         fullWidth
@@ -31,7 +29,7 @@ export const CloudViewRegionSelect = React.memo(
         label="Region"
         noMarginTop
         regions={regions ? regions : []}
-        selectedId={region}
+        selectedId={values}
       />
     );
   }

@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -10,6 +11,7 @@ import {
 interface CloudViewResourceSelectProps {
   disabled: boolean;
   handleResourceChange: (resource: any) => void;
+  name: string;
   region: string | undefined;
   resourceType: string | undefined;
 }
@@ -19,6 +21,8 @@ export const CloudViewMultiResourceSelect = (
 ) => {
   const resourceOptions: any = {};
 
+  const formik = useFormikContext();
+  const values = formik.getFieldProps(props.name).value;
   const [selectedResource, setResource] = React.useState<any>([]);
   // const [resourceInputValue, setResourceInputValue] = React.useState<any>('');
   const filterResourcesByRegion = (resourcesList: any[]) => {
@@ -50,7 +54,8 @@ export const CloudViewMultiResourceSelect = (
     props.resourceType === 'ACLB'
   ));
   React.useEffect(() => {
-    props.handleResourceChange(
+    formik.setFieldValue(
+      `${props.name}`,
       selectedResource.map((resource: any) => {
         return resource.id + '';
       })
@@ -65,14 +70,20 @@ export const CloudViewMultiResourceSelect = (
 
   return (
     <Autocomplete
-      onChange={(_: any, resource: any) => {
-        setResource(resource);
+      isOptionEqualToValue={(option, value) => {
+        return option.id === value.id;
+      }}
+      onChange={(_: any, resources: any) => {
+        // console.log(resources.map((resource: any) => resource.id));
+        // formik.setFieldValue(
+        //   `${props.name}`,
+        //   resources.map((resource: any) => resource)
+        // );
+        setResource(resources);
       }}
       autoHighlight
       clearOnBlur
       disabled={props.disabled}
-      // inputValue={resourceInputValue}
-      isOptionEqualToValue={(option, value) => option.label === value.label}
       label="Resources"
       limitTags={2}
       multiple

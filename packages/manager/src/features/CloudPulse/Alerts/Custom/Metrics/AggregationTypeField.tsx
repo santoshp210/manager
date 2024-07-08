@@ -26,9 +26,10 @@ export const AggregationTypeField = React.memo(
       props.handleValueChange(selectedAggregationType.value);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedAggregationType]);
+
     return (
       <Autocomplete
-        onChange={(_, value) => {
+        onChange={(_, value, reason) => {
           setSelectedAggregationType(value);
         }}
         isOptionEqualToValue={(option, value) => option.value === value.value}
