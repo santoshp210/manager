@@ -1,15 +1,10 @@
 import * as React from 'react';
-import { Route, Switch } from 'react-router-dom';
 
 import Alerts from 'src/assets/icons/bell_new.svg';
-import { Drawer } from 'src/components/Drawer';
-import { EntityHeader } from 'src/components/EntityHeader/EntityHeader';
 import { LandingHeader } from 'src/components/LandingHeader';
 import { Paper } from 'src/components/Paper';
 import { Placeholder } from 'src/components/Placeholder/Placeholder';
 
-import { CloudPulseTabs } from '../CloudPulseTabs';
-import { AlertTabs } from './AlertsTabs';
 import { CreateAlertDefinitionDrawer } from './CreateAlertDefinitionDrawer';
 export const AlertsLanding = React.memo(() => {
   const [open, setOpen] = React.useState(false);

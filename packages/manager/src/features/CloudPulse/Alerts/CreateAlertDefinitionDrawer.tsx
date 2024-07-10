@@ -2,18 +2,14 @@
 import { APIError } from '@linode/api-v4';
 import { CreateAlertDefinitionPayload } from '@linode/api-v4/lib/cloudpulse/types';
 import { createAlertDefinitionSchema } from '@linode/validation';
-import { useFormik } from 'formik';
+import { FormikProvider, useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { Box } from 'src/components/Box';
 import { Drawer } from 'src/components/Drawer';
-import { FormControlLabel } from 'src/components/FormControlLabel';
 import { Notice } from 'src/components/Notice/Notice';
-import { Radio } from 'src/components/Radio/Radio';
-import { RadioGroup } from 'src/components/RadioGroup';
 import { TagsInput } from 'src/components/TagsInput/TagsInput';
 import { TextField } from 'src/components/TextField';
 import { useCreateAlertDefinition } from 'src/queries/cloudpulse/alerts';
@@ -39,7 +35,9 @@ export interface CreateAlertDefinitionDrawerProps {
 type Type = 'anomaly' | 'threshold';
 const initialValues: CreateAlertDefinitionPayload = {
   alertName: null,
-  criteria: [],
+  criteria: [
+    { aggregationType: '', filters: [], metric: '', operator: '', value: 0 },
+  ],
   notifications: [],
   region: null,
   resourceId: [],
@@ -60,16 +58,7 @@ export const CreateAlertDefinitionDrawer = React.memo(
     const { mutateAsync } = useCreateAlertDefinition();
     const { enqueueSnackbar } = useSnackbar();
 
-    const {
-      errors,
-      handleBlur,
-      handleSubmit,
-      isSubmitting,
-      resetForm,
-      setFieldValue,
-      status,
-      values,
-    } = useFormik({
+    const formik = useFormik({
       initialValues,
       onSubmit(
         values: CreateAlertDefinitionPayload,
@@ -103,11 +92,23 @@ export const CreateAlertDefinitionDrawer = React.memo(
       validateOnChange: false,
       validationSchema: createAlertDefinitionSchema,
     });
-    // React.useEffect(() => {
-    //   if (open) {
-    //     resetForm();
-    //   }
-    // }, [open, resetForm]);
+
+    const {
+      errors,
+      handleBlur,
+      handleSubmit,
+      isSubmitting,
+      resetForm,
+      setFieldValue,
+      status,
+      values,
+    } = formik;
+
+    React.useEffect(() => {
+      if (open) {
+        resetForm();
+      }
+    }, [open, resetForm]);
     // const [mode, setMode] = React.useState<Type>('threshold');
 
     // React.useEffect(() => {
@@ -115,45 +116,49 @@ export const CreateAlertDefinitionDrawer = React.memo(
     //   // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [mode]);
 
+    //  setFieldValue('type', 'anomaly');
+    // setFieldValue('tags', 'tag');
     const [scrapeInterval, setScrapeInterval] = React.useState<string>('');
 
     const generalError = status?.generalError;
     return (
       <Drawer onClose={onClose} open={open} title={'Create'}>
-        <form onSubmit={handleSubmit}>
-          {generalError && (
-            <Notice
-              data-qa-error
-              key={status}
-              text={status?.generalError ?? 'An unexpected error occurred'}
-              variant="error"
+        <FormikProvider value={formik}>
+          <form onSubmit={handleSubmit}>
+            {generalError && (
+              <Notice
+                data-qa-error
+                key={status}
+                text={status?.generalError ?? 'An unexpected error occurred'}
+                variant="error"
+              />
+            )}
+            <TextField
+              inputProps={{
+                autoFocus: true,
+              }}
+              onChange={(event) => {
+                setFieldValue('alertName', event.target.value);
+                setFieldValue('type', 'anomaly');
+    setFieldValue('tags', 'tag');
+              }}
+              errorText={errors.alertName}
+              label="Name"
+              onBlur={handleBlur}
             />
-          )}
-          <TextField
-            inputProps={{
-              autoFocus: true,
-            }}
-            onChange={(event) => {
-              setFieldValue('alertName', event.target.value);
-              setFieldValue('type', 'anomaly');
-            }}
-            errorText={errors.alertName}
-            label="Name"
-            onBlur={handleBlur}
-          />
-          <TextField
-            inputProps={{
-              autoFocus: true,
-            }}
-            onChange={(event) =>
-              setFieldValue('description', event.target.value)
-            }
-            errorText={errors.description}
-            label="Description"
-            onBlur={handleBlur}
-            optional
-          />
-          <TagsInput
+            <TextField
+              inputProps={{
+                autoFocus: true,
+              }}
+              onChange={(event) =>
+                setFieldValue('description', event.target.value)
+              }
+              errorText={errors.description}
+              label="Description"
+              onBlur={handleBlur}
+              optional
+            />
+            {/* <TagsInput
             onChange={(tags) =>
               setFieldValue(
                 'tags',
@@ -164,42 +169,43 @@ export const CreateAlertDefinitionDrawer = React.memo(
               values?.tags?.map((tag) => ({ label: tag, value: tag })) ?? []
             }
             disabled={false}
-          />
-          <CloudPulseServiceSelect
-            handleServiceChange={(value) => {
-              setFieldValue('serviceType', value);
-            }}
-          />
-          <CloudViewRegionSelect
-            handleRegionChange={(value) => {
-              setFieldValue('region', value);
-            }}
-          />
-          <CloudViewMultiResourceSelect
-            handleResourceChange={(resources) => {
-              setFieldValue('resourceId', resources);
-            }}
-            disabled={false}
-            region={values.region ? values.region : ''}
-            resourceType={values.serviceType ? values.serviceType : ''}
-          />
-          <Autocomplete
-            isOptionEqualToValue={(option, value) =>
-              option.value === value.value
-            }
-            onChange={(_, value) => {
-              setFieldValue('severity', value?.value);
-            }}
-            options={[
-              { label: 'Info - 3', value: '3' },
-              { label: 'Low -2 ', value: '2' },
-              { label: 'Medium - 1', value: '1' },
-              { label: 'Severe - 0', value: '0' },
-            ]}
-            label={'Severity'}
-            textFieldProps={{ labelTooltipText: 'Alert Severity' }}
-          />
-          <MetricCriteriaField
+          /> */}
+            <CloudPulseServiceSelect
+              // handleServiceChange={(value) => {
+              //   setFieldValue('serviceType', value);
+              // }}
+              name={'serviceType'}
+            />
+            <CloudViewRegionSelect
+              handleRegionChange={(value) => {
+                setFieldValue('region', value);
+              }}
+            />
+            <CloudViewMultiResourceSelect
+              handleResourceChange={(resources) => {
+                setFieldValue('resourceId', resources);
+              }}
+              disabled={false}
+              region={values.region ? values.region : ''}
+              resourceType={values.serviceType ? values.serviceType : ''}
+            />
+            <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
+              onChange={(_, value) => {
+                setFieldValue('severity', value?.value);
+              }}
+              options={[
+                { label: 'Info - 3', value: '3' },
+                { label: 'Low -2 ', value: '2' },
+                { label: 'Medium - 1', value: '1' },
+                { label: 'Severe - 0', value: '0' },
+              ]}
+              label={'Severity'}
+              textFieldProps={{ labelTooltipText: 'Alert Severity' }}
+            />
+            {/* <MetricCriteriaField
             handleMetricChange={(value) => {
               const criterias = [value];
               setFieldValue('criteria', criterias);
@@ -208,33 +214,45 @@ export const CreateAlertDefinitionDrawer = React.memo(
               setScrapeInterval(interval);
             }}
             serviceType={values.serviceType ? values.serviceType : ''}
-          />
-          <TriggerConditions
-            handleConditionChange={(value) =>
-              setFieldValue('triggerCondition', value)
-            }
-            pollingInterval={scrapeInterval}
-          />
-          <NotificationChannels
-            handleNotificationChange={(value) => {
-              const notifications = [value];
-              setFieldValue('notifications', notifications);
-            }}
-          />
-          <ActionsPanel
-            primaryButtonProps={{
-              'data-testid': 'submit',
-              label: 'Create',
-              loading: isSubmitting,
-              type: 'submit',
-            }}
-            secondaryButtonProps={{
-              'data-testid': 'cancel',
-              label: 'Cancel',
-              onClick: onClose,
-            }}
-          />
-        </form>
+          /> */}
+            <MetricCriteriaField
+              handleMetricChange={(value) => {
+                const criterias = [value];
+                setFieldValue('criteria', criterias);
+              }}
+              name="criteria"
+              // setScrapeInterval={(interval) => {
+              //   setScrapeInterval(interval);
+              // }}
+              serviceType={values.serviceType ? values.serviceType : ''}
+            />
+            <TriggerConditions
+              handleConditionChange={(value) =>
+                setFieldValue('triggerCondition', value)
+              }
+              // pollingInterval={scrapeInterval}
+            />
+            <NotificationChannels
+              handleNotificationChange={(value) => {
+                const notifications = [value];
+                setFieldValue('notifications', notifications);
+              }}
+            />
+            <ActionsPanel
+              primaryButtonProps={{
+                'data-testid': 'submit',
+                label: 'Create Alert',
+                loading: isSubmitting,
+                type: 'submit',
+              }}
+              secondaryButtonProps={{
+                'data-testid': 'cancel',
+                label: 'Cancel',
+                onClick: onClose,
+              }}
+            />
+          </form>
+        </FormikProvider>
       </Drawer>
     );
   }

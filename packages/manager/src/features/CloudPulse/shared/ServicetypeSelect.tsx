@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { ServiceTypes, Services } from '@linode/api-v4';
+import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -8,13 +9,15 @@ import { useCloudViewServices } from 'src/queries/cloudpulse/services';
 export type CloudPulseResourceTypes = '' | 'ACLB' | 'linode' | undefined;
 
 interface CloudPulseServiceSelectProps {
-  handleServiceChange: (service: string | undefined) => void;
+  handleServiceChange?: (service: string | undefined) => void;
+  name: string;
 }
 
 export const CloudPulseServiceSelect = React.memo(
   (props: CloudPulseServiceSelectProps) => {
     const { data: serviceOptions, isError, isLoading } = useCloudViewServices();
 
+    const formik = useFormikContext();
     const [selectedService, setService] = React.useState<any>('');
 
     const getServicesList = () => {
@@ -30,7 +33,8 @@ export const CloudPulseServiceSelect = React.memo(
     };
 
     React.useEffect(() => {
-      props.handleServiceChange(selectedService.value);
+      // props.handleServiceChange(selectedService.value);
+      formik.setFieldValue(`${props.name}`, selectedService.value)
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedService]);
 

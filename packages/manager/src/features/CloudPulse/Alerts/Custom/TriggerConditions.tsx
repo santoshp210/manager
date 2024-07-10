@@ -1,5 +1,6 @@
 import { TextField, Theme, styled, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
+import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -16,14 +17,15 @@ interface TriggerCondition {
 
 interface TriggerConditionProps {
   handleConditionChange: (value: any) => void;
-  pollingInterval: string;
+  // pollingInterval: string;
 }
 export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
   const [
     selectedCondition,
     setSelectedCondition,
   ] = React.useState<TriggerCondition>();
-
+  
+  // eslint-disable-next-line no-console
   const changeConditionValues = (value: any, field: string) => {
     if (!value) {
       return;
@@ -37,26 +39,26 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCondition]);
 
-  const getIntervalOptions = () => {
-    if (props.pollingInterval.endsWith('s')) {
-      return [
-        {
-          label: props.pollingInterval,
-          value: props.pollingInterval.slice(0, -1),
-        },
-      ];
-    } else if (props.pollingInterval.endsWith('m')) {
-      const val: number = +props.pollingInterval.slice(0, -1);
-      return [
-        {
-          label: props.pollingInterval,
-          value: (val * 60).toString(),
-        },
-      ];
-    } else {
-      return [];
-    }
-  };
+  // const getIntervalOptions = () => {
+  //   if (props.pollingInterval.endsWith('s')) {
+  //     return [
+  //       {
+  //         label: props.pollingInterval,
+  //         value: props.pollingInterval.slice(0, -1),
+  //       },
+  //     ];
+  //   } else if (props.pollingInterval.endsWith('m')) {
+  //     const val: number = +props.pollingInterval.slice(0, -1);
+  //     return [
+  //       {
+  //         label: props.pollingInterval,
+  //         value: (val * 60).toString(),
+  //       },
+  //     ];
+  //   } else {
+  //     return [];
+  //   }
+  // };
 
   const theme = useTheme<Theme>();
   // const options = React.useMemo(() => {
