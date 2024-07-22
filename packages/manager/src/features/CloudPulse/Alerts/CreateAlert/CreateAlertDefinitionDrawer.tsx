@@ -8,14 +8,10 @@ import * as React from 'react';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { Box } from 'src/components/Box';
-import { Drawer } from 'src/components/Drawer';
-import { FormControlLabel } from 'src/components/FormControlLabel';
 import { Notice } from 'src/components/Notice/Notice';
-import { Radio } from 'src/components/Radio/Radio';
-import { RadioGroup } from 'src/components/RadioGroup';
-import { TagsInput } from 'src/components/TagsInput/TagsInput';
+import { Paper } from 'src/components/Paper';
 import { TextField } from 'src/components/TextField';
+import { Typography } from 'src/components/Typography';
 import { useCreateAlertDefinition } from 'src/queries/cloudpulse/alerts';
 import { getErrorMap } from 'src/utilities/errorUtils';
 import {
@@ -23,20 +19,21 @@ import {
   handleGeneralErrors,
 } from 'src/utilities/formikErrorUtils';
 
-import { CloudViewRegionSelect } from '../shared/RegionSelect';
-import { CloudViewMultiResourceSelect } from '../shared/ResourceMultiSelect';
-import { CloudPulseServiceSelect } from '../shared/ServicetypeSelect';
+import { AlertSeverityOptions } from '../constants';
 import { MetricCriteriaField } from './Custom/Metrics/MetricCriteria';
 import { NotificationChannels } from './Custom/NotificationChannels';
 import { TriggerConditions } from './Custom/TriggerConditions';
+import { CloudViewRegionSelect } from './shared/RegionSelect';
+import { CloudViewMultiResourceSelect } from './shared/ResourceMultiSelect';
+import { CloudPulseServiceSelect } from './shared/ServicetypeSelect';
 
 export interface CreateAlertDefinitionDrawerProps {
   createAlertPayload?: CreateAlertDefinitionPayload;
-  onClose: () => void;
-  open: boolean;
+  onClose?: () => void;
+  open?: boolean;
+  onCancel: () => void;
 }
 
-type Type = 'anomaly' | 'threshold';
 const initialValues: CreateAlertDefinitionPayload = {
   alertName: null,
   criteria: [
@@ -62,7 +59,7 @@ const initialValues: CreateAlertDefinitionPayload = {
   type: '',
 };
 
-export const CreateAlertDefinitionDrawer = React.memo(
+const CreateAlertDefinitionDrawer = React.memo(
   (props: CreateAlertDefinitionDrawerProps) => {
     const { onClose, open } = props;
     const { mutateAsync } = useCreateAlertDefinition();
@@ -84,7 +81,6 @@ export const CreateAlertDefinitionDrawer = React.memo(
             enqueueSnackbar(`Alert created`, {
               variant: 'success',
             });
-            onClose();
           })
           .catch((err: APIError[]) => {
             const mapErrorToStatus = () =>
@@ -125,8 +121,10 @@ export const CreateAlertDefinitionDrawer = React.memo(
 
     // console.log(values);
     const generalError = status?.generalError;
+    // console.log(errors);
     return (
-      <Drawer onClose={onClose} open={open} title={'Create'}>
+      // <Drawer onClose={onClose} open={open} title={'Create'}>
+      <Paper>
         <FormikProvider value={formik}>
           <form onSubmit={handleSubmit}>
             {generalError && (
@@ -137,6 +135,7 @@ export const CreateAlertDefinitionDrawer = React.memo(
                 variant="error"
               />
             )}
+            <Typography variant="h2">1. General Information</Typography>
             <TextField
               inputProps={{
                 autoFocus: true,
@@ -158,24 +157,7 @@ export const CreateAlertDefinitionDrawer = React.memo(
               onChange={handleChange}
               optional
             />
-            <TagsInput
-              onChange={(tags) =>
-                setFieldValue(
-                  'tags',
-                  tags.map((tag) => tag.value)
-                )
-              }
-              value={
-                values?.tags?.map((tag) => ({ label: tag, value: tag })) ?? []
-              }
-              disabled={false}
-            />
-            <CloudPulseServiceSelect
-              handleServiceChange={(value) => {
-                setFieldValue('serviceType', value);
-              }}
-              name={'serviceType'}
-            />
+            <CloudPulseServiceSelect name={'serviceType'} />
             <CloudViewRegionSelect
               handleRegionChange={(value) => {
                 setFieldValue('region', value);
@@ -186,8 +168,8 @@ export const CreateAlertDefinitionDrawer = React.memo(
               handleResourceChange={(resources) => {
                 setFieldValue('resourceId', resources);
               }}
-              name={'resourceId'}
               disabled={false}
+              name={'resourceId'}
               region={values.region ? values.region : ''}
               resourceType={values.serviceType ? values.serviceType : ''}
             />
@@ -198,13 +180,15 @@ export const CreateAlertDefinitionDrawer = React.memo(
               onChange={(_, value) => {
                 setFieldValue('severity', value?.value);
               }}
-              options={[
-                { label: 'Info - 3', value: '3' },
-                { label: 'Low -2 ', value: '2' },
-                { label: 'Medium - 1', value: '1' },
-                { label: 'Severe - 0', value: '0' },
-              ]}
+              // options={[
+              //   { label: 'Info - 3', value: '3' },
+              //   { label: 'Low -2 ', value: '2' },
+              //   { label: 'Medium - 1', value: '1' },
+              //   { label: 'Severe - 0', value: '0' },
               label={'Severity'}
+              // ]}
+              options={AlertSeverityOptions}
+              size="medium"
               textFieldProps={{ labelTooltipText: 'Alert Severity' }}
             />
             <MetricCriteriaField
@@ -219,9 +203,10 @@ export const CreateAlertDefinitionDrawer = React.memo(
               serviceType={values.serviceType ? values.serviceType : ''}
             />
             <TriggerConditions
-              handleConditionChange={(value) =>
-                setFieldValue('triggerCondition', value)
-              }
+              // handleConditionChange={(value) =>
+              //   setFieldValue('triggerCondition', value)
+              // }
+              name="triggerCondition"
               // pollingInterval={scrapeInterval}
             />
             <NotificationChannels
@@ -240,12 +225,14 @@ export const CreateAlertDefinitionDrawer = React.memo(
               secondaryButtonProps={{
                 'data-testid': 'cancel',
                 label: 'Cancel',
-                onClick: onClose,
+                onClick: props.onCancel,
               }}
             />
           </form>
         </FormikProvider>
-      </Drawer>
+      </Paper>
     );
   }
 );
+
+export default CreateAlertDefinitionDrawer;

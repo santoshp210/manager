@@ -8,12 +8,14 @@ import { TabLinkList } from 'src/components/Tabs/TabLinkList';
 import { TabPanels } from 'src/components/Tabs/TabPanels';
 import { Tabs } from 'src/components/Tabs/Tabs';
 
-import {
-  AlertDefinition,
-  AlertDefinitionLanding,
-} from './Alerts/AlertDefinitionLanding';
+// import {
+//   AlertDefinition,
+//   AlertDefinitionLanding,
+// } from './Alerts/AlertDefinitionLanding';
 // import { DashboardLanding } from './Dashboard/DashboardLanding';
-import { AlertsLanding } from './Alerts/AlertsLanding';
+// import { AlertsLanding } from './Alerts/AlertLanding/AlertsLanding';
+import Alert from './Alerts';
+import AlertsLanding from './Alerts/AlertLanding/AlertsLanding';
 type Props = RouteComponentProps<{}>;
 
 export const CloudPulseTabs = React.memo((props: Props) => {
@@ -35,7 +37,7 @@ export const CloudPulseTabs = React.memo((props: Props) => {
   const navToURL = (index: number) => {
     props.history.push(tabs[index].routeName);
   };
-  
+
   return (
     <StyledTabs
       index={Math.max(
@@ -49,7 +51,7 @@ export const CloudPulseTabs = React.memo((props: Props) => {
       <React.Suspense fallback={<SuspenseLoader />}>
         <TabPanels>
           <SafeTabPanel index={0}>
-            {/* <AlertDefinitionLanding /> */} <></>
+            <p>Dashboards</p>
           </SafeTabPanel>
           <SafeTabPanel index={1}>
             <AlertsLanding />

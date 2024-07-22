@@ -12,7 +12,7 @@ export const DimensionFilter = ({ dimensionOptions, name }) => {
   const formik = useFormikContext();
 
   return (
-    <Box sx={(theme) => ({ marginTop: theme.spacing(1) })}>
+    <Box sx={(theme) => ({ marginTop: theme.spacing(2) })}>
       <FieldArray name={name}>
         {({ push, remove }) => (
           <>
@@ -25,22 +25,8 @@ export const DimensionFilter = ({ dimensionOptions, name }) => {
                 Dimension Filter{' '}
                 <Typography component="span"> (optional)</Typography>
               </Typography>
-              <Button
-                onClick={() =>
-                  push({
-                    dim_label: '',
-                    operator: '',
-                    value: '',
-                  })
-                }
-                size="small"
-                type="button"
-                variant="outlined"
-              >
-                {' '}
-                +Add Dimension
-              </Button>
             </Box>
+
             <Stack spacing={2}>
               {formik.getFieldProps(name).value.map((_, index) => (
                 <DimensionFilterField
@@ -51,6 +37,20 @@ export const DimensionFilter = ({ dimensionOptions, name }) => {
                 />
               ))}
             </Stack>
+            <Button
+              onClick={() =>
+                push({
+                  dim_label: '',
+                  operator: '',
+                  value: '',
+                })
+              }
+              buttonType="secondary"
+              size="small"
+              sx={(theme) => ({ marginTop: theme.spacing(1) })}
+            >
+              Add Dimension Filter
+            </Button>
           </>
         )}
       </FieldArray>

@@ -1,4 +1,4 @@
-import { Theme, Typography, useTheme } from '@mui/material';
+import { Grid, Theme, Typography, useTheme } from '@mui/material';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -63,7 +63,7 @@ export const NotificationChannels = React.memo(
             padding: '10px',
           }}
         >
-          <Stack>
+          <Grid>
             <Typography>Channel Settings</Typography>
             <Autocomplete
               isOptionEqualToValue={(option, value) =>
@@ -83,20 +83,7 @@ export const NotificationChannels = React.memo(
               inputMode="email"
               label={'To'}
             />
-            {/* <TextField
-              onChange={(event) =>
-                changeActionValues(event.target.value, 'subject')
-              }
-              label={'Subject'}
-            />
-            <TextField
-              onChange={(event) =>
-                changeActionValues(event.target.value, 'message')
-              }
-              label={'Message'}
-              multiline={true}
-            /> */}
-          </Stack>
+          </Grid>
         </Box>
       </>
     );

@@ -46,7 +46,7 @@ export const DimensionFilterField = ({
   };
 
   return (
-    <Stack direction="row" spacing={1}>
+    <Stack direction="row" spacing={2}>
       <Autocomplete
         onChange={(event, newValue, operation) =>
           handleSelectChange('dim_label', newValue, operation)
@@ -59,15 +59,21 @@ export const DimensionFilterField = ({
         isOptionEqualToValue={(option, value) => option.label === value?.label}
         label="Data Field"
         options={dimensionOptions}
+        sx={{ width: '25%' }}
       />
-      <StyledOperatorAutocomplete
+      <Autocomplete
         onChange={(event, newValue, operation) =>
           handleSelectChange('operator', newValue, operation)
         }
+        value={
+          field.value.operator
+            ? { label: field.value.operator, value: field.value.operator }
+            : null
+        }
         isOptionEqualToValue={(option, value) => option.label === value?.label}
         label={'Operator'}
+        sx={{width: '13%'}}
         options={OperatorOptions}
-        value={field.value.operator ? { label: field.value.operator } : null}
       />
       <Autocomplete
         onChange={(event, newValue, operation) =>
@@ -80,6 +86,7 @@ export const DimensionFilterField = ({
         }
         isOptionEqualToValue={(option, value) => option.label === value?.label}
         label="Value"
+        sx={{width: '15%'}}
         options={valueOptions}
       />
       <Box>

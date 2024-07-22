@@ -9,7 +9,6 @@ import { useCloudViewServices } from 'src/queries/cloudpulse/services';
 export type CloudPulseResourceTypes = '' | 'ACLB' | 'linode' | undefined;
 
 interface CloudPulseServiceSelectProps {
-  handleServiceChange: (service: string | undefined) => void;
   name: string;
 }
 

@@ -13,34 +13,35 @@ import { Stack } from 'src/components/Stack';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 
+import { OperatorOptions } from '../../../constants';
 import { DimensionFilter } from './DimensionFilter';
 
-const OperatorOptions = [
-  {
-    label: '>',
-    value: '>',
-  },
-  {
-    label: '<',
-    value: '<',
-  },
-  {
-    label: '>=',
-    value: '>=',
-  },
-  {
-    label: '<=',
-    value: '>=',
-  },
-  {
-    label: '==',
-    value: '==',
-  },
-];
+// const OperatorOptions = [
+//   {
+//     label: '>',
+//     value: '>',
+//   },
+//   {
+//     label: '<',
+//     value: '<',
+//   },
+//   {
+//     label: '>=',
+//     value: '>=',
+//   },
+//   {
+//     label: '<=',
+//     value: '>=',
+//   },
+//   {
+//     label: '==',
+//     value: '==',
+//   },
+// ];
 
 interface MetricProps {
   data: AvailableMetrics;
-//   getScrapeInterval?: (interval: string) => void;
+  //   getScrapeInterval?: (interval: string) => void;
   name: string;
   onMetricDelete: () => void;
 }
@@ -87,7 +88,7 @@ export const Metric = (props: MetricProps) => {
       ? data.find((metric) => metric.metric === values.metric)
       : null;
 
-//   props.getScrapeInterval(selectedMetric.scrape_interval);
+  //   props.getScrapeInterval(selectedMetric.scrape_interval);
   //   console.log(selectedMetric);
   const aggOptions =
     selectedMetric && selectedMetric.available_aggregate_functions
@@ -102,7 +103,6 @@ export const Metric = (props: MetricProps) => {
       : [];
 
   const unit = selectedMetric ? selectedMetric.unit : '%';
-  // eslint-disable-next-line no-console
   return (
     <Box
       sx={(theme) => ({
@@ -119,8 +119,8 @@ export const Metric = (props: MetricProps) => {
             <StyledDeleteIcon onClick={onMetricDelete} />
           </Box>
         </Box>
-
-        <FormControl fullWidth margin="normal" sx={{ marginTop: 0 }}>
+        <Stack direction="row" spacing={2}>
+          {/* <FormControl fullWidth margin="normal" sx={{ marginTop: 0 }}> */}
           <Autocomplete
             onBlur={(event) => {
               formik.handleBlur(event);
@@ -133,21 +133,22 @@ export const Metric = (props: MetricProps) => {
             isOptionEqualToValue={(option, value) => option.label === value}
             label="Data Field"
             options={metricOptions}
+            size="medium"
+            sx={{ width: '25%' }}
             value={selectedMetricField}
           />
 
-          {touchedFields && errors && touchedFields.metric && errors.metric && (
-            <FormHelperText
-              sx={(theme) => ({
-                marginLeft: 0,
-                marginTop: theme.spacing(1),
-              })}
-            >
-              {getIn(formik.errors, `${name}.metric`).toString()}
-            </FormHelperText>
-          )}
-        </FormControl>
-        <Stack direction="row" flexWrap={'wrap'} spacing={1}>
+          {/* {touchedFields && errors && touchedFields.metric && errors.metric && (
+              <FormHelperText
+                sx={(theme) => ({
+                  marginLeft: 0,
+                  marginTop: theme.spacing(1),
+                })}
+              >
+                {getIn(formik.errors, `${name}.metric`).toString()}
+              </FormHelperText>
+            )}
+          </FormControl> */}
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.value === value?.value
@@ -165,25 +166,32 @@ export const Metric = (props: MetricProps) => {
             }
             label="Aggregation type"
             options={aggOptions}
+            sx={{ width: '15%' }}
           />
-          <StyledOperatorAutocomplete
+          <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.label === value?.label
             }
             onChange={(event, newValue, operation) =>
               handleSelectChange('operator', newValue, operation)
             }
+            value={
+              values.operator
+                ? { label: values.operator, value: values.operator }
+                : null
+            }
             label={'Operator'}
             options={OperatorOptions}
-            value={values.operator ? { label: values.operator } : null}
+            sx={{ width: '13%' }}
           />
           <TextField
             error={touchedFields.value && Boolean(errors.value)}
             label="Value"
+            min={0}
             name={`${name}.value`}
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
-            sx={{ maxHeight: '32px', maxWidth: '70px', minWidth: '70px' }}
+            sx={{ maxHeight: '32px', maxWidth: '90px', minWidth: '70px' }}
             type="number"
             value={values.value}
           />
@@ -210,15 +218,15 @@ export const Metric = (props: MetricProps) => {
   );
 };
 
-const StyledOperatorAutocomplete = styled(Autocomplete, {
-  label: 'StyledOperatorAutocomplete',
-})({
-  '& .MuiInputBase-root': {
-    width: '80px',
-  },
-  minWidth: '80px',
-  width: '80px',
-});
+// const StyledOperatorAutocomplete = styled(Autocomplete, {
+//   label: 'StyledOperatorAutocomplete',
+// })({
+//   '& .MuiInputBase-root': {
+//     width: '80px',
+//   },
+//   minWidth: '80px',
+//   width: '80px',
+// });
 
 const StyledDeleteIcon = styled(DeleteOutlineOutlined)(({ theme }) => ({
   '&:active': {
