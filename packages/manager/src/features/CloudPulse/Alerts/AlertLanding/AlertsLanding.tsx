@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, RouteComponentProps, Switch, useHistory, useRouteMatch } from 'react-router-dom';
 
 import { Box } from 'src/components/Box';
 import { Button } from 'src/components/Button/Button';
@@ -11,20 +11,21 @@ import { Tabs } from 'src/components/Tabs/Tabs';
 import { Typography } from 'src/components/Typography';
 
 import CreateAlertDefinitionDrawer from '../CreateAlert/CreateAlertDefinitionDrawer';
+
 const AlertsLanding = React.memo(() => {
   const { path } = useRouteMatch();
   const history = useHistory();
   const tabs = [
     {
-      routeName: 'alerts/activity',
+      routeName: 'activity',
       title: 'Recent activity',
     },
     {
-      routeName: 'alerts/definitions',
+      routeName: 'definitions',
       title: 'Definitions',
     },
     {
-      routeName: 'alerts/notification',
+      routeName: 'notification',
       title: 'Notification Channel',
     },
     // {
@@ -34,6 +35,9 @@ const AlertsLanding = React.memo(() => {
   ];
   const [open, setOpen] = React.useState(false);
   const onCancel = {};
+  const navToURL = (index: number) => {
+    history.push(tabs[index].routeName);
+  };
   return (
     // <>
     //   <Paper>
@@ -57,7 +61,7 @@ const AlertsLanding = React.memo(() => {
     //     </CreateAlertDefinitionDrawer>
     // </>
     <Paper>
-      <Tabs style={{ width: '100%' }}>
+      <Tabs style={{ width: '100%' }} onChange={navToURL}>
         <Box
           sx={{
             aligneItems: 'center',
@@ -69,13 +73,16 @@ const AlertsLanding = React.memo(() => {
         >
           <TabLinkList noLink tabs={tabs} />
           <Button
-            onClick={() =>
+            onClick={(e) =>{
               // <Route
               //   component={CreateAlertDefinitionDrawer}
               //   path={`${path}/alerts/create`}
               // ></Route>
-              // history.push('alerts/create')
-              setOpen(true)
+              console.log(history.location);
+              history.push(`${path}/definitions/create`);
+              // setOpen(true)
+            }
+              
             }
             buttonType="primary"
             sx={{ marginRight: 2 }}
@@ -84,7 +91,7 @@ const AlertsLanding = React.memo(() => {
             Create Alert Definition
           </Button>
         </Box>
-        <TabPanels>
+        {/* <TabPanels>
           {tabs.map((tab, idx) => (
             <SafeTabPanel index={idx} key={`tab-${idx}`}>
               <Paper
@@ -92,23 +99,46 @@ const AlertsLanding = React.memo(() => {
                   padding: 2,
                 }}
               >
-                <Typography variant="body1">Content for {tab.title}</Typography>
+                <Typography variant="body1">{ (!open) && `Content for ${tab.title}` }</Typography>
 
-                {open && (
+                 {open && (
                   <CreateAlertDefinitionDrawer
                     onCancel={() => setOpen(false)}
                   />
-                )}
+                )} 
               </Paper>
             </SafeTabPanel>
           ))}
-          {/* <SafeTabPanel index={0}>
-            <CreateAlertDefinitionDrawer />
-          </SafeTabPanel> */}
-        </TabPanels>
+        </TabPanels> */}
+        <Switch>
+          <Route path={`/monitor/cloudpulse/alerts/activity`} component={recent} />
+          <Route path="/monitor/cloudpulse/alerts/definitions" component={Definition} />
+          <Route path="/monitor/cloudpulse/alerts/notification" component={Notify} />
+          <Redirect from="/monitor/cloudpulse/alerts" to="/monitor/cloudpulse/alerts/activity" />
+        </Switch>
       </Tabs>
     </Paper>
   );
 });
 
 export default AlertsLanding;
+
+
+const recent = () => {
+  return (<>recent</>);
+}
+
+const Definition = () => {
+  return (<>
+  <p>Definition</p>
+   <Switch >
+      <Route component={CreateAlertDefinitionDrawer}  
+      path={`/monitor/cloudpulse/alerts/definitions/create`}
+      ></Route>
+   </Switch>
+  </>);
+}
+
+const Notify = () => {
+  return (<>Notify</>);
+}

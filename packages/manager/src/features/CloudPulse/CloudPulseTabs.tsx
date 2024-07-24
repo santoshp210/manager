@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
 import * as React from 'react';
-import { RouteComponentProps, matchPath } from 'react-router-dom';
+import { Redirect, Route, RouteComponentProps, Switch, matchPath } from 'react-router-dom';
 
 import { SuspenseLoader } from 'src/components/SuspenseLoader';
 import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
@@ -38,6 +38,7 @@ export const CloudPulseTabs = React.memo((props: Props) => {
     props.history.push(tabs[index].routeName);
   };
 
+
   return (
     <StyledTabs
       index={Math.max(
@@ -49,14 +50,19 @@ export const CloudPulseTabs = React.memo((props: Props) => {
       <TabLinkList tabs={tabs} />
 
       <React.Suspense fallback={<SuspenseLoader />}>
-        <TabPanels>
+        {/* <TabPanels>
           <SafeTabPanel index={0}>
             <p>Dashboards</p>
           </SafeTabPanel>
           <SafeTabPanel index={1}>
             <AlertsLanding />
           </SafeTabPanel>
-        </TabPanels>
+        </TabPanels> */}
+        <Switch>
+          <Route path={`${props.match.url}/dashboards`} component={dashboard} />
+          <Route path={`${props.match.url}/alerts`} component={AlertsLanding} />
+          <Redirect from="/monitor/cloudpulse" to="/monitor/cloudpulse/dashboards" />
+        </Switch>
       </React.Suspense>
     </StyledTabs>
   );
@@ -67,3 +73,7 @@ const StyledTabs = styled(Tabs, {
 })(() => ({
   marginTop: 0,
 }));
+
+const dashboard = () => {
+  return (<>Dashboard</>);
+}

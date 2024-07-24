@@ -21,11 +21,14 @@ import {
 
 import { AlertSeverityOptions } from '../constants';
 import { MetricCriteriaField } from './Custom/Metrics/MetricCriteria';
-import { NotificationChannels } from './Custom/NotificationChannels';
 import { TriggerConditions } from './Custom/TriggerConditions';
 import { CloudViewRegionSelect } from './shared/RegionSelect';
 import { CloudViewMultiResourceSelect } from './shared/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './shared/ServicetypeSelect';
+import { Drawer } from 'src/components/Drawer';
+import { AddChannelListing } from './AddChannelListing';
+import { AddNotificationChannel } from './AddNotificationChannel';
+import { Box } from 'src/components/Box';
 
 export interface CreateAlertDefinitionDrawerProps {
   createAlertPayload?: CreateAlertDefinitionPayload;
@@ -62,8 +65,16 @@ const initialValues: CreateAlertDefinitionPayload = {
 const CreateAlertDefinitionDrawer = React.memo(
   (props: CreateAlertDefinitionDrawerProps) => {
     const { onClose, open } = props;
+    const [ openAddNotification, setOpenAddNotification] = React.useState(false);
+    const [notifications, setNotifications] = React.useState<any>([]);
     const { mutateAsync } = useCreateAlertDefinition();
     const { enqueueSnackbar } = useSnackbar();
+
+    const onSubmitAddNotification = (notification: any) => {
+      const newNotifications = [...notifications, notification];
+      setNotifications(newNotifications);
+      setOpenAddNotification(false);
+    }
 
     const formik = useFormik({
       initialValues,
@@ -209,27 +220,44 @@ const CreateAlertDefinitionDrawer = React.memo(
               name="triggerCondition"
               // pollingInterval={scrapeInterval}
             />
-            <NotificationChannels
+            {/* <NotificationChannels
               handleNotificationChange={(value) => {
                 const notifications = [value];
                 setFieldValue('notifications', notifications);
               }}
+            /> */}
+            <AddChannelListing
+              notifications={notifications}
+              onChangleNotifications={(notifications : any[]) => setNotifications(notifications)}
+              onClickAddNotification={() => setOpenAddNotification(true)}
             />
-            <ActionsPanel
-              primaryButtonProps={{
-                'data-testid': 'submit',
-                label: 'Create alert',
-                loading: isSubmitting,
-                type: 'submit',
-              }}
-              secondaryButtonProps={{
-                'data-testid': 'cancel',
-                label: 'Cancel',
-                onClick: props.onCancel,
-              }}
-            />
+            <Box display={'flex'} flexDirection={"row-reverse"}>
+              <ActionsPanel
+                primaryButtonProps={{
+                  'data-testid': 'submit',
+                  label: 'Create alert Definition',
+                  loading: isSubmitting,
+                  type: 'submit',
+                }}
+                secondaryButtonProps={{
+                  'data-testid': 'cancel',
+                  label: 'Cancel',
+                  onClick: props.onCancel,
+                }}
+              />
+            </Box>
           </form>
         </FormikProvider>
+        {
+          openAddNotification && 
+            <Drawer title="Add Notification Channel" onClose={() => setOpenAddNotification(false)} open={openAddNotification}>
+              <AddNotificationChannel
+                  onCancel={() => setOpenAddNotification(false)}
+                  onClickAddNotification={onSubmitAddNotification}
+                  options={[]}
+                />
+            </Drawer>
+        }
       </Paper>
     );
   }
