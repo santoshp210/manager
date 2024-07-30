@@ -1,5 +1,5 @@
 import { number } from 'yup';
-import { array, object, string } from 'yup';
+import { array, object, string, mixed } from 'yup';
 
 const dimensionFilters = object({
   dim_label: string().required('Label is required for the filter'),
@@ -49,4 +49,26 @@ export const createAlertDefinitionSchema = object({
   criteria: metricValidation,
   triggerCondition: array().of(triggerCondition),
   notifications: array().of(notifications),
+});
+
+const channelTypeSchema = (type: string) => {
+  switch (type) {
+    case 'Email':
+      return object().shape({
+        to: array().of(string().email('Invalid email address')).min(1, 'At least one recipient is required'),
+      });
+    default:
+      return mixed();
+  }
+};
+
+export const notificationChannelSchema = object({
+  type: string().required('Type is required'),
+  templateName: string().required('Template name is required'),
+  values: mixed().when('type', (type, schema) => {
+    if (type) {
+      return channelTypeSchema(type);
+    }
+    return schema;
+  }),
 });

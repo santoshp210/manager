@@ -26,6 +26,9 @@ import { TriggerConditions } from './Custom/TriggerConditions';
 import { CloudViewRegionSelect } from './shared/RegionSelect';
 import { CloudViewMultiResourceSelect } from './shared/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './shared/ServicetypeSelect';
+import { Drawer } from 'src/components/Drawer';
+import { AddChannelListing } from './AddChannelListing';
+import { AddNotificationChannel } from './AddNotificationChannel';
 
 export interface CreateAlertDefinitionDrawerProps {
   createAlertPayload?: CreateAlertDefinitionPayload;
@@ -62,8 +65,24 @@ const initialValues: CreateAlertDefinitionPayload = {
 const CreateAlertDefinitionDrawer = React.memo(
   (props: CreateAlertDefinitionDrawerProps) => {
     const { onClose, open } = props;
+    const [ openAddNotification, setOpenAddNotification] = React.useState(false);
+    const [notifications, setNotifications] = React.useState<any>([]);
     const { mutateAsync } = useCreateAlertDefinition();
     const { enqueueSnackbar } = useSnackbar();
+
+    const onSubmitAddNotification = (notification: any) => {
+      const newNotifications = [...notifications, notification];
+      const notificationTemplateList = newNotifications.map(( notification => notification.templateName));
+      formik.setFieldValue("notifications",notificationTemplateList);
+      setNotifications(newNotifications);
+      setOpenAddNotification(false);
+    }
+
+    const onChangleNotifications = (notifications : any[]) => {
+      setNotifications(notifications);
+      const notificationTemplateList = notifications.map(( notification => notification.templateName));
+      formik.setFieldValue("notifications", notificationTemplateList);
+    }
 
     const formik = useFormik({
       initialValues,
@@ -209,11 +228,10 @@ const CreateAlertDefinitionDrawer = React.memo(
               name="triggerCondition"
               // pollingInterval={scrapeInterval}
             />
-            <NotificationChannels
-              handleNotificationChange={(value) => {
-                const notifications = [value];
-                setFieldValue('notifications', notifications);
-              }}
+            <AddChannelListing
+              notifications={notifications}
+              onChangleNotifications={onChangleNotifications}
+              onClickAddNotification={() => setOpenAddNotification(true)}
             />
             <ActionsPanel
               primaryButtonProps={{
@@ -230,6 +248,16 @@ const CreateAlertDefinitionDrawer = React.memo(
             />
           </form>
         </FormikProvider>
+        {
+          openAddNotification && 
+            <Drawer title="Add Notification Channel" onClose={() => setOpenAddNotification(false)} open={openAddNotification}>
+              <AddNotificationChannel
+                  onCancel={() => setOpenAddNotification(false)}
+                  onClickAddNotification={onSubmitAddNotification}
+                  options={[]}
+                />
+            </Drawer>
+        }
       </Paper>
     );
   }
