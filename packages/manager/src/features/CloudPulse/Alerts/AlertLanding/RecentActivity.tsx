@@ -5,16 +5,11 @@ import { Typography } from 'src/components/Typography';
 
 import CreateAlertDefinitionDrawer from '../CreateAlert';
 
-interface ActivityProps {
-  onCancel: () => void;
-  open: boolean;
-}
-export const RecentActivity = React.memo((props: ActivityProps) => {
-  const { onCancel, open } = props;
+export const RecentActivity = React.memo(() => {
+
   return (
     <Paper>
       <Typography variant="body1">Recent Activity</Typography>
-      {open && <CreateAlertDefinitionDrawer onCancel={onCancel} />}
     </Paper>
   );
 });

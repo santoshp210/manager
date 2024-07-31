@@ -29,12 +29,12 @@ import { CloudViewRegionSelect } from './shared/RegionSelect';
 import { CloudViewMultiResourceSelect } from './shared/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './shared/ServicetypeSelect';
 
-export interface CreateAlertDefinitionDrawerProps {
-  createAlertPayload?: CreateAlertDefinitionPayload;
-  onCancel: () => void;
-  onClose?: () => void;
-  open?: boolean;
-}
+// export interface CreateAlertDefinitionDrawerProps {
+//   createAlertPayload?: CreateAlertDefinitionPayload;
+//   onCancel: () => void;
+//   onClose?: () => void;
+//   open?: boolean;
+// }
 
 const SCRAPE_INTERVALS = [];
 const initialValues: CreateAlertDefinitionPayload = {
@@ -63,9 +63,9 @@ const initialValues: CreateAlertDefinitionPayload = {
 };
 
 const CreateAlertDefinitionDrawer = React.memo(
-  (props: CreateAlertDefinitionDrawerProps) => {
+  () => {
     // const history = useHistory();
-    const { onClose, open } = props;
+    // const { onClose, open } = props;
     const { mutateAsync } = useCreateAlertDefinition();
     const { enqueueSnackbar } = useSnackbar();
 
@@ -115,17 +115,21 @@ const CreateAlertDefinitionDrawer = React.memo(
       values,
     } = formik;
 
-    React.useEffect(() => {
-      if (open) {
-        resetForm();
-      }
-    }, [open, resetForm]);
+    // React.useEffect(() => {
+    //   if (open) {
+    //     resetForm();
+    //   }
+    // }, [open, resetForm]);
 
     // const [scrapeInterval, setScrapeInterval] = React.useState<string>('');
 
     // console.log(values);
     const generalError = status?.generalError;
+    const history = useHistory();
     // console.log(errors);
+    const onCancel = () => {
+      history.goBack();
+    }
     return (
       // <Drawer onClose={onClose} open={open} title={'Create'}>
       <Paper>
@@ -232,7 +236,7 @@ const CreateAlertDefinitionDrawer = React.memo(
               secondaryButtonProps={{
                 'data-testid': 'cancel',
                 label: 'Cancel',
-                onClick: props.onCancel,
+                onClick: onCancel ,
               }}
               sx={{ paddingLeft: '850px ', paddingTop: '5px' }}
             />

@@ -32,13 +32,13 @@ export const CloudPulseTabs = React.memo((props: Props) => {
       title: 'Dashboards',
     },
     {
-      routeName: `${props.match.url}/alerts`,
+      routeName: `${props.match.url}/alerts/`,
       title: 'Alerts',
     },
   ];
 
   const matches = (p: string) => {
-    return Boolean(matchPath(p, { path: props.location.pathname }));
+    return Boolean(matchPath(props.location.pathname, { path: p, exact: false }));
   };
 
   const navToURL = (index: number) => {
@@ -47,16 +47,16 @@ export const CloudPulseTabs = React.memo((props: Props) => {
 
   return (
     <StyledTabs
-      // index={Math.max(
-      //   tabs.findIndex((tab) => matches(tab.routeName)),
-      //   0
-      // )}
+      index={Math.max(
+        tabs.findIndex((tab) => matches(tab.routeName)),
+        0
+      )}
       onChange={navToURL}
     >
       <TabLinkList tabs={tabs} />
 
       <React.Suspense fallback={<SuspenseLoader />}>
-        <TabPanels>
+        {/* <TabPanels>
           <SafeTabPanel index={0}>
             <Switch>
               <Route
@@ -73,10 +73,10 @@ export const CloudPulseTabs = React.memo((props: Props) => {
               />
             </Switch>
           </SafeTabPanel>
-        </TabPanels>
+        </TabPanels> */}
         <Switch>
-          {/* <Route component={dashboard} path={`${props.match.url}/dashboards`} />
-          <Route component={AlertsLanding} path={`${props.match.url}/alerts`} /> */}
+          <Route component={dashboard} path={`${props.match.url}/dashboards`} />
+          <Route component={AlertsLanding} path={`${props.match.url}/alerts`} /> 
           <Redirect
             from="/monitor/cloudpulse"
             to="/monitor/cloudpulse/dashboards"
