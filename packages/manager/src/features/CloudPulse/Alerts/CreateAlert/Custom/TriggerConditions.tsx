@@ -64,6 +64,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
         backgroundColor:
           theme.name === 'light' ? theme.color.grey5 : theme.color.grey9,
         borderRadius: 1,
+        marginTop: theme.spacing(2),
         p: 2,
       })}
     >
@@ -107,6 +108,10 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           onChange={(_, value, operation) => {
             handleSelectChange('criteriaCondition', value?.value, operation);
           }}
+          textFieldProps={{
+            labelTooltipText:
+              'AND implies alert is triggered when all the metrics criteria are met',
+          }}
           value={
             values?.criteriaCondition
               ? {
@@ -118,14 +123,17 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           isOptionEqualToValue={(option, value) => option.label === value.label}
           label={'Trigger alert when'}
           options={TriggerOptions}
+          // sx={{ paddingTop: '3px' }}
+          // noMarginTop={true}
         />
-        <Box>
+        <Box sx={{ paddingTop: '20px' }}>
           <Typography
             sx={{
               alignItems: 'center',
               display: 'flex',
               flexDirection: 'column-reverse',
               height: '56px',
+              // paddingTop: '50px',
             }}
             variant="body1"
           >
@@ -133,15 +141,20 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           </Typography>
         </Box>
         <TextField
+          sx={{
+            maxHeight: '32px',
+            maxWidth: '90px',
+            minWidth: '70px',
+            paddingTop: '24px',
+          }}
           label={''}
           min={0}
           name={`${props.name}.triggerOccurrence`}
           noMarginTop={false}
           onChange={formik.handleChange}
-          sx={{ maxHeight: '32px', maxWidth: '90px', minWidth: '70px' }}
           type="number"
         />
-        <Box>
+        <Box sx={{ paddingTop: '20px' }}>
           <Typography
             sx={{
               alignItems: 'center',

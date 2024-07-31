@@ -40,8 +40,8 @@ import { DimensionFilter } from './DimensionFilter';
 // ];
 
 interface MetricProps {
-  data: AvailableMetrics;
-  //   getScrapeInterval?: (interval: string) => void;
+  data: AvailableMetrics[];
+  // getScrapeInterval: (interval: string) => void;
   name: string;
   onMetricDelete: () => void;
 }
@@ -78,7 +78,6 @@ export const Metric = (props: MetricProps) => {
   const errors = getIn(formik.errors, name, {});
   const touchedFields = getIn(formik.touched, name, {});
   const values = formik.getFieldProps(name).value;
-  // eslint-disable-next-line no-console
   const metricOptions = data
     ? data.map((metric) => ({ label: metric.label, value: metric.metric }))
     : [];
@@ -88,7 +87,7 @@ export const Metric = (props: MetricProps) => {
       ? data.find((metric) => metric.metric === values.metric)
       : null;
 
-  //   props.getScrapeInterval(selectedMetric.scrape_interval);
+  // props.getScrapeInterval(selectedMetric ? selectedMetric.scrape_interval : '');
   //   console.log(selectedMetric);
   const aggOptions =
     selectedMetric && selectedMetric.available_aggregate_functions
@@ -128,6 +127,9 @@ export const Metric = (props: MetricProps) => {
             }}
             onChange={(event, newValue, operation) => {
               handleDataFieldChange('metric', newValue, operation);
+              // props.getScrapeInterval(
+              //   selectedMetric ? selectedMetric.scrape_interval : ''
+              // );
               setMetric(newValue.label);
             }}
             isOptionEqualToValue={(option, value) => option.label === value}
@@ -137,18 +139,6 @@ export const Metric = (props: MetricProps) => {
             sx={{ width: '25%' }}
             value={selectedMetricField}
           />
-
-          {/* {touchedFields && errors && touchedFields.metric && errors.metric && (
-              <FormHelperText
-                sx={(theme) => ({
-                  marginLeft: 0,
-                  marginTop: theme.spacing(1),
-                })}
-              >
-                {getIn(formik.errors, `${name}.metric`).toString()}
-              </FormHelperText>
-            )}
-          </FormControl> */}
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.value === value?.value

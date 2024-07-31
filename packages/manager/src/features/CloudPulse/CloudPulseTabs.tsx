@@ -1,6 +1,12 @@
 import { styled } from '@mui/material/styles';
 import * as React from 'react';
-import { RouteComponentProps, matchPath } from 'react-router-dom';
+import {
+  Redirect,
+  Route,
+  RouteComponentProps,
+  Switch,
+  matchPath,
+} from 'react-router-dom';
 
 import { SuspenseLoader } from 'src/components/SuspenseLoader';
 import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
@@ -13,8 +19,9 @@ import { Tabs } from 'src/components/Tabs/Tabs';
 //   AlertDefinitionLanding,
 // } from './Alerts/AlertDefinitionLanding';
 // import { DashboardLanding } from './Dashboard/DashboardLanding';
+import Alerts from '.';
 // import { AlertsLanding } from './Alerts/AlertLanding/AlertsLanding';
-import Alert from './Alerts';
+import Alert from '.';
 import AlertsLanding from './Alerts/AlertLanding/AlertsLanding';
 type Props = RouteComponentProps<{}>;
 
@@ -40,10 +47,10 @@ export const CloudPulseTabs = React.memo((props: Props) => {
 
   return (
     <StyledTabs
-      index={Math.max(
-        tabs.findIndex((tab) => matches(tab.routeName)),
-        0
-      )}
+      // index={Math.max(
+      //   tabs.findIndex((tab) => matches(tab.routeName)),
+      //   0
+      // )}
       onChange={navToURL}
     >
       <TabLinkList tabs={tabs} />
@@ -51,17 +58,38 @@ export const CloudPulseTabs = React.memo((props: Props) => {
       <React.Suspense fallback={<SuspenseLoader />}>
         <TabPanels>
           <SafeTabPanel index={0}>
-            <p>Dashboards</p>
+            <Switch>
+              <Route
+                component={dashboard}
+                path={`${props.match.url}/dashboards`}
+              />
+            </Switch>
           </SafeTabPanel>
           <SafeTabPanel index={1}>
-            <AlertsLanding />
+            <Switch>
+              <Route
+                component={AlertsLanding}
+                path={`${props.match.url}/alerts`}
+              />
+            </Switch>
           </SafeTabPanel>
         </TabPanels>
+        <Switch>
+          {/* <Route component={dashboard} path={`${props.match.url}/dashboards`} />
+          <Route component={AlertsLanding} path={`${props.match.url}/alerts`} /> */}
+          <Redirect
+            from="/monitor/cloudpulse"
+            to="/monitor/cloudpulse/dashboards"
+          />
+        </Switch>
       </React.Suspense>
     </StyledTabs>
   );
 });
 
+const dashboard = () => {
+  return <>Dashboard</>;
+};
 const StyledTabs = styled(Tabs, {
   label: 'StyledTabs',
 })(() => ({

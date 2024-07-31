@@ -7,8 +7,10 @@ import {
   useLinodeResourcesQuery,
   useLoadBalancerResourcesQuery,
 } from 'src/queries/cloudpulse/resources';
+import { getAllDatabases, useDatabaseEnginesQuery } from 'src/queries/databases';
 
 interface CloudViewResourceSelectProps {
+  cluster: boolean;
   disabled: boolean;
   handleResourceChange: (resource: any) => void;
   name: string;
@@ -50,9 +52,14 @@ export const CloudViewMultiResourceSelect = (
   ({ data: resourceOptions['linode'] } = useLinodeResourcesQuery(
     props.resourceType === 'linode'
   ));
-  ({ data: resourceOptions['ACLB'] } = useLoadBalancerResourcesQuery(
-    props.resourceType === 'ACLB'
-  ));
+  // ({ data: resourceOptions['db'] } = useDatabaseEnginesQuery(
+  //   props.resourceType === 'db'
+  // ));
+  // console.log(resourceOptions);
+    // ({ data: resourceOptions['ACLB'] } = useLoadBalancerResourcesQuery(
+    //   props.resourceType === 'ACLB'
+    // ))
+
   React.useEffect(() => {
     formik.setFieldValue(
       `${props.name}`,
@@ -84,7 +91,7 @@ export const CloudViewMultiResourceSelect = (
       autoHighlight
       clearOnBlur
       disabled={props.disabled}
-      label="Resources"
+      label={props.cluster ? 'Cluster' : 'Resources'}
       limitTags={2}
       multiple
       options={getResourceList()}

@@ -5,9 +5,11 @@ import { createAlertDefinitionSchema } from '@linode/validation';
 import { FormikProvider, useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
+import { useHistory } from 'react-router-dom';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
+import { Breadcrumb } from 'src/components/Breadcrumb/Breadcrumb';
 import { Notice } from 'src/components/Notice/Notice';
 import { Paper } from 'src/components/Paper';
 import { TextField } from 'src/components/TextField';
@@ -29,11 +31,12 @@ import { CloudPulseServiceSelect } from './shared/ServicetypeSelect';
 
 export interface CreateAlertDefinitionDrawerProps {
   createAlertPayload?: CreateAlertDefinitionPayload;
+  onCancel: () => void;
   onClose?: () => void;
   open?: boolean;
-  onCancel: () => void;
 }
 
+const SCRAPE_INTERVALS = [];
 const initialValues: CreateAlertDefinitionPayload = {
   alertName: null,
   criteria: [
@@ -61,6 +64,7 @@ const initialValues: CreateAlertDefinitionPayload = {
 
 const CreateAlertDefinitionDrawer = React.memo(
   (props: CreateAlertDefinitionDrawerProps) => {
+    // const history = useHistory();
     const { onClose, open } = props;
     const { mutateAsync } = useCreateAlertDefinition();
     const { enqueueSnackbar } = useSnackbar();
@@ -125,6 +129,7 @@ const CreateAlertDefinitionDrawer = React.memo(
     return (
       // <Drawer onClose={onClose} open={open} title={'Create'}>
       <Paper>
+        <Breadcrumb pathname={location.pathname}></Breadcrumb>
         <FormikProvider value={formik}>
           <form onSubmit={handleSubmit}>
             {generalError && (
@@ -168,6 +173,7 @@ const CreateAlertDefinitionDrawer = React.memo(
               handleResourceChange={(resources) => {
                 setFieldValue('resourceId', resources);
               }}
+              cluster={values.serviceType === 'db' ? true : false}
               disabled={false}
               name={'resourceId'}
               region={values.region ? values.region : ''}
@@ -189,7 +195,7 @@ const CreateAlertDefinitionDrawer = React.memo(
               // ]}
               options={AlertSeverityOptions}
               size="medium"
-              textFieldProps={{ labelTooltipText: 'Alert Severity' }}
+              textFieldProps={{ labelTooltipText: 'Choose the alert severity' }}
             />
             <MetricCriteriaField
               // handleMetricChange={(value) => {
@@ -200,7 +206,7 @@ const CreateAlertDefinitionDrawer = React.memo(
               //   setScrapeInterval(interval);
               // }}
               name="criteria"
-              serviceType={values.serviceType ? values.serviceType : ''}
+              serviceType={'linode'}
             />
             <TriggerConditions
               // handleConditionChange={(value) =>
@@ -209,16 +215,17 @@ const CreateAlertDefinitionDrawer = React.memo(
               name="triggerCondition"
               // pollingInterval={scrapeInterval}
             />
-            <NotificationChannels
+            {/* <NotificationChannels
               handleNotificationChange={(value) => {
                 const notifications = [value];
+                console.log(values);
                 setFieldValue('notifications', notifications);
               }}
-            />
+            /> */}
             <ActionsPanel
               primaryButtonProps={{
                 'data-testid': 'submit',
-                label: 'Create alert',
+                label: 'Submit',
                 loading: isSubmitting,
                 type: 'submit',
               }}
@@ -227,6 +234,7 @@ const CreateAlertDefinitionDrawer = React.memo(
                 label: 'Cancel',
                 onClick: props.onCancel,
               }}
+              sx={{ paddingLeft: '850px ', paddingTop: '5px' }}
             />
           </form>
         </FormikProvider>
