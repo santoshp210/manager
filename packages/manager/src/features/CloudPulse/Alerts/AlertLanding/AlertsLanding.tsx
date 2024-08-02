@@ -1,9 +1,7 @@
-/* eslint-disable no-console */
 import * as React from 'react';
 import {
   Redirect,
   Route,
-  RouteComponentProps,
   Switch,
   useHistory,
   useLocation,
@@ -13,13 +11,9 @@ import {
 import { Box } from 'src/components/Box';
 import { Button } from 'src/components/Button/Button';
 import { Paper } from 'src/components/Paper';
-import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
 import { TabLinkList } from 'src/components/Tabs/TabLinkList';
-import { TabPanels } from 'src/components/Tabs/TabPanels';
 import { Tabs } from 'src/components/Tabs/Tabs';
-import { Typography } from 'src/components/Typography';
 
-import CreateAlertDefinitionDrawer from '../CreateAlert/CreateAlertDefinitionDrawer';
 import { AlertDefinition } from './AlertDefinitions';
 import { RecentActivity } from './RecentActivity';
 
@@ -47,8 +41,7 @@ const AlertsLanding = React.memo(() => {
   const location = useLocation();
   return (
     <Paper>
-      
-      <Tabs onChange={navToURL} style={{ width: '100%' }} >
+      <Tabs onChange={navToURL} style={{ width: '100%' }}>
         <Box
           sx={{
             aligneItems: 'center',
@@ -75,49 +68,10 @@ const AlertsLanding = React.memo(() => {
             <></>
           )}
         </Box>
-        {/* <TabPanels>
-          <SafeTabPanel index={0}>
-            <Switch>
-              <Route
-                component={() => (
-                  <RecentActivity onCancel={() => setOpen(false)} open={open} />
-                )}
-                path={'/monitor/cloudpulse/alerts/activity'}
-              >
-                {' '}
-              </Route>
-            </Switch>
-          </SafeTabPanel>
-          <SafeTabPanel index={1}>
-            <Switch>
-              <Route
-                component={() => (
-                  <AlertDefinition
-                    onCancel={() => setOpen(false)}
-                    open={open}
-                  />
-                )}
-                path={'/monitor/cloudpulse/alerts/definitions'}
-              >
-                {' '}
-              </Route>
-            </Switch>
-          </SafeTabPanel>
-          <SafeTabPanel index={2}>
-            <Switch>
-              <Route
-                component={Notify}
-                path={'/monitor/cloudpulse/alerts/notification'}
-              >
-                {' '}
-              </Route>
-            </Switch>
-          </SafeTabPanel>
-        </TabPanels> */}
         <Switch>
           <Route
-            path={'/monitor/cloudpulse/alerts/activity'}
             component={RecentActivity}
+            path={'/monitor/cloudpulse/alerts/activity'}
           />
           <Route
             component={AlertDefinition}
@@ -127,11 +81,11 @@ const AlertsLanding = React.memo(() => {
             component={Notify}
             path={'/monitor/cloudpulse/alerts/notification'}
           />
-        <Redirect
-          from="/monitor/cloudpulse/alerts"
-          to="/monitor/cloudpulse/alerts/activity"
-        />
-      </Switch>
+          <Redirect
+            from="/monitor/cloudpulse/alerts"
+            to="/monitor/cloudpulse/alerts/activity"
+          />
+        </Switch>
       </Tabs>
     </Paper>
   );

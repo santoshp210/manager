@@ -1,47 +1,20 @@
-/* eslint-disable no-console */
-import { AvailableMetrics, MetricDefinitions } from '@linode/api-v4';
+import { AvailableMetrics } from '@linode/api-v4';
 import { DeleteOutlineOutlined } from '@mui/icons-material';
-import { Grid, IconButton, styled } from '@mui/material';
-import { getIn, useField, useFormikContext } from 'formik';
+import { styled } from '@mui/material';
+import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
-import { FormControl } from 'src/components/FormControl';
-import { FormHelperText } from 'src/components/FormHelperText';
 import { Stack } from 'src/components/Stack';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 
-import { OperatorOptions } from '../../../constants';
+import { MetricOperatorOptions } from '../../../constants';
 import { DimensionFilter } from './DimensionFilter';
-
-// const OperatorOptions = [
-//   {
-//     label: '>',
-//     value: '>',
-//   },
-//   {
-//     label: '<',
-//     value: '<',
-//   },
-//   {
-//     label: '>=',
-//     value: '>=',
-//   },
-//   {
-//     label: '<=',
-//     value: '>=',
-//   },
-//   {
-//     label: '==',
-//     value: '==',
-//   },
-// ];
 
 interface MetricProps {
   data: AvailableMetrics[];
-  // getScrapeInterval: (interval: string) => void;
   name: string;
   onMetricDelete: () => void;
 }
@@ -87,8 +60,6 @@ export const Metric = (props: MetricProps) => {
       ? data.find((metric) => metric.metric === values.metric)
       : null;
 
-  // props.getScrapeInterval(selectedMetric ? selectedMetric.scrape_interval : '');
-  //   console.log(selectedMetric);
   const aggOptions =
     selectedMetric && selectedMetric.available_aggregate_functions
       ? selectedMetric.available_aggregate_functions.map((fn) => ({
@@ -127,11 +98,13 @@ export const Metric = (props: MetricProps) => {
             }}
             onChange={(event, newValue, operation) => {
               handleDataFieldChange('metric', newValue, operation);
-              // props.getScrapeInterval(
-              //   selectedMetric ? selectedMetric.scrape_interval : ''
-              // );
               setMetric(newValue.label);
             }}
+            textFieldProps={{
+              labelTooltipText:
+                'Choose the metric that you intend to alert upon',
+            }}
+            disableClearable={true}
             isOptionEqualToValue={(option, value) => option.label === value}
             label="Data Field"
             options={metricOptions}
@@ -156,7 +129,7 @@ export const Metric = (props: MetricProps) => {
             }
             label="Aggregation type"
             options={aggOptions}
-            sx={{ width: '15%' }}
+            sx={{ paddingTop: '7px', width: '15%' }}
           />
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
@@ -171,21 +144,26 @@ export const Metric = (props: MetricProps) => {
                 : null
             }
             label={'Operator'}
-            options={OperatorOptions}
-            sx={{ width: '13%' }}
+            options={MetricOperatorOptions}
+            sx={{ paddingTop: '7px', width: '13%' }}
           />
           <TextField
+            sx={{
+              maxHeight: '32px',
+              maxWidth: '90px',
+              minWidth: '70px',
+              paddingTop: '7px',
+            }}
             error={touchedFields.value && Boolean(errors.value)}
             label="Value"
             min={0}
             name={`${name}.value`}
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
-            sx={{ maxHeight: '32px', maxWidth: '90px', minWidth: '70px' }}
             type="number"
             value={values.value}
           />
-          <Box paddingTop={'12px'}>
+          <Box paddingTop={'19px'}>
             <Typography
               sx={{
                 alignItems: 'center',

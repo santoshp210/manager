@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useFormikContext } from 'formik';
 import * as React from 'react';
 
@@ -13,8 +12,6 @@ export interface CloudViewRegionSelectProps {
 export const CloudViewRegionSelect = React.memo(
   (props: CloudViewRegionSelectProps) => {
     const { data: regions } = useRegionsQuery();
-    // const { handleRegionChange } = props;
-
     const formik = useFormikContext();
     const values = formik.getFieldProps(props.name).value;
 

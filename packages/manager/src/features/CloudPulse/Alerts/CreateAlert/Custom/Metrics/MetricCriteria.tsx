@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { MetricCriteria } from '@linode/api-v4';
 import Grid from '@mui/material/Unstable_Grid2';
 import { Field, FieldArray, getIn, useFormikContext } from 'formik';
@@ -15,9 +14,11 @@ import { useGetCloudViewMetricDefinitionsByServiceType } from 'src/queries/cloud
 import { AggregationTypeField } from './AggregationTypeField';
 import { Metric } from './Metric';
 import { MetricDataField } from './MetricDataField';
+import { convertSeconds } from '../../../constants';
 
 interface MetricCriteriaProps {
   // handleMetricChange: (metric: any) => void;
+  getMaxInterval: (maxInterval: number) => void;
   name: string;
   serviceType: string;
 }
@@ -113,6 +114,7 @@ const mockData = {
     },
   ],
 };
+
 export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
   const {
     data: metricDefinitions,
@@ -122,9 +124,20 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
   );
 
   const formik = useFormikContext<any>();
+  React.useEffect(() => {
+    const formikMetricValues = new Set(
+      formik.getFieldProps(props.name).value.map((item) => item.metric)
+    );
 
+    const intervalList = mockData.data
+      .filter((item) => formikMetricValues.has(item.metric))
+      .map((item) => item.scrape_interval);
+    const maxInterval = Math.max(...convertSeconds(intervalList));
+    props.getMaxInterval(maxInterval);
+  }, [formik.getFieldProps(props.name)]);
   return (
     <Box sx={{ marginTop: '25px' }}>
+      s
       <FieldArray name={'criteria'}>
         {({ push, remove }) => (
           <>

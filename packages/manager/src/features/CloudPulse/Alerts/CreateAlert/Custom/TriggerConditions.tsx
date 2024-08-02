@@ -8,56 +8,37 @@ import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 
 import {
-  EvaluationIntervalOptions,
   EvaluationPeriodOptions,
+  PollingIntervalOptions,
   TriggerOptions,
 } from '../../constants';
-
-// interface TriggerCondition {
-//   criteriaCondition: string;
-//   evaluationInterval: string;
-//   evaluationPeriod: string;
-//   triggerOccurrence: string;
-// }
-
 interface TriggerConditionProps {
-  // handleConditionChange: (value: any) => void;
+  maxScrapingInterval: number;
   name: string;
-  // scrapingInterval: string;
 }
 export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
-  // const [
-  //   selectedCondition,
-  //   setSelectedCondition,
-  // ] = React.useState<TriggerCondition>();
+  const [selectedEvaluationPeriod, setEvaluationPeriod] = React.useState<any>(
+    ''
+  );
+  const [selectedPollingInterval, setPollingInterval] = React.useState<any>('');
 
   const formik = useFormikContext();
   const errors = getIn(formik.errors, props.name, {});
   const touchedFields = getIn(formik.touched, props.name, {});
   const values = formik.getFieldProps(props.name).value;
 
-  // const changeConditionValues = (value: any, field: string) => {
-  //   if (!value) {
-  //     return;
-  //   }
-  //   const tempCondition = value && { ...selectedCondition, [field]: value };
-  //   setSelectedCondition(tempCondition);
-  // };
-
+  const getPollingIntervalOptions = () => {
+    return PollingIntervalOptions.filter(
+      (item) => parseInt(item.value, 10) >= props.maxScrapingInterval
+    );
+  };
   const handleSelectChange = (field: string, value: any, operation: string) => {
     if (operation === 'selectOption') {
-      // eslint-disable-next-line no-console
-      console.log(value, field, props.name);
       formik.setFieldValue(`${props.name}.${field}`, value);
     } else {
       formik.setFieldValue(`${props.name}.${field}`, '');
     }
   };
-  // React.useEffect(() => {
-  //   props.handleConditionChange(selectedCondition);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [selectedCondition]);
-
   return (
     <Box
       sx={(theme) => ({
@@ -72,37 +53,41 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
       <Stack direction={'row'} spacing={2}>
         <Autocomplete
           onChange={(_, value, operation) => {
-            handleSelectChange('evaluationPeriod', value?.value, operation);
+            if (value !== null) {
+              handleSelectChange('evaluationPeriod', value.value, operation);
+              if (operation === 'selectOption') {
+                setEvaluationPeriod(value.label);
+              }
+            }
           }}
-          value={
-            values?.evaluationPeriod
-              ? {
-                  label: values.evaluationPeriod,
-                  value: values.evaluationPeriod,
-                }
-              : null
-          }
+          textFieldProps={{
+            labelTooltipText:
+              'Choose the data lookback period on which thresholds are applied',
+          }}
+          disableClearable={true}
           isOptionEqualToValue={(option, value) => option.value === value.value}
           label={'Evaluation period'}
           options={EvaluationPeriodOptions}
-          textFieldProps={{ labelTooltipText: 'Evaluation period' }}
+          value={selectedEvaluationPeriod}
         />
         <Autocomplete
           onChange={(_, value, operation) => {
-            handleSelectChange('evaluationInterval', value?.value, operation);
+            if (value !== null) {
+              handleSelectChange('evaluationInterval', value.value, operation);
+              if (operation === 'selectOption') {
+                setPollingInterval(value.label);
+              }
+            }
           }}
-          value={
-            values?.evaluationInterval
-              ? {
-                  label: values.evaluationInterval,
-                  value: values.evaluationInterval,
-                }
-              : null
-          }
+          textFieldProps={{
+            labelTooltipText:
+              'Choose how often you intend to evaulate the alert condition',
+          }}
+          disableClearable={true}
           isOptionEqualToValue={(option, value) => option.value === value.value}
           label={'Polling interval'}
-          options={EvaluationIntervalOptions}
-          textFieldProps={{ labelTooltipText: 'Polling interval' }}
+          options={getPollingIntervalOptions()}
+          value={selectedPollingInterval}
         />
         <Autocomplete
           onChange={(_, value, operation) => {
@@ -123,8 +108,6 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           isOptionEqualToValue={(option, value) => option.label === value.label}
           label={'Trigger alert when'}
           options={TriggerOptions}
-          // sx={{ paddingTop: '3px' }}
-          // noMarginTop={true}
         />
         <Box sx={{ paddingTop: '20px' }}>
           <Typography
@@ -133,7 +116,6 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
               display: 'flex',
               flexDirection: 'column-reverse',
               height: '56px',
-              // paddingTop: '50px',
             }}
             variant="body1"
           >
@@ -171,27 +153,3 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
     </Box>
   );
 });
-
-// const StyledOperatorAutocomplete = styled(Autocomplete, {
-//   label: 'StyledOperatorAutocomplete',
-// })({
-//   '& .MuiInputBase-root': {
-//     width: '100px',
-//   },
-//   minWidth: '100px',
-//   // paddingLeft: '5px',
-//   width: '100px',
-// });
-
-// const StyledTextFieldThreshold = styled(TextField, {
-//   label: 'StyledTextFieldThreshold',
-// })({
-//   // '& .MuiBox-root.css-15ybjgl': {
-//   //   marginLeft: '10px',
-//   // },
-//   minWidth: '60px',
-//   // marginLeft: '10px',
-//   // paddingLeft: '5px',
-//   // paddingLeft: '15px',
-//   width: '60px',
-// });

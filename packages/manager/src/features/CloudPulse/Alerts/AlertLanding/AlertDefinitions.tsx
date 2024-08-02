@@ -1,21 +1,20 @@
 import * as React from 'react';
+import { Route, Switch } from 'react-router-dom';
 
 import { Paper } from 'src/components/Paper';
 import { Typography } from 'src/components/Typography';
 
-import CreateAlertDefinitionDrawer from '../CreateAlert';
-import { Route, Switch } from 'react-router-dom';
+import { CreateAlertDefinition } from '../CreateAlert/CreateAlertDefinition';
 
-// interface ActivityProps {
-//   onCancel: () => void;
-//   open: boolean;
-// }
 export const AlertDefinition = React.memo(() => {
   return (
     <Paper>
       <Typography variant="body1">Alert Definition</Typography>
       <Switch>
-        <Route path="/monitor/cloudpulse/alerts/definitions/create" component={CreateAlertDefinitionDrawer}/>
+        <Route
+          component={CreateAlertDefinition}
+          path="/monitor/cloudpulse/alerts/definitions/create"
+        />
       </Switch>
     </Paper>
   );

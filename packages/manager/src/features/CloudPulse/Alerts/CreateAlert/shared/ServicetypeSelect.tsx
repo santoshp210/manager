@@ -1,9 +1,7 @@
-/* eslint-disable no-console */
 import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-// import { EngineOption } from 'src/features/Databases/DatabaseCreate/EngineOption';
 import { useCloudViewServices } from 'src/queries/cloudpulse/services';
 import { useDatabaseEnginesQuery } from 'src/queries/databases';
 
@@ -14,10 +12,8 @@ interface CloudPulseServiceSelectProps {
 export const CloudPulseServiceSelect = React.memo(
   (props: CloudPulseServiceSelectProps) => {
     const { data: serviceOptions, isError } = useCloudViewServices();
-    // const serviceOptions = undefined;
     const { data: engineOptions } = useDatabaseEnginesQuery(true);
     const formik = useFormikContext();
-    // const values = formik.getFieldProps(props.name).value;
 
     const [selectedService, setService] = React.useState<any>('');
     const [databaseService, setDatabaseService] = React.useState(false);
@@ -53,10 +49,6 @@ export const CloudPulseServiceSelect = React.memo(
       formik.setFieldValue(`${props.name}`, selectedService.value);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedService]);
-
-    // if (isLoading) {
-    //   return <Autocomplete disabled label="Service" options={[]} />;
-    // }
 
     return (
       <>
