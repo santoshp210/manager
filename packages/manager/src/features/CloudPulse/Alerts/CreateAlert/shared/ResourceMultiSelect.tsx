@@ -1,14 +1,11 @@
-/* eslint-disable no-console */
 import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import {
-  useLinodeResourcesQuery,
-  useLoadBalancerResourcesQuery,
-} from 'src/queries/cloudpulse/resources';
+import { useLinodeResourcesQuery } from 'src/queries/cloudpulse/resources';
 
 interface CloudViewResourceSelectProps {
+  cluster: boolean;
   disabled: boolean;
   handleResourceChange: (resource: any) => void;
   name: string;
@@ -22,9 +19,7 @@ export const CloudViewMultiResourceSelect = (
   const resourceOptions: any = {};
 
   const formik = useFormikContext();
-  const values = formik.getFieldProps(props.name).value;
   const [selectedResource, setResource] = React.useState<any>([]);
-  // const [resourceInputValue, setResourceInputValue] = React.useState<any>('');
   const filterResourcesByRegion = (resourcesList: any[]) => {
     return resourcesList?.filter((resource: any) => {
       if (props.region == undefined) {
@@ -41,7 +36,6 @@ export const CloudViewMultiResourceSelect = (
   };
 
   const getResourceList = () => {
-    // console.log(resourceOptions[props.resourceType!]);
     return props.resourceType && resourceOptions[props.resourceType]
       ? filterResourcesByRegion(resourceOptions[props.resourceType]?.data)
       : [];
@@ -50,9 +44,7 @@ export const CloudViewMultiResourceSelect = (
   ({ data: resourceOptions['linode'] } = useLinodeResourcesQuery(
     props.resourceType === 'linode'
   ));
-  ({ data: resourceOptions['ACLB'] } = useLoadBalancerResourcesQuery(
-    props.resourceType === 'ACLB'
-  ));
+
   React.useEffect(() => {
     formik.setFieldValue(
       `${props.name}`,
@@ -74,17 +66,12 @@ export const CloudViewMultiResourceSelect = (
         return option.id === value.id;
       }}
       onChange={(_: any, resources: any) => {
-        // console.log(resources.map((resource: any) => resource.id));
-        // formik.setFieldValue(
-        //   `${props.name}`,
-        //   resources.map((resource: any) => resource)
-        // );
         setResource(resources);
       }}
       autoHighlight
       clearOnBlur
       disabled={props.disabled}
-      label="Resources"
+      label={props.cluster ? 'Cluster' : 'Resources'}
       limitTags={2}
       multiple
       options={getResourceList()}
