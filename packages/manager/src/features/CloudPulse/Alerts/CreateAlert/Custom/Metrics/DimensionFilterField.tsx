@@ -7,16 +7,7 @@ import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
 import { Stack } from 'src/components/Stack';
 
-const OperatorOptions = [
-  {
-    label: 'is',
-    value: 'is',
-  },
-  {
-    label: 'contains',
-    value: 'contains',
-  },
-];
+import { DimensionOperatorOptions } from '../../../constants';
 
 export const DimensionFilterField = ({
   dimensionOptions,
@@ -72,8 +63,8 @@ export const DimensionFilterField = ({
         }
         isOptionEqualToValue={(option, value) => option.label === value?.label}
         label={'Operator'}
-        sx={{width: '13%'}}
-        options={OperatorOptions}
+        options={DimensionOperatorOptions}
+        sx={{ width: '13%' }}
       />
       <Autocomplete
         onChange={(event, newValue, operation) =>
@@ -86,8 +77,8 @@ export const DimensionFilterField = ({
         }
         isOptionEqualToValue={(option, value) => option.label === value?.label}
         label="Value"
-        sx={{width: '15%'}}
         options={valueOptions}
+        sx={{ width: '15%' }}
       />
       <Box>
         <StyledDeleteIcon onClick={onFilterDelete} />

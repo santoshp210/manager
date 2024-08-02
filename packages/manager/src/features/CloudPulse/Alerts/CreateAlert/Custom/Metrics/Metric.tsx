@@ -1,47 +1,20 @@
-/* eslint-disable no-console */
-import { AvailableMetrics, MetricDefinitions } from '@linode/api-v4';
+import { AvailableMetrics } from '@linode/api-v4';
 import { DeleteOutlineOutlined } from '@mui/icons-material';
-import { Grid, IconButton, styled } from '@mui/material';
-import { getIn, useField, useFormikContext } from 'formik';
+import { styled } from '@mui/material';
+import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
-import { FormControl } from 'src/components/FormControl';
-import { FormHelperText } from 'src/components/FormHelperText';
 import { Stack } from 'src/components/Stack';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 
-import { OperatorOptions } from '../../../constants';
+import { MetricOperatorOptions } from '../../../constants';
 import { DimensionFilter } from './DimensionFilter';
 
-// const OperatorOptions = [
-//   {
-//     label: '>',
-//     value: '>',
-//   },
-//   {
-//     label: '<',
-//     value: '<',
-//   },
-//   {
-//     label: '>=',
-//     value: '>=',
-//   },
-//   {
-//     label: '<=',
-//     value: '>=',
-//   },
-//   {
-//     label: '==',
-//     value: '==',
-//   },
-// ];
-
 interface MetricProps {
-  data: AvailableMetrics;
-  //   getScrapeInterval?: (interval: string) => void;
+  data: AvailableMetrics[];
   name: string;
   onMetricDelete: () => void;
 }
@@ -78,7 +51,6 @@ export const Metric = (props: MetricProps) => {
   const errors = getIn(formik.errors, name, {});
   const touchedFields = getIn(formik.touched, name, {});
   const values = formik.getFieldProps(name).value;
-  // eslint-disable-next-line no-console
   const metricOptions = data
     ? data.map((metric) => ({ label: metric.label, value: metric.metric }))
     : [];
@@ -88,8 +60,6 @@ export const Metric = (props: MetricProps) => {
       ? data.find((metric) => metric.metric === values.metric)
       : null;
 
-  //   props.getScrapeInterval(selectedMetric.scrape_interval);
-  //   console.log(selectedMetric);
   const aggOptions =
     selectedMetric && selectedMetric.available_aggregate_functions
       ? selectedMetric.available_aggregate_functions.map((fn) => ({
@@ -130,6 +100,11 @@ export const Metric = (props: MetricProps) => {
               handleDataFieldChange('metric', newValue, operation);
               setMetric(newValue.label);
             }}
+            textFieldProps={{
+              labelTooltipText:
+                'Choose the metric that you intend to alert upon',
+            }}
+            disableClearable={true}
             isOptionEqualToValue={(option, value) => option.label === value}
             label="Data Field"
             options={metricOptions}
@@ -137,18 +112,6 @@ export const Metric = (props: MetricProps) => {
             sx={{ width: '25%' }}
             value={selectedMetricField}
           />
-
-          {/* {touchedFields && errors && touchedFields.metric && errors.metric && (
-              <FormHelperText
-                sx={(theme) => ({
-                  marginLeft: 0,
-                  marginTop: theme.spacing(1),
-                })}
-              >
-                {getIn(formik.errors, `${name}.metric`).toString()}
-              </FormHelperText>
-            )}
-          </FormControl> */}
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
               option.value === value?.value
@@ -166,7 +129,7 @@ export const Metric = (props: MetricProps) => {
             }
             label="Aggregation type"
             options={aggOptions}
-            sx={{ width: '15%' }}
+            sx={{ paddingTop: '7px', width: '15%' }}
           />
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
@@ -181,21 +144,26 @@ export const Metric = (props: MetricProps) => {
                 : null
             }
             label={'Operator'}
-            options={OperatorOptions}
-            sx={{ width: '13%' }}
+            options={MetricOperatorOptions}
+            sx={{ paddingTop: '7px', width: '13%' }}
           />
           <TextField
+            sx={{
+              maxHeight: '32px',
+              maxWidth: '90px',
+              minWidth: '70px',
+              paddingTop: '7px',
+            }}
             error={touchedFields.value && Boolean(errors.value)}
             label="Value"
             min={0}
             name={`${name}.value`}
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
-            sx={{ maxHeight: '32px', maxWidth: '90px', minWidth: '70px' }}
             type="number"
             value={values.value}
           />
-          <Box paddingTop={'12px'}>
+          <Box paddingTop={'19px'}>
             <Typography
               sx={{
                 alignItems: 'center',

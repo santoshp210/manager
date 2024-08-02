@@ -1,4 +1,4 @@
-export const OperatorOptions = [
+export const DimensionOperatorOptions = [
   {
     label: 'is',
     value: 'is',
@@ -9,6 +9,28 @@ export const OperatorOptions = [
   },
 ];
 
+export const MetricOperatorOptions = [
+  {
+    label: '>',
+    value: '>',
+  },
+  {
+    label: '<',
+    value: '<',
+  },
+  {
+    label: '>=',
+    value: '>=',
+  },
+  {
+    label: '<=',
+    value: '<=',
+  },
+  {
+    label: '==',
+    value: '==',
+  },
+];
 export const EvaluationPeriodOptions = [
   { label: '1m', value: '60' },
   { label: '5m', value: '300' },
@@ -17,7 +39,7 @@ export const EvaluationPeriodOptions = [
   { label: '1hr', value: '3600' },
 ];
 
-export const EvaluationIntervalOptions = [
+export const PollingIntervalOptions = [
   {
     label: '1m',
     value: '60',
@@ -32,14 +54,28 @@ export const EvaluationIntervalOptions = [
   },
 ];
 
-export const TriggerOptions = [
-  { label: 'All', value: 'All' },
-  { label: 'Any', value: 'Any' },
-];
+export const TriggerOptions = [{ label: 'AND', value: 'AND' }];
 
 export const AlertSeverityOptions = [
   { label: 'Info - 3', value: '3' },
   { label: 'Low -2 ', value: '2' },
   { label: 'Medium - 1', value: '1' },
   { label: 'Severe - 0', value: '0' },
-]
+];
+
+export const convertSeconds = (secondsList: string[]) => {
+  return secondsList.map((second) => {
+    const unit = second.slice(-1)[0];
+    const number = parseInt(second.slice(0, -1), 10);
+    switch (unit) {
+      case 's':
+        return number;
+      case 'm':
+        return number * 60;
+      case 'h':
+        return number * 3600;
+      default:
+        return number * 0;
+    }
+  });
+};

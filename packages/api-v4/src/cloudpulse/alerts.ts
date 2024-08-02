@@ -1,4 +1,5 @@
 // import { API_ROOT } from 'src/constants';
+import { createAlertDefinitionSchema } from '@linode/validation';
 import Request, { setURL, setMethod, setData, setHeaders } from '../request';
 import { Alert, CreateAlertDefinitionPayload } from './types';
 // import { createAlertDefinitionSchema } from '@linode/validation';
@@ -12,5 +13,5 @@ export const createAlertDefinition = (data: CreateAlertDefinitionPayload) =>
     setHeaders({
       Authorization: 'Bearer vagrant',
     }),
-    setData(data)
+    setData(data, createAlertDefinitionSchema)
   );
