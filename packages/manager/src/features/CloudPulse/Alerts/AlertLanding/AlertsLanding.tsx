@@ -3,6 +3,7 @@ import {
   Redirect,
   Route,
   Switch,
+  matchPath,
   useHistory,
   useLocation,
   useRouteMatch,
@@ -15,6 +16,7 @@ import { TabLinkList } from 'src/components/Tabs/TabLinkList';
 import { Tabs } from 'src/components/Tabs/Tabs';
 
 import { AlertDefinition } from './AlertDefinitions';
+import { Notify } from './Notification';
 import { RecentActivity } from './RecentActivity';
 
 const AlertsLanding = React.memo(() => {
@@ -22,26 +24,35 @@ const AlertsLanding = React.memo(() => {
   const history = useHistory();
   const tabs = [
     {
-      routeName: 'activity',
+      routeName: `${path}/activity`,
       title: 'Recent activity',
     },
     {
-      routeName: 'definitions',
+      routeName: `${path}/definitions`,
       title: 'Definitions',
     },
     {
-      routeName: 'notification',
+      routeName: `${path}/notification`,
       title: 'Notification Channel',
     },
   ];
-  const [open, setOpen] = React.useState(false);
+  const location = useLocation();
   const navToURL = (index: number) => {
     history.push(tabs[index].routeName);
   };
-  const location = useLocation();
+  const matches = (p: string) => {
+    return Boolean(matchPath(location.pathname, { exact: false, path: p }));
+  };
   return (
     <Paper>
-      <Tabs onChange={navToURL} style={{ width: '100%' }}>
+      <Tabs
+        index={Math.max(
+          tabs.findIndex((tab) => matches(tab.routeName)),
+          0
+        )}
+        onChange={navToURL}
+        style={{ width: '100%' }}
+      >
         <Box
           sx={{
             aligneItems: 'center',
@@ -52,10 +63,10 @@ const AlertsLanding = React.memo(() => {
           }}
         >
           <TabLinkList tabs={tabs} />
-          {location.pathname.endsWith('definitions') ? (
+          {/* <Box> */}
+          {location.pathname === `${path}/definitions` ? (
             <Button
               onClick={(event) => {
-                setOpen(true);
                 history.push(`${path}/definitions/create`);
               }}
               buttonType="primary"
@@ -64,9 +75,7 @@ const AlertsLanding = React.memo(() => {
             >
               Create
             </Button>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </Box>
         <Switch>
           <Route
@@ -74,7 +83,7 @@ const AlertsLanding = React.memo(() => {
             path={'/monitor/cloudpulse/alerts/activity'}
           />
           <Route
-            component={AlertDefinition}
+            component={() => <AlertDefinition />}
             path={'/monitor/cloudpulse/alerts/definitions'}
           />
           <Route
@@ -82,6 +91,7 @@ const AlertsLanding = React.memo(() => {
             path={'/monitor/cloudpulse/alerts/notification'}
           />
           <Redirect
+            // exact
             from="/monitor/cloudpulse/alerts"
             to="/monitor/cloudpulse/alerts/activity"
           />
@@ -90,9 +100,5 @@ const AlertsLanding = React.memo(() => {
     </Paper>
   );
 });
-
-const Notify = () => {
-  return <>Notify</>;
-};
 
 export default AlertsLanding;

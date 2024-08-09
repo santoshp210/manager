@@ -1,4 +1,4 @@
-import { getIn, useFormikContext } from 'formik';
+import { ErrorMessage, getIn, useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -32,6 +32,12 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
       (item) => parseInt(item.value, 10) >= props.maxScrapingInterval
     );
   };
+
+  const getEvaluationPeriodOptions = () => {
+    return EvaluationPeriodOptions.filter(
+      (item) => parseInt(item.value, 10) >= props.maxScrapingInterval
+    );
+  };
   const handleSelectChange = (field: string, value: any, operation: string) => {
     if (operation === 'selectOption') {
       formik.setFieldValue(`${props.name}.${field}`, value);
@@ -39,6 +45,9 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
       formik.setFieldValue(`${props.name}.${field}`, '');
     }
   };
+  const CustomErrorMessage = (props: any) => (
+    <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
+  );
   return (
     <Box
       sx={(theme) => ({
@@ -51,64 +60,87 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
     >
       <Typography variant="h3"> Trigger Conditions</Typography>
       <Stack direction={'row'} spacing={2}>
-        <Autocomplete
-          onChange={(_, value, operation) => {
-            if (value !== null) {
-              handleSelectChange('evaluationPeriod', value.value, operation);
-              if (operation === 'selectOption') {
-                setEvaluationPeriod(value.label);
-              }
-            }
-          }}
-          textFieldProps={{
-            labelTooltipText:
-              'Choose the data lookback period on which thresholds are applied',
-          }}
-          disableClearable={true}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-          label={'Evaluation period'}
-          options={EvaluationPeriodOptions}
-          value={selectedEvaluationPeriod}
-        />
-        <Autocomplete
-          onChange={(_, value, operation) => {
-            if (value !== null) {
-              handleSelectChange('evaluationInterval', value.value, operation);
-              if (operation === 'selectOption') {
-                setPollingInterval(value.label);
-              }
-            }
-          }}
-          textFieldProps={{
-            labelTooltipText:
-              'Choose how often you intend to evaulate the alert condition',
-          }}
-          disableClearable={true}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-          label={'Polling interval'}
-          options={getPollingIntervalOptions()}
-          value={selectedPollingInterval}
-        />
-        <Autocomplete
-          onChange={(_, value, operation) => {
-            handleSelectChange('criteriaCondition', value?.value, operation);
-          }}
-          textFieldProps={{
-            labelTooltipText:
-              'AND implies alert is triggered when all the metrics criteria are met',
-          }}
-          value={
-            values?.criteriaCondition
-              ? {
-                  label: values.criteriaCondition,
-                  value: values.criteriaCondition,
+        <Box>
+          <Autocomplete
+            onBlur={(event) => {
+              formik.handleBlur(event);
+              formik.setFieldTouched(`${props.name}.evaluationPeriod`, true);
+            }}
+            onChange={(_, value, operation) => {
+              if (value !== null) {
+                handleSelectChange('evaluationPeriod', value.value, operation);
+                if (operation === 'selectOption') {
+                  setEvaluationPeriod(value.label);
                 }
-              : null
-          }
-          isOptionEqualToValue={(option, value) => option.label === value.label}
-          label={'Trigger alert when'}
-          options={TriggerOptions}
-        />
+              }
+            }}
+            textFieldProps={{
+              labelTooltipText:
+                'Choose the data lookback period on which thresholds are applied',
+            }}
+            data-testid="Evaluation-period"
+            disableClearable={true}
+            isOptionEqualToValue={(option, value) => option.label === value}
+            label={'Evaluation period'}
+            options={getEvaluationPeriodOptions()}
+            value={selectedEvaluationPeriod ? selectedEvaluationPeriod : null}
+          />
+        </Box>
+        <Box>
+          <Autocomplete
+            onBlur={(event) => {
+              formik.handleBlur(event);
+              formik.setFieldTouched(`${props.name}.pollingInterval`, true);
+            }}
+            onChange={(_, value, operation) => {
+              if (value !== null) {
+                handleSelectChange('pollingInterval', value.value, operation);
+                if (operation === 'selectOption') {
+                  setPollingInterval(value.label);
+                }
+              }
+            }}
+            textFieldProps={{
+              labelTooltipText:
+                'Choose how often you intend to evaulate the alert condition',
+            }}
+            data-testid="Polling-interval"
+            disableClearable={true}
+            isOptionEqualToValue={(option, value) => option.label === value}
+            label={'Polling interval'}
+            options={getPollingIntervalOptions()}
+            value={selectedPollingInterval ? selectedPollingInterval : null}
+          />
+        </Box>
+        <Box>
+          <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.label === value.label
+            }
+            onBlur={(event) => {
+              formik.handleBlur(event);
+              formik.setFieldTouched(`${props.name}.criteriaCondition`, true);
+            }}
+            onChange={(_, value, operation) => {
+              handleSelectChange('criteriaCondition', value?.value, operation);
+            }}
+            textFieldProps={{
+              labelTooltipText:
+                'AND implies alert is triggered when all the metrics criteria are met',
+            }}
+            value={
+              values?.criteriaCondition
+                ? {
+                    label: values.criteriaCondition,
+                    value: values.criteriaCondition,
+                  }
+                : null
+            }
+            data-testid="Trigger-alert-condition"
+            label={'Trigger alert when'}
+            options={TriggerOptions}
+          />
+        </Box>
         <Box sx={{ paddingTop: '20px' }}>
           <Typography
             sx={{
@@ -122,20 +154,27 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
             criteria are met for at least
           </Typography>
         </Box>
-        <TextField
-          sx={{
-            maxHeight: '32px',
-            maxWidth: '90px',
-            minWidth: '70px',
-            paddingTop: '24px',
-          }}
-          label={''}
-          min={0}
-          name={`${props.name}.triggerOccurrence`}
-          noMarginTop={false}
-          onChange={formik.handleChange}
-          type="number"
-        />
+        <Box>
+          <TextField
+            onWheel={(event) =>
+              event.target instanceof HTMLElement && event.target.blur()
+            }
+            sx={{
+              maxHeight: '32px',
+              maxWidth: '90px',
+              minWidth: '70px',
+              paddingTop: '24px',
+            }}
+            label={''}
+            min={0}
+            name={`${props.name}.triggerOccurrence`}
+            noMarginTop={false}
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            type="number"
+            value={values.triggerOccurrence}
+          />
+        </Box>
         <Box sx={{ paddingTop: '20px' }}>
           <Typography
             sx={{
@@ -150,6 +189,40 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           </Typography>
         </Box>
       </Stack>
+      <Box sx={(theme) => ({ marginTop: theme.spacing(2) })}>
+        {touchedFields &&
+        touchedFields.evaluationPeriod &&
+        errors.evaluationPeriod ? (
+          <ErrorMessage
+            component={CustomErrorMessage}
+            name={`${props.name}.evaluationPeriod`}
+          />
+        ) : null}
+        {touchedFields &&
+        touchedFields.pollingInterval &&
+        errors.pollingInterval ? (
+          <ErrorMessage
+            component={CustomErrorMessage}
+            name={`${props.name}.pollingInterval`}
+          />
+        ) : null}
+        {touchedFields &&
+        touchedFields.criteriaCondition &&
+        errors.criteriaCondition ? (
+          <ErrorMessage
+            component={CustomErrorMessage}
+            name={`${props.name}.criteriaCondition`}
+          />
+        ) : null}
+        {touchedFields &&
+        touchedFields.triggerOccurrence &&
+        errors.triggerOccurrence ? (
+          <ErrorMessage
+            component={CustomErrorMessage}
+            name={`${props.name}.triggerOccurrence`}
+          />
+        ) : null}
+      </Box>
     </Box>
   );
 });

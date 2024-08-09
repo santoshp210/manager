@@ -1,143 +1,52 @@
-import { MetricCriteria } from '@linode/api-v4';
-import Grid from '@mui/material/Unstable_Grid2';
-import { Field, FieldArray, getIn, useFormikContext } from 'formik';
+import { FieldArray, useFormikContext } from 'formik';
 import * as React from 'react';
 
-import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
 import { Button } from 'src/components/Button/Button';
 import { Stack } from 'src/components/Stack';
-import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 import { useGetCloudViewMetricDefinitionsByServiceType } from 'src/queries/cloudpulse/services';
 
-import { AggregationTypeField } from './AggregationTypeField';
-import { Metric } from './Metric';
-import { MetricDataField } from './MetricDataField';
 import { convertSeconds } from '../../../constants';
+import { Metric } from './Metric';
 
 interface MetricCriteriaProps {
-  // handleMetricChange: (metric: any) => void;
   getMaxInterval: (maxInterval: number) => void;
   name: string;
   serviceType: string;
 }
 
-const mockData = {
-  data: [
-    {
-      available_aggregate_functions: ['min', 'max', 'avg'],
-      dimensions: [
-        { dim_label: 'cpu', label: 'CPU name', values: null },
-        {
-          dim_label: 'state',
-          label: 'State of CPU',
-          values: [
-            'user',
-            'system',
-            'idle',
-            'interrupt',
-            'nice',
-            'softirq',
-            'steal',
-            'wait',
-          ],
-        },
-        { dim_label: 'LINODE_ID', label: 'Linode ID', values: null },
-      ],
-      label: 'CPU utilization',
-      metric: 'system_cpu_utilization_percent',
-      metric_type: 'gauge',
-      scrape_interval: '2m',
-      unit: 'percent',
-    },
-    {
-      available_aggregate_functions: ['min', 'max', 'avg', 'sum'],
-      dimensions: [
-        {
-          dim_label: 'state',
-          label: 'State of memory',
-          values: [
-            'used',
-            'free',
-            'buffered',
-            'cached',
-            'slab_reclaimable',
-            'slab_unreclaimable',
-          ],
-        },
-        { dim_label: 'LINODE_ID', label: 'Linode ID', values: null },
-      ],
-      label: 'Memory Usage',
-      metric: 'system_memory_usage_by_resource',
-      metric_type: 'gauge',
-      scrape_interval: '30s',
-      unit: 'byte',
-    },
-    {
-      available_aggregate_functions: ['min', 'max', 'avg', 'sum'],
-      dimensions: [
-        { dim_label: 'device', label: 'Device name', values: ['lo', 'eth0'] },
-        {
-          dim_label: 'direction',
-          label: 'Direction of network transfer',
-          values: ['transmit', 'receive'],
-        },
-        { dim_label: 'LINODE_ID', label: 'Linode ID', values: null },
-      ],
-      label: 'Network Traffic',
-      metric: 'system_network_io_by_resource',
-      metric_type: 'counter',
-      scrape_interval: '30s',
-      unit: 'byte',
-    },
-    {
-      available_aggregate_functions: ['min', 'max', 'avg', 'sum'],
-      dimensions: [
-        {
-          dim_label: 'device',
-          label: 'Device name',
-          values: ['loop0', 'sda', 'sdb'],
-        },
-        {
-          dim_label: 'direction',
-          label: 'Operation direction',
-          values: ['read', 'write'],
-        },
-        { dim_label: 'LINODE_ID', label: 'Linode ID', values: null },
-      ],
-      label: 'Disk I/O',
-      metric: 'system_disk_OPS_total',
-      metric_type: 'counter',
-      scrape_interval: '30s',
-      unit: 'ops_per_second',
-    },
-  ],
-};
-
 export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
   const {
     data: metricDefinitions,
+    isError: isMetricDefinitionError,
+    isLoading: isMetricDefinitionLoading,
   } = useGetCloudViewMetricDefinitionsByServiceType(
     props.serviceType,
     props.serviceType !== ''
   );
 
   const formik = useFormikContext<any>();
+
   React.useEffect(() => {
     const formikMetricValues = new Set(
-      formik.getFieldProps(props.name).value.map((item) => item.metric)
+      formik.getFieldProps(props.name).value.map((item: any) => item.metric)
     );
 
-    const intervalList = mockData.data
-      .filter((item) => formikMetricValues.has(item.metric))
-      .map((item) => item.scrape_interval);
-    const maxInterval = Math.max(...convertSeconds(intervalList));
+    const intervalList =
+      metricDefinitions &&
+      metricDefinitions.data
+        .filter((item) => formikMetricValues.has(item.metric))
+        .map((item) => item.scrape_interval);
+    const maxInterval = Math.max(
+      ...convertSeconds(intervalList ? intervalList : [])
+    );
     props.getMaxInterval(maxInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formik.getFieldProps(props.name)]);
+
   return (
     <Box sx={{ marginTop: '25px' }}>
-      s
       <FieldArray name={'criteria'}>
         {({ push, remove }) => (
           <>
@@ -153,14 +62,14 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
                 .getFieldProps(`criteria`)
                 .value.map((_: any, index: any) => (
                   <Metric
-                    data={
-                      metricDefinitions ? metricDefinitions.data : mockData.data
-                    }
-                    // getScrapeInterval={}
+                    apiError={[
+                      isMetricDefinitionError,
+                      isMetricDefinitionLoading,
+                    ]}
+                    data={metricDefinitions ? metricDefinitions.data : []}
                     key={index}
                     name={`criteria[${index}]`}
                     onMetricDelete={() => remove(index)}
-                    // getScrapeInterval={getIntervals}
                   />
                 ))}
             </Stack>
@@ -171,7 +80,7 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
                   filters: [],
                   metric: '',
                   operator: '',
-                  value: 0,
+                  value: '',
                 })
               }
               // variant="outlined"

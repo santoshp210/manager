@@ -1,3 +1,4 @@
+import { Dimension } from '@linode/api-v4';
 import { Box } from '@mui/material';
 import { FieldArray, useFormikContext } from 'formik';
 import React from 'react';
@@ -8,7 +9,12 @@ import { Typography } from 'src/components/Typography';
 
 import { DimensionFilterField } from './DimensionFilterField';
 
-export const DimensionFilter = ({ dimensionOptions, name }) => {
+interface DimensionFilterProps {
+  dimensionOptions: Dimension[];
+  name: string;
+}
+export const DimensionFilter = (props: DimensionFilterProps ) => {
+  const { dimensionOptions, name } = props;
   const formik = useFormikContext();
 
   return (
@@ -28,7 +34,7 @@ export const DimensionFilter = ({ dimensionOptions, name }) => {
             </Box>
 
             <Stack spacing={2}>
-              {formik.getFieldProps(name).value.map((_, index) => (
+              {formik.getFieldProps(name).value.map((_: any, index: number) => (
                 <DimensionFilterField
                   dimensionOptions={dimensionOptions}
                   key={index}

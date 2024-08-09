@@ -3,8 +3,8 @@ import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useLinodeResourcesQuery } from 'src/queries/cloudpulse/resources';
-
-interface CloudViewResourceSelectProps {
+import { useAllDatabasesQuery } from 'src/queries/databases';
+interface CloudPulseResourceSelectProps {
   cluster: boolean;
   disabled: boolean;
   handleResourceChange: (resource: any) => void;
@@ -13,8 +13,8 @@ interface CloudViewResourceSelectProps {
   resourceType: string | undefined;
 }
 
-export const CloudViewMultiResourceSelect = (
-  props: CloudViewResourceSelectProps
+export const CloudPulseMultiResourceSelect = (
+  props: CloudPulseResourceSelectProps
 ) => {
   const resourceOptions: any = {};
 
@@ -45,11 +45,14 @@ export const CloudViewMultiResourceSelect = (
     props.resourceType === 'linode'
   ));
 
+  ({ data: resourceOptions['dbaas'] } = useAllDatabasesQuery(
+    props.resourceType === 'dbass'
+  ));
   React.useEffect(() => {
     formik.setFieldValue(
       `${props.name}`,
       selectedResource.map((resource: any) => {
-        return resource.id + '';
+        return resource.id.toString() + '';
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,6 +68,10 @@ export const CloudViewMultiResourceSelect = (
       isOptionEqualToValue={(option, value) => {
         return option.id === value.id;
       }}
+      onBlur={(event) => {
+        formik.handleBlur(event);
+        formik.setFieldTouched(`${props.name}`, true);
+      }}
       onChange={(_: any, resources: any) => {
         setResource(resources);
       }}
@@ -76,7 +83,7 @@ export const CloudViewMultiResourceSelect = (
       multiple
       options={getResourceList()}
       placeholder="Select"
-      value={selectedResource}
+      value={selectedResource ? selectedResource : null}
     />
   );
 };

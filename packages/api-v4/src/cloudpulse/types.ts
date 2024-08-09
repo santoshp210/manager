@@ -1,18 +1,17 @@
 export interface CreateAlertDefinitionPayload {
-  type: string | null;
   alertName: string | null;
   region: string | null;
   description?: string | null;
-  tags?: string[];
   serviceType: string | null;
+  engineOption: string | null;
   resourceId: string[];
   severity: string;
   criteria: MetricCriteria[];
   triggerCondition: {
     criteriaCondition: string;
-    evaluationInterval: string;
+    pollingInterval: string;
     evaluationPeriod: string;
-    triggerOccurrence: string;
+    triggerOccurrence: number;
   };
   notifications: {
     notification_type: string;

@@ -9,19 +9,9 @@ import {
 } from 'react-router-dom';
 
 import { SuspenseLoader } from 'src/components/SuspenseLoader';
-import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
 import { TabLinkList } from 'src/components/Tabs/TabLinkList';
-import { TabPanels } from 'src/components/Tabs/TabPanels';
 import { Tabs } from 'src/components/Tabs/Tabs';
 
-// import {
-//   AlertDefinition,
-//   AlertDefinitionLanding,
-// } from './Alerts/AlertDefinitionLanding';
-// import { DashboardLanding } from './Dashboard/DashboardLanding';
-import Alerts from '.';
-// import { AlertsLanding } from './Alerts/AlertLanding/AlertsLanding';
-import Alert from '.';
 import AlertsLanding from './Alerts/AlertLanding/AlertsLanding';
 type Props = RouteComponentProps<{}>;
 
@@ -38,7 +28,9 @@ export const CloudPulseTabs = React.memo((props: Props) => {
   ];
 
   const matches = (p: string) => {
-    return Boolean(matchPath(props.location.pathname, { path: p, exact: false }));
+    return Boolean(
+      matchPath(props.location.pathname, { exact: false, path: p })
+    );
   };
 
   const navToURL = (index: number) => {
@@ -76,7 +68,7 @@ export const CloudPulseTabs = React.memo((props: Props) => {
         </TabPanels> */}
         <Switch>
           <Route component={dashboard} path={`${props.match.url}/dashboards`} />
-          <Route component={AlertsLanding} path={`${props.match.url}/alerts`} /> 
+          <Route component={AlertsLanding} path={`${props.match.url}/alerts`} />
           <Redirect
             from="/monitor/cloudpulse"
             to="/monitor/cloudpulse/dashboards"

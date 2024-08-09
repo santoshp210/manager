@@ -8,25 +8,18 @@ const dimensionFilters = object({
 });
 
 const metricCriteria = object({
-  metric: string().required(),
-  aggregationType: string().required(),
-  operator: string().required(),
-  value: number().required(),
+  metric: string().required('Metric Data Field is required'),
+  aggregationType: string().required('Aggregation type is required'),
+  operator: string().required('Criteria Operator is required'),
+  value: number().required('Threshold value is required'),
   filters: array().of(dimensionFilters).notRequired(),
 });
 
-const metricValidation = object().shape({
-  metricCriteria: array()
-    .of(metricCriteria)
-    .min(1, 'At least one metric criteria is needed')
-    .required(),
-});
-
 const triggerCondition = object({
-  criteriaCondition: string().required(),
-  evaluationInterval: string().required(),
-  evaluationPeriod: string().required(),
-  triggerOccurences: number().required(),
+  criteriaCondition: string().required('Criteria condition is required'),
+  pollingInterval: string().required('Polling Interval is required'),
+  evaluationPeriod: string().required('Evaluation Period is required'),
+  triggerOccurrence: number().required('Occurence is required'),
 });
 
 const content = object({
@@ -38,16 +31,24 @@ const notifications = object({
   content,
 });
 
+const engionOptionValidation = object().when('serviceType', {
+  is: 'dbaas',
+  then: string().required(),
+  otherwise: object().notRequired(),
+});
+
 export const createAlertDefinitionSchema = object({
-  name: string().required('Label is required'),
+  alertName: string().required('Name is required'),
   description: string(),
-  tags: string(),
   region: string().required('Region is required'),
   serviceType: string().required('Service type is required'),
-  resources: array().of(string()).required('Resources are required'),
-  alertSeverity: string().required('Severity is required'),
-  criteria: metricValidation,
-  triggerCondition: array().of(triggerCondition),
+  // engionOption: engionOptionValidation,
+  resourceId: array().of(string()).min(1, 'At least one resource is needed'),
+  severity: string().required('Severity is required'),
+  criteria: array()
+    .of(metricCriteria)
+    .min(1, 'At least one metric criteria is needed'),
+  triggerCondition,
   notifications: array().of(notifications),
 });
 
@@ -55,7 +56,9 @@ const channelTypeSchema = (type: string) => {
   switch (type) {
     case 'Email':
       return object().shape({
-        to: array().of(string().email('Invalid email address')).min(1, 'At least one recipient is required'),
+        to: array()
+          .of(string().email('Invalid email address'))
+          .min(1, 'At least one recipient is required'),
       });
     default:
       return mixed();
