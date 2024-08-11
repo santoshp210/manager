@@ -1,4 +1,4 @@
-import { APIError, AvailableMetrics } from '@linode/api-v4';
+import { AvailableMetrics } from '@linode/api-v4';
 import { DeleteOutlineOutlined } from '@mui/icons-material';
 import { styled } from '@mui/material';
 import { ErrorMessage, getIn, useFormikContext } from 'formik';
@@ -6,7 +6,6 @@ import React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
-import { ErrorState } from 'src/components/ErrorState/ErrorState';
 import { Stack } from 'src/components/Stack';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';

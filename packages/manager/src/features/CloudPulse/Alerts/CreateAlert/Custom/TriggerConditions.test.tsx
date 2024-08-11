@@ -1,5 +1,4 @@
 import { fireEvent, within, screen } from '@testing-library/react';
-import * as FormikModule from 'formik';
 import * as React from 'react';
 
 import { renderWithThemeAndFormik } from 'src/utilities/testHelpers';

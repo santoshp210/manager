@@ -1,5 +1,5 @@
 import { notificationChannelSchema } from '@linode/validation';
-import { ErrorMessage, FormikProvider, useFormik } from 'formik';
+import { ErrorMessage, FormikProvider, setIn, useFormik } from 'formik';
 import React from 'react';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
@@ -8,23 +8,22 @@ import { Box } from 'src/components/Box';
 import { Typography } from 'src/components/Typography';
 
 import { CustomChannelAutocomplete } from './Custom/CustomChannelAutocomplete';
+import { ChannelTypeOptions } from '../constants';
+import { Grid } from '@mui/material';
+import { Chip } from 'src/components/Chip';
 
-export const ChannelTypeOptions = [
-  {
-    label: 'Email',
-    value: 'Email',
-  },
-];
 
 interface AddNotificationChannelProps {
   onCancel: () => void;
   onClickAddNotification: (notifications: any) => void;
-  options: any[];
+  templateData: any[];
 }
 
 export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
   const [type, setType] = React.useState({ label: '', value: '' });
-  const { onCancel, onClickAddNotification, options } = props;
+  const [disableValidation, setDisableValidation] = React.useState(false);
+  const { onCancel, onClickAddNotification, templateData } = props;
+
   const formik = useFormik({
     initialValues: {
       templateName: '',
@@ -34,9 +33,28 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
     onSubmit: (values) => {
       onClickAddNotification(values);
     },
-    validationSchema: notificationChannelSchema,
+    validate : (values) => {
+     
+      if (disableValidation) {
+        return {};
+      }
+      // Perform normal validation
+      let errors = {};
+      try {
+        notificationChannelSchema.validateSync(values, { abortEarly: false });
+      } catch (validationErrors) {
+        validationErrors.inner.forEach((error : any) => {
+           errors = setIn(errors, error.path, error.message);
+        });
+      }
+      return errors;
+    }
   });
 
+  const selectedTypeTemplates = type && type.label ? templateData.filter((template) => template.type === type.value) : [];
+  const templateOptions = selectedTypeTemplates ? selectedTypeTemplates.map((template) => ({label: template.templateName, value:template.templateName })) : [];
+  const selectedTemplate = selectedTypeTemplates.find((template) => template.templateName === formik.values.templateName);
+  
   const handleTemplateChange = (template: string) => {
     formik.setFieldValue('templateName', template);
   };
@@ -62,6 +80,12 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
     <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
   );
 
+  React.useEffect(() => {
+    const isNewTemplate = !templateOptions.some((obj) => obj.label.toLocaleLowerCase() === formik.values.templateName.toLocaleLowerCase());
+    if(!isNewTemplate && formik.values.templateName) setDisableValidation(true);
+    else setDisableValidation(false);
+  },[formik.values.templateName]);
+
   return (
     <FormikProvider value={formik}>
       <form onSubmit={formik.handleSubmit}>
@@ -86,7 +110,7 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
                 formik.handleBlur(event);
                 formik.setFieldTouched('type', true);
               }}
-              onChange={(event, newValue, operation) =>
+              onChange={(_: any, newValue, operation) =>
                 handleTypeChange(newValue, operation)
               }
               isOptionEqualToValue={(option) => option.label === type.label}
@@ -102,11 +126,18 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
             <CustomChannelAutocomplete
               label={'Channel'}
               onChange={handleTemplateChange}
-              options={options}
+              options={templateOptions}
               value={formik.values.templateName}
+              handleBlur={(event) => {
+                formik.handleBlur(event);
+                formik.setFieldTouched('templateName', true);
+              }}
             />
+            {formik.touched && formik.touched.templateName && formik.errors.templateName ? (
+              <ErrorMessage name="templateName" component={CustomErrorMessage} />
+            ) : null}
           </Box>
-          {type && type.value === 'Email' && formik.values.templateName && (
+          {!disableValidation && type && type.value === 'Email' && formik.values.templateName && (
             <Box>
               <Autocomplete
                 onBlur={(event) => {
@@ -135,6 +166,22 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
               ) : null}
             </Box>
           )}
+          {
+            selectedTemplate && disableValidation && <Box paddingTop={2}> 
+            <Grid container>
+              <Grid item md={2}>
+                  <Typography variant="h3" >To:</Typography>
+              </Grid>
+              <Grid item md={10}>
+                {
+                  selectedTemplate.values && selectedTemplate.values.to.length > 0 && selectedTemplate.values.to.map((email: string, id: number) => (
+                    <Chip label={email} key={id} />
+                  ))
+                }
+              </Grid>
+            </Grid>
+          </Box>
+        }
         </Box>
         <ActionsPanel
           primaryButtonProps={{

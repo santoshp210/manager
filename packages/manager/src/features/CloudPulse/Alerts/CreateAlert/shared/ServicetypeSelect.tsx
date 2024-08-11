@@ -14,16 +14,15 @@ export const CloudPulseServiceSelect = React.memo(
     const { data: serviceOptions } = useCloudViewServices();
     const formik = useFormikContext();
 
-    const [selectedService, setService] = React.useState<any>('');
+    const [selectedService, setSelectedService] = React.useState<any>('');
 
     React.useEffect(() => {
       formik.setFieldValue(
-        `${props.name}`,
+        'serviceType',
         selectedService.value ? selectedService.value : ''
       );
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedService]);
-
     const getServicesList = () => {
       return serviceOptions ? serviceOptions.data : [];
     };
@@ -37,7 +36,7 @@ export const CloudPulseServiceSelect = React.memo(
           formik.setFieldTouched(props.name, true);
         }}
         onChange={(_: any, newValue) => {
-          setService(newValue);
+          setSelectedService(newValue);
         }}
         data-testid="servicetype-select"
         disableClearable

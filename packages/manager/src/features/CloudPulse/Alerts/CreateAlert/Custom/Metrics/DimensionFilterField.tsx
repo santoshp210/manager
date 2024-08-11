@@ -1,6 +1,6 @@
 import { Dimension } from '@linode/api-v4';
 import { DeleteOutlineOutlined } from '@mui/icons-material';
-import { IconButton, styled } from '@mui/material';
+import { styled } from '@mui/material';
 import { ErrorMessage, useField, useFormikContext } from 'formik';
 import React from 'react';
 
@@ -43,7 +43,7 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
     <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
   );
   // eslint-disable-next-line no-console
-  console.log(field, meta);
+
   return (
     <>
       <Stack direction="row" spacing={2}>

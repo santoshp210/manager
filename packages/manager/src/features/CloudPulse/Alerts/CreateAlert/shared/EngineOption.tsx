@@ -2,15 +2,15 @@ import { useFormikContext } from 'formik';
 import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { useDatabaseEnginesQuery } from 'src/queries/databases';
 
 interface EngineOptionProps {
   name: string;
+  engineOptions: any[];
 }
 export const EngineOption = (props: EngineOptionProps) => {
-  const { data: engineOptions } = useDatabaseEnginesQuery(true);
   const [selectedDatabase, setDatabase] = React.useState<any>('');
   const formik = useFormikContext();
+  const { engineOptions } = props;
 
   React.useEffect(() => {
     formik.setFieldValue(`${props.name}`, selectedDatabase.group);

@@ -31,10 +31,10 @@ const notifications = object({
   content,
 });
 
-const engionOptionValidation = object().when('serviceType', {
+const engionOptionValidation = string().when('serviceType', {
   is: 'dbaas',
   then: string().required(),
-  otherwise: object().notRequired(),
+  otherwise: string().notRequired(),
 });
 
 export const createAlertDefinitionSchema = object({
@@ -42,7 +42,7 @@ export const createAlertDefinitionSchema = object({
   description: string(),
   region: string().required('Region is required'),
   serviceType: string().required('Service type is required'),
-  // engionOption: engionOptionValidation,
+  engionOption: engionOptionValidation,
   resourceId: array().of(string()).min(1, 'At least one resource is needed'),
   severity: string().required('Severity is required'),
   criteria: array()

@@ -8,15 +8,20 @@ describe('Custom Channel Autocomplete', () => {
   const mockOnCancel = vi.fn();
   const mockOnAddNotification = vi.fn();
   const options = [
-    { label: 'Option 1', value: 'option1' },
-    { label: 'Option 2', value: 'option2' },
+    {
+      type: "Email",
+      templateName: "Email 07/2024",
+      values: {
+        to:["example@email.com"]
+      }
+    }
   ];
   it('should render the form with initial values', () => {
     const container = renderWithTheme(
       <AddNotificationChannel
         onCancel={mockOnCancel}
         onClickAddNotification={mockOnAddNotification}
-        options={options}
+        templateData={options}
       />
     );
     expect(container.getByLabelText('Type')).toBeInTheDocument();
@@ -29,13 +34,13 @@ describe('Custom Channel Autocomplete', () => {
       <AddNotificationChannel
         onCancel={mockOnCancel}
         onClickAddNotification={mockOnAddNotification}
-        options={options}
+        templateData={options}
       />
     );
 
     fireEvent.click(container.getByText('Add channel'));
     expect(await container.findByText('Type is required')).toBeInTheDocument();
-    //expect(await container.findByText('Template name is required')).toBeInTheDocument();
+    expect(await container.findByText('Template name is required')).toBeInTheDocument();
   });
 
   test('should handle type and template changes correctly', async () => {
@@ -43,7 +48,7 @@ describe('Custom Channel Autocomplete', () => {
       <AddNotificationChannel
         onCancel={mockOnCancel}
         onClickAddNotification={mockOnAddNotification}
-        options={options}
+        templateData={options}
       />
     );
 
@@ -69,7 +74,7 @@ describe('Custom Channel Autocomplete', () => {
       <AddNotificationChannel
         onCancel={mockOnCancel}
         onClickAddNotification={mockOnAddNotification}
-        options={options}
+        templateData={options}
       />
     );
 

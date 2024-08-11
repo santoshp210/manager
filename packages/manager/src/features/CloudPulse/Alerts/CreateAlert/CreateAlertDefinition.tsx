@@ -31,6 +31,7 @@ import { EngineOption } from './shared/EngineOption';
 import { CloudPulseRegionSelect } from './shared/RegionSelect';
 import { CloudPulseMultiResourceSelect } from './shared/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './shared/ServicetypeSelect';
+import { useDatabaseEnginesQuery } from 'src/queries/databases';
 
 export const initialValues: CreateAlertDefinitionPayload = {
   alertName: '',
@@ -62,6 +63,7 @@ export const CreateAlertDefinition = React.memo(() => {
   const [notifications, setNotifications] = React.useState<any>([]);
   const { mutateAsync } = useCreateAlertDefinition();
   const { enqueueSnackbar } = useSnackbar();
+  const { data: engineOptions } = useDatabaseEnginesQuery(true); 
 
   const onSubmitAddNotification = (notification: any) => {
     const newNotifications = [...notifications, notification];
@@ -106,7 +108,6 @@ export const CreateAlertDefinition = React.memo(() => {
           handleGeneralErrors(mapErrorToStatus, err, 'Error creating an alert');
         });
     },
-    validateOnBlur: true,
     validationSchema: createAlertDefinitionSchema,
   });
 
@@ -116,7 +117,6 @@ export const CreateAlertDefinition = React.memo(() => {
     handleChange,
     handleSubmit,
     isSubmitting,
-    resetForm,
     setFieldValue,
     status,
     values,
@@ -130,14 +130,33 @@ export const CreateAlertDefinition = React.memo(() => {
     history.goBack();
   };
 
+  const generateCrumbOverrides = (pathname: string) => {
+    const pathParts = pathname.split('/').filter(Boolean);
+    const lastTwoParts = pathParts.slice(-2);
+    const fullPaths: any = [];
+  
+    pathParts.forEach((_, index) => {
+      fullPaths.push('/' + pathParts.slice(0, index + 1).join('/'));
+    });
+  
+    const overrides = lastTwoParts.map((part, index) => ({
+      position: index + 1,
+      label: part,
+      linkTo: fullPaths[pathParts.length - 2 + index],
+    }));
+  
+    return { newPathname: '/' + lastTwoParts.join('/'), overrides };
+  };
+
+  const { newPathname, overrides } = React.useMemo(() => generateCrumbOverrides(location.pathname), [location.pathname]);
+
   const CustomErrorMessage = (props: any) => (
     <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
   );
-  // eslint-disable-next-line no-console
-  console.log(formik.touched);
+
   return (
     <Paper>
-      <Breadcrumb pathname={location.pathname}></Breadcrumb>
+      <Breadcrumb pathname={newPathname} crumbOverrides={overrides}></Breadcrumb>
       <FormikProvider value={formik}>
         <form onSubmit={handleSubmit}>
           {generalError && (
@@ -174,16 +193,13 @@ export const CreateAlertDefinition = React.memo(() => {
           errors.serviceType ? (
             <ErrorMessage component={CustomErrorMessage} name="serviceType" />
           ) : null}
-          {formik.values.serviceType === 'dbaas' && (
-            <EngineOption name={'engineOption'} />
-          )}
+          {formik.values.serviceType === 'dbaas' && 
+            <EngineOption name={'engineOption'} engineOptions={engineOptions ? engineOptions : []}/>
+          }
           <CloudPulseRegionSelect name={'region'}/>
-          {/* {formik.touched && errors.region ? (
-            <>
-              <p>Region Change</p>
+          {formik.touched && formik.touched.region && errors.region ? (
               <ErrorMessage component={CustomErrorMessage} name="region" />
-            </>
-          ) : null} */}
+          ) : null}
           <CloudPulseMultiResourceSelect
             handleResourceChange={(resources) => {
               setFieldValue('resourceId', resources);
@@ -209,7 +225,6 @@ export const CreateAlertDefinition = React.memo(() => {
             }}
             onChange={(_, value) => {
               setFieldValue('severity', value?.value);
-              formik.setFieldTouched('severity', true);
             }}
             value={
               values?.severity
@@ -270,7 +285,7 @@ export const CreateAlertDefinition = React.memo(() => {
           <AddNotificationChannel
             onCancel={() => setOpenAddNotification(false)}
             onClickAddNotification={onSubmitAddNotification}
-            options={[]}
+            templateData={[]}
           />
         </Drawer>
       )}
