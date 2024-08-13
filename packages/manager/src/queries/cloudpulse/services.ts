@@ -28,7 +28,7 @@ export const useGetCloudViewMetricDefinitionsByServiceType = (
     [queryKey, serviceTypeKey, serviceType],
     () => getMetricDefinitionsByServiceType(serviceType),
     {
-      enabled: enabled,
+      enabled,
     }
   );
 };

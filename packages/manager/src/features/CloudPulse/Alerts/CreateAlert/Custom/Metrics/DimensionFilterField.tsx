@@ -20,8 +20,8 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
   const formik = useFormikContext();
   const [field, meta] = useField(name);
 
-  const selectedDimension = field.value.dim_label
-    ? dimensionOptions.find((dim) => dim.label === field.value.dim_label)
+  const selectedDimension = field.value.dimension_label
+    ? dimensionOptions.find((dim) => dim.label === field.value.dimension_label)
     : null;
   const valueOptions =
     selectedDimension && selectedDimension.values
@@ -35,15 +35,13 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
       formik.setFieldValue(`${name}.${field}`, '');
     }
 
-    if (field === 'dim_label') {
+    if (field === 'dimension_label') {
       formik.setFieldValue(`${name}.value`, '');
     }
   };
   const CustomErrorMessage = (props: any) => (
     <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
   );
-  // eslint-disable-next-line no-console
-
   return (
     <>
       <Stack direction="row" spacing={2}>
@@ -53,18 +51,21 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
           }
           onBlur={(event) => {
             formik.handleBlur(event);
-            formik.setFieldTouched(`${props.name}.dim_label`, true);
+            formik.setFieldTouched(`${props.name}.dimension_label`, true);
           }}
           onChange={(event, newValue, operation) =>
-            handleSelectChange('dim_label', newValue, operation)
+            handleSelectChange('dimension_label', newValue, operation)
           }
           value={
-            field.value.dim_label
-              ? { label: field.value.dim_label, value: field.value.dim_label }
+            field.value.dimension_label
+              ? {
+                  label: field.value.dimension_label,
+                  value: field.value.dimension_label,
+                }
               : null
           }
           label="Data Field"
-          options={dimensionOptions}
+          options={valueOptions}
           sx={{ width: '25%' }}
         />
 
@@ -114,10 +115,10 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
         </Box>
       </Stack>
       <Box>
-        {meta.touched && meta.error && meta.error.dim_label ? (
+        {meta.touched && meta.error && meta.error.dimension_label ? (
           <ErrorMessage
             component={CustomErrorMessage}
-            name={`${props.name}.dim_label`}
+            name={`${props.name}.dimension_label`}
           />
         ) : null}
         {meta.touched && meta.error && meta.error.operator ? (
@@ -136,16 +137,6 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
     </>
   );
 };
-
-const StyledOperatorAutocomplete = styled(Autocomplete, {
-  label: 'StyledOperatorAutocomplete',
-})({
-  '& .MuiInputBase-root': {
-    width: '90px',
-  },
-  minWidth: '90px',
-  width: '90px',
-});
 
 const StyledDeleteIcon = styled(DeleteOutlineOutlined)(({ theme }) => ({
   '&:active': {

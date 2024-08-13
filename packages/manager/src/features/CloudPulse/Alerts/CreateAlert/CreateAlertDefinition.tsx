@@ -16,6 +16,7 @@ import { Paper } from 'src/components/Paper';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 import { useCreateAlertDefinition } from 'src/queries/cloudpulse/alerts';
+import { useDatabaseEnginesQuery } from 'src/queries/databases';
 import { getErrorMap } from 'src/utilities/errorUtils';
 import {
   handleFieldErrors,
@@ -31,30 +32,29 @@ import { EngineOption } from './shared/EngineOption';
 import { CloudPulseRegionSelect } from './shared/RegionSelect';
 import { CloudPulseMultiResourceSelect } from './shared/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './shared/ServicetypeSelect';
-import { useDatabaseEnginesQuery } from 'src/queries/databases';
 
 export const initialValues: CreateAlertDefinitionPayload = {
-  alertName: '',
   criteria: [
     {
-      aggregationType: '',
-      filters: [],
+      aggregation_type: '',
+      dimension_filters: [],
       metric: '',
       operator: '',
       value: 0,
     },
   ],
   engineOption: '',
+  name: '',
   notifications: [],
   region: '',
-  resourceId: [],
-  serviceType: '',
+  resource_ids: [],
+  service_type: '',
   severity: '',
   triggerCondition: {
-    criteriaCondition: '',
-    evaluationPeriod: '',
-    pollingInterval: '',
-    triggerOccurrence: 0,
+    criteria_condition: '',
+    evaluation_period_seconds: '',
+    polling_interval_seconds: '',
+    trigger_occurrences: 0,
   },
 };
 
@@ -63,7 +63,7 @@ export const CreateAlertDefinition = React.memo(() => {
   const [notifications, setNotifications] = React.useState<any>([]);
   const { mutateAsync } = useCreateAlertDefinition();
   const { enqueueSnackbar } = useSnackbar();
-  const { data: engineOptions } = useDatabaseEnginesQuery(true); 
+  const { data: engineOptions } = useDatabaseEnginesQuery(true);
 
   const onSubmitAddNotification = (notification: any) => {
     const newNotifications = [...notifications, notification];
@@ -134,21 +134,24 @@ export const CreateAlertDefinition = React.memo(() => {
     const pathParts = pathname.split('/').filter(Boolean);
     const lastTwoParts = pathParts.slice(-2);
     const fullPaths: any = [];
-  
+
     pathParts.forEach((_, index) => {
       fullPaths.push('/' + pathParts.slice(0, index + 1).join('/'));
     });
-  
+
     const overrides = lastTwoParts.map((part, index) => ({
-      position: index + 1,
       label: part,
       linkTo: fullPaths[pathParts.length - 2 + index],
+      position: index + 1,
     }));
-  
+
     return { newPathname: '/' + lastTwoParts.join('/'), overrides };
   };
 
-  const { newPathname, overrides } = React.useMemo(() => generateCrumbOverrides(location.pathname), [location.pathname]);
+  const { newPathname, overrides } = React.useMemo(
+    () => generateCrumbOverrides(location.pathname),
+    [location.pathname]
+  );
 
   const CustomErrorMessage = (props: any) => (
     <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
@@ -156,7 +159,10 @@ export const CreateAlertDefinition = React.memo(() => {
 
   return (
     <Paper>
-      <Breadcrumb pathname={newPathname} crumbOverrides={overrides}></Breadcrumb>
+      <Breadcrumb
+        crumbOverrides={overrides}
+        pathname={newPathname}
+      ></Breadcrumb>
       <FormikProvider value={formik}>
         <form onSubmit={handleSubmit}>
           {generalError && (
@@ -171,13 +177,13 @@ export const CreateAlertDefinition = React.memo(() => {
           <TextField
             // errorText="Name error"
             label="Name"
-            name={'alertName'}
+            name={'name'}
             onBlur={handleBlur}
             onChange={handleChange}
-            value={values.alertName ? values.alertName : ''}
+            value={values.name ? values.name : ''}
           />
-          {formik.touched && formik.touched.alertName && errors.alertName ? (
-            <ErrorMessage component={CustomErrorMessage} name="alertName" />
+          {formik.touched && formik.touched.name && errors.name ? (
+            <ErrorMessage component={CustomErrorMessage} name="name" />
           ) : null}
           <TextField
             label="Description"
@@ -187,33 +193,36 @@ export const CreateAlertDefinition = React.memo(() => {
             optional
             value={values.description ? values.description : ''}
           />
-          <CloudPulseServiceSelect name={'serviceType'} />
+          <CloudPulseServiceSelect name={'service_type'} />
           {formik.touched &&
-          formik.touched.serviceType &&
-          errors.serviceType ? (
-            <ErrorMessage component={CustomErrorMessage} name="serviceType" />
+          formik.touched.service_type &&
+          errors.service_type ? (
+            <ErrorMessage component={CustomErrorMessage} name="service_type" />
           ) : null}
-          {formik.values.serviceType === 'dbaas' && 
-            <EngineOption name={'engineOption'} engineOptions={engineOptions ? engineOptions : []}/>
-          }
-          <CloudPulseRegionSelect name={'region'}/>
+          {formik.values.service_type === 'dbaas' && (
+            <EngineOption
+              engineOptions={engineOptions ? engineOptions : []}
+              name={'engineOption'}
+            />
+          )}
+          <CloudPulseRegionSelect name={'region'} />
           {formik.touched && formik.touched.region && errors.region ? (
-              <ErrorMessage component={CustomErrorMessage} name="region" />
+            <ErrorMessage component={CustomErrorMessage} name="region" />
           ) : null}
           <CloudPulseMultiResourceSelect
             handleResourceChange={(resources) => {
-              setFieldValue('resourceId', resources);
+              setFieldValue('resource_ids', resources);
             }}
-            cluster={values.serviceType === 'db' ? true : false}
+            cluster={values.service_type === 'db' ? true : false}
             disabled={false}
-            name={'resourceId'}
+            name={'resource_ids'}
             region={values.region ? values.region : ''}
-            resourceType={values.serviceType ? values.serviceType : ''}
+            resourceType={values.service_type ? values.service_type : ''}
           />
           {formik.touched &&
-          formik.touched.resourceId &&
-          formik.errors.resourceId ? (
-            <ErrorMessage component={CustomErrorMessage} name="resourceId" />
+          formik.touched.resource_ids &&
+          formik.errors.resource_ids ? (
+            <ErrorMessage component={CustomErrorMessage} name="resource_ids" />
           ) : null}
           <Autocomplete
             isOptionEqualToValue={(option, value) =>
@@ -257,7 +266,7 @@ export const CreateAlertDefinition = React.memo(() => {
           />
           <AddChannelListing
             notifications={notifications}
-            onChangleNotifications={onChangleNotifications}
+            onChangeNotifications={onChangleNotifications}
             onClickAddNotification={() => setOpenAddNotification(true)}
           />
           <ActionsPanel

@@ -3,7 +3,6 @@ import * as React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useCloudViewServices } from 'src/queries/cloudpulse/services';
-// import { useDatabaseEnginesQuery } from 'src/queries/databases';
 
 interface CloudPulseServiceSelectProps {
   name: string;
@@ -18,7 +17,7 @@ export const CloudPulseServiceSelect = React.memo(
 
     React.useEffect(() => {
       formik.setFieldValue(
-        'serviceType',
+        props.name,
         selectedService.value ? selectedService.value : ''
       );
       // eslint-disable-next-line react-hooks/exhaustive-deps

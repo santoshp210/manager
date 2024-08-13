@@ -48,24 +48,6 @@ export const CloudPulseTabs = React.memo((props: Props) => {
       <TabLinkList tabs={tabs} />
 
       <React.Suspense fallback={<SuspenseLoader />}>
-        {/* <TabPanels>
-          <SafeTabPanel index={0}>
-            <Switch>
-              <Route
-                component={dashboard}
-                path={`${props.match.url}/dashboards`}
-              />
-            </Switch>
-          </SafeTabPanel>
-          <SafeTabPanel index={1}>
-            <Switch>
-              <Route
-                component={AlertsLanding}
-                path={`${props.match.url}/alerts`}
-              />
-            </Switch>
-          </SafeTabPanel>
-        </TabPanels> */}
         <Switch>
           <Route component={dashboard} path={`${props.match.url}/dashboards`} />
           <Route component={AlertsLanding} path={`${props.match.url}/alerts`} />

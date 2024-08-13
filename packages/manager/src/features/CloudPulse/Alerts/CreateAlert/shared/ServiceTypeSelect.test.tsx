@@ -1,10 +1,9 @@
 import { fireEvent, screen } from '@testing-library/react';
 import * as React from 'react';
 
-import { mockMatchMedia, renderWithTheme } from 'src/utilities/testHelpers';
+import { renderWithTheme } from 'src/utilities/testHelpers';
 
 import { CloudPulseServiceSelect } from './ServicetypeSelect';
-
 
 describe('ServiceTypeSelect component tests', () => {
   it('should render the Autocomplete component', () => {

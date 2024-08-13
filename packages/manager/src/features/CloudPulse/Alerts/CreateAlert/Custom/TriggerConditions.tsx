@@ -64,11 +64,18 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           <Autocomplete
             onBlur={(event) => {
               formik.handleBlur(event);
-              formik.setFieldTouched(`${props.name}.evaluationPeriod`, true);
+              formik.setFieldTouched(
+                `${props.name}.evaluation_period_seconds`,
+                true
+              );
             }}
             onChange={(_, value, operation) => {
               if (value !== null) {
-                handleSelectChange('evaluationPeriod', value.value, operation);
+                handleSelectChange(
+                  'evaluation_period_seconds',
+                  value.value,
+                  operation
+                );
                 if (operation === 'selectOption') {
                   setEvaluationPeriod(value.label);
                 }
@@ -90,11 +97,18 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           <Autocomplete
             onBlur={(event) => {
               formik.handleBlur(event);
-              formik.setFieldTouched(`${props.name}.pollingInterval`, true);
+              formik.setFieldTouched(
+                `${props.name}.polling_interval_seconds`,
+                true
+              );
             }}
             onChange={(_, value, operation) => {
               if (value !== null) {
-                handleSelectChange('pollingInterval', value.value, operation);
+                handleSelectChange(
+                  'polling_interval_seconds',
+                  value.value,
+                  operation
+                );
                 if (operation === 'selectOption') {
                   setPollingInterval(value.label);
                 }
@@ -119,20 +133,20 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
             }
             onBlur={(event) => {
               formik.handleBlur(event);
-              formik.setFieldTouched(`${props.name}.criteriaCondition`, true);
+              formik.setFieldTouched(`${props.name}.criteria_condition`, true);
             }}
             onChange={(_, value, operation) => {
-              handleSelectChange('criteriaCondition', value?.value, operation);
+              handleSelectChange('criteria_condition', value?.value, operation);
             }}
             textFieldProps={{
               labelTooltipText:
                 'AND implies alert is triggered when all the metrics criteria are met',
             }}
             value={
-              values?.criteriaCondition
+              values?.criteria_condition
                 ? {
-                    label: values.criteriaCondition,
-                    value: values.criteriaCondition,
+                    label: values.criteria_condition,
+                    value: values.criteria_condition,
                   }
                 : null
             }
@@ -167,12 +181,12 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
             }}
             label={''}
             min={0}
-            name={`${props.name}.triggerOccurrence`}
+            name={`${props.name}.trigger_occurences`}
             noMarginTop={false}
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
             type="number"
-            value={values.triggerOccurrence}
+            value={values.trigger_occurences}
           />
         </Box>
         <Box sx={{ paddingTop: '20px' }}>
@@ -191,35 +205,35 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
       </Stack>
       <Box sx={(theme) => ({ marginTop: theme.spacing(2) })}>
         {touchedFields &&
-        touchedFields.evaluationPeriod &&
-        errors.evaluationPeriod ? (
+        touchedFields.evaluation_period_seconds &&
+        errors.evaluation_period_seconds ? (
           <ErrorMessage
             component={CustomErrorMessage}
-            name={`${props.name}.evaluationPeriod`}
+            name={`${props.name}.evaluation_period_seconds`}
           />
         ) : null}
         {touchedFields &&
-        touchedFields.pollingInterval &&
-        errors.pollingInterval ? (
+        touchedFields.polling_interval_seconds &&
+        errors.polling_interval_seconds ? (
           <ErrorMessage
             component={CustomErrorMessage}
-            name={`${props.name}.pollingInterval`}
+            name={`${props.name}.polling_interval_seconds`}
           />
         ) : null}
         {touchedFields &&
-        touchedFields.criteriaCondition &&
-        errors.criteriaCondition ? (
+        touchedFields.criteria_condition &&
+        errors.criteria_condition ? (
           <ErrorMessage
             component={CustomErrorMessage}
-            name={`${props.name}.criteriaCondition`}
+            name={`${props.name}.criteria_condition`}
           />
         ) : null}
         {touchedFields &&
-        touchedFields.triggerOccurrence &&
-        errors.triggerOccurrence ? (
+        touchedFields.Occurrence &&
+        errors.trigger_occurences ? (
           <ErrorMessage
             component={CustomErrorMessage}
-            name={`${props.name}.triggerOccurrence`}
+            name={`${props.name}.trigger_occurences`}
           />
         ) : null}
       </Box>

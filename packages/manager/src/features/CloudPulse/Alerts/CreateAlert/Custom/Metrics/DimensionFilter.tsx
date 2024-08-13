@@ -46,7 +46,7 @@ export const DimensionFilter = (props: DimensionFilterProps ) => {
             <Button
               onClick={() =>
                 push({
-                  dim_label: '',
+                  dimension_label: '',
                   operator: '',
                   value: '',
                 })

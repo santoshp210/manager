@@ -37,8 +37,8 @@ export const Metric = (props: MetricProps) => {
 
   const handleDataFieldChange = (field: any, value: any, operation: string) => {
     const fieldValue = {
-      aggregationType: '',
-      filters: [],
+      aggregation_type: '',
+      dimension_filters: [],
       metric: '',
       operator: '',
       value: 0,
@@ -119,7 +119,6 @@ export const Metric = (props: MetricProps) => {
               loadingText={'Loading the data fields'}
               options={metricOptions}
               size="medium"
-              // sx={{ width: '25%' }}
               value={selectedMetricField ? selectedMetricField : null}
             />
           </Box>
@@ -130,16 +129,16 @@ export const Metric = (props: MetricProps) => {
               }
               onBlur={(event) => {
                 formik.handleBlur(event);
-                formik.setFieldTouched(`${name}.aggregationType`, true);
+                formik.setFieldTouched(`${name}.aggregation_type`, true);
               }}
               onChange={(event, newValue, operation) =>
-                handleSelectChange('aggregationType', newValue, operation)
+                handleSelectChange('aggregation_type', newValue, operation)
               }
               value={
-                values?.aggregationType
+                values?.aggregation_type
                   ? {
-                      label: values.aggregationType,
-                      value: values.aggregationType,
+                      label: values.aggregation_type,
+                      value: values.aggregation_type,
                     }
                   : null
               }
@@ -213,11 +212,11 @@ export const Metric = (props: MetricProps) => {
             />
           ) : null}
           {touchedFields &&
-          touchedFields.aggregationType &&
-          errors.aggregationType ? (
+          touchedFields.aggregation_type &&
+          errors.aggregation_type ? (
             <ErrorMessage
               component={CustomErrorMessage}
-              name={`${props.name}.aggregationType`}
+              name={`${props.name}.aggregation_type`}
             />
           ) : null}
           {touchedFields && touchedFields.operator && errors.operator ? (
@@ -235,13 +234,12 @@ export const Metric = (props: MetricProps) => {
         </Box>
         <DimensionFilter
           dimensionOptions={dimensionOptions}
-          name={`${name}.filters`}
+          name={`${name}.dimension_filters`}
         />
       </Stack>
     </Box>
   );
 };
-
 
 const StyledDeleteIcon = styled(DeleteOutlineOutlined)(({ theme }) => ({
   '&:active': {

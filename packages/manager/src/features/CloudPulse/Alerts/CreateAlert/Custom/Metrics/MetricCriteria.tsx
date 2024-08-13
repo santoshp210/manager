@@ -76,14 +76,13 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
             <Button
               onClick={() =>
                 push({
-                  aggregationType: '',
-                  filters: [],
+                  aggregation_type: '',
+                  dimension_filters: [],
                   metric: '',
                   operator: '',
                   value: '',
                 })
               }
-              // variant="outlined"
               buttonType={'outlined'}
               size="medium"
               sx={(theme) => ({ marginTop: theme.spacing(1) })}

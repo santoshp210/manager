@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 
 interface EngineOptionProps {
-  name: string;
   engineOptions: any[];
+  name: string;
 }
 export const EngineOption = (props: EngineOptionProps) => {
   const [selectedDatabase, setDatabase] = React.useState<any>('');

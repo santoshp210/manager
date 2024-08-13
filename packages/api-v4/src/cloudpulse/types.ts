@@ -1,17 +1,17 @@
 export interface CreateAlertDefinitionPayload {
-  alertName: string | null;
+  name: string | null;
   region: string | null;
   description?: string | null;
-  serviceType: string | null;
+  service_type: string | null;
   engineOption: string | null;
-  resourceId: string[];
+  resource_ids: string[];
   severity: string;
   criteria: MetricCriteria[];
   triggerCondition: {
-    criteriaCondition: string;
-    pollingInterval: string;
-    evaluationPeriod: string;
-    triggerOccurrence: number;
+    criteria_condition: string;
+    polling_interval_seconds: string;
+    evaluation_period_seconds: string;
+    trigger_occurrences: number;
   };
   notifications: {
     notification_type: string;
@@ -22,11 +22,11 @@ export interface CreateAlertDefinitionPayload {
 }
 export interface MetricCriteria {
   metric: string;
-  aggregationType: string;
+  aggregation_type: string;
   operator: string;
   value: number;
-  filters: {
-    dim_label: string;
+  dimension_filters: {
+    dimension_label: string;
     operator: string;
     value: string;
   }[];

@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import * as React from 'react';
-import { Box } from 'src/components/Box';
 
+import { Box } from 'src/components/Box';
 import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
 import { useRegionsQuery } from 'src/queries/regions/regions';
 
