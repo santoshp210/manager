@@ -22,15 +22,6 @@ const triggerCondition = object({
   trigger_occurrences: number().required('Occurence is required'),
 });
 
-const content = object({
-  email: string(),
-});
-
-const notifications = object({
-  notification_type: string(),
-  content,
-});
-
 const engineOptionValidation = string().when('serviceType', {
   is: 'dbaas',
   then: string().required(),
@@ -49,7 +40,9 @@ export const createAlertDefinitionSchema = object({
     .of(metricCriteria)
     .min(1, 'At least one metric criteria is needed'),
   triggerCondition,
-  notifications: array().of(notifications),
+  notifications: array()
+    .of(string())
+    .min(1, 'At least one notification channel is needed'),
 });
 
 const channelTypeSchema = (type: string) => {

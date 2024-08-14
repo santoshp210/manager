@@ -11,7 +11,11 @@ export const getCloudViewServiceTypes = () =>
 
 export const getMetricDefinitionsByServiceType = (serviceType: string) => {
   return Request<Page<MetricDefinitions>>(
-    setURL(`${API_ROOT}/monitor/services/${serviceType}/metric-definitions`),
+    setURL(
+      `${API_ROOT}/monitor/services/${encodeURIComponent(
+        serviceType
+      )}/metric-definitions`
+    ),
     setMethod('GET')
   );
 };

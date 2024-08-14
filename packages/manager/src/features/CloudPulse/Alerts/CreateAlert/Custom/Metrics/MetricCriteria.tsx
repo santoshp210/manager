@@ -46,11 +46,12 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
   }, [formik.getFieldProps(props.name)]);
 
   return (
-    <Box sx={{ marginTop: '25px' }}>
+    <Box sx={(theme) => ({ marginTop: theme.spacing(3) })}>
       <FieldArray name={'criteria'}>
         {({ push, remove }) => (
           <>
             <Box
+              sx={{ marginBottom: 1 }}
               alignItems={'center'}
               display={'flex'}
               justifyContent={'space-between'}

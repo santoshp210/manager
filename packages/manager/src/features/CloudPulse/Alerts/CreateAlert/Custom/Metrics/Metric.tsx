@@ -142,6 +142,7 @@ export const Metric = (props: MetricProps) => {
                     }
                   : null
               }
+              key={selectedMetricField}
               label="Aggregation type"
               options={aggOptions}
               sx={{ paddingTop: '7px' }}
@@ -164,6 +165,7 @@ export const Metric = (props: MetricProps) => {
                   ? { label: values.operator, value: values.operator }
                   : null
               }
+              key={selectedMetricField}
               label={'Operator'}
               options={MetricOperatorOptions}
               sx={{ paddingTop: '7px' }}
@@ -180,6 +182,7 @@ export const Metric = (props: MetricProps) => {
                 minWidth: '70px',
                 paddingTop: '7px',
               }}
+              key={selectedMetricField}
               label="Value"
               min={0}
               name={`${name}.value`}

@@ -12,7 +12,7 @@ import type {
   ResourcePage,
 } from '@linode/api-v4';
 
-export const QUERY_KEY = 'cloudview-resources';
+export const QUERY_KEY = 'cloudpulse-resources';
 
 export const useLoadBalancerResourcesQuery = (
   runQuery: boolean,

@@ -7,7 +7,7 @@ import {
 import { APIError } from '@linode/api-v4/lib/types';
 import { useQuery } from '@tanstack/react-query';
 
-export const queryKey = 'cloudview-services';
+export const queryKey = 'cloudpulse-services';
 export const serviceTypeKey = 'service-types';
 
 export const useCloudViewServices = () => {

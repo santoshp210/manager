@@ -87,7 +87,7 @@ export const CreateAlertDefinition = React.memo(() => {
     initialValues,
     onSubmit(
       values: CreateAlertDefinitionPayload,
-      { setErrors, setStatus, setSubmitting }
+      { resetForm, setErrors, setStatus, setSubmitting }
     ) {
       setStatus(undefined);
       setErrors({});
@@ -99,6 +99,8 @@ export const CreateAlertDefinition = React.memo(() => {
           enqueueSnackbar(`Alert created`, {
             variant: 'success',
           });
+          resetForm();
+          history.goBack();
         })
         .catch((err: APIError[]) => {
           const mapErrorToStatus = () =>

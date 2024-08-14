@@ -19,10 +19,17 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
   const { dimensionOptions, name, onFilterDelete } = props;
   const formik = useFormikContext();
   const [field, meta] = useField(name);
-
+  const error: any = meta.error;
+  const dataFieldOptions = dimensionOptions.map((dimension) => ({
+    label: dimension.label,
+    value: dimension.dim_label,
+  }));
   const selectedDimension = field.value.dimension_label
-    ? dimensionOptions.find((dim) => dim.label === field.value.dimension_label)
+    ? dimensionOptions.find(
+        (dim) => dim.dim_label === field.value.dimension_label
+      )
     : null;
+
   const valueOptions =
     selectedDimension && selectedDimension.values
       ? selectedDimension.values.map((val) => ({ label: val, value: val }))
@@ -34,11 +41,27 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
     } else {
       formik.setFieldValue(`${name}.${field}`, '');
     }
+  };
 
-    if (field === 'dimension_label') {
-      formik.setFieldValue(`${name}.value`, '');
+  const handleDataFieldChange = (field: any, value: any, operation: string) => {
+    const fieldValue = {
+      dimension_label: '',
+      operator: '',
+      value: '',
+    };
+    if (operation === 'selectOption') {
+      formik.setFieldValue(`${name}.${field}`, value.value);
+      setSelectedDataField(value);
+    } else {
+      formik.setFieldValue(`${name}`, fieldValue);
+      setSelectedDataField({ label: '', value: '' });
     }
   };
+
+  const [selectedDataField, setSelectedDataField] = React.useState({
+    label: '',
+    value: '',
+  });
   const CustomErrorMessage = (props: any) => (
     <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
   );
@@ -46,27 +69,18 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
     <>
       <Stack direction="row" spacing={2}>
         <Autocomplete
-          isOptionEqualToValue={(option, value) =>
-            option.label === value?.label
-          }
           onBlur={(event) => {
             formik.handleBlur(event);
             formik.setFieldTouched(`${props.name}.dimension_label`, true);
           }}
-          onChange={(event, newValue, operation) =>
-            handleSelectChange('dimension_label', newValue, operation)
-          }
-          value={
-            field.value.dimension_label
-              ? {
-                  label: field.value.dimension_label,
-                  value: field.value.dimension_label,
-                }
-              : null
-          }
+          onChange={(event, newValue, operation) => {
+            handleDataFieldChange('dimension_label', newValue, operation);
+          }}
+          isOptionEqualToValue={(option, value) => option.label === value.label}
           label="Data Field"
-          options={valueOptions}
+          options={dataFieldOptions}
           sx={{ width: '25%' }}
+          value={selectedDataField.label ? selectedDataField : null}
         />
 
         <Autocomplete
@@ -115,19 +129,19 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
         </Box>
       </Stack>
       <Box>
-        {meta.touched && meta.error && meta.error.dimension_label ? (
+        {meta.touched && error && error.dimension_label ? (
           <ErrorMessage
             component={CustomErrorMessage}
             name={`${props.name}.dimension_label`}
           />
         ) : null}
-        {meta.touched && meta.error && meta.error.operator ? (
+        {meta.touched && error && error.operator ? (
           <ErrorMessage
             component={CustomErrorMessage}
             name={`${props.name}.operator`}
           />
         ) : null}
-        {meta.touched && meta.error && meta.error.value ? (
+        {meta.touched && error && error.value ? (
           <ErrorMessage
             component={CustomErrorMessage}
             name={`${props.name}.value`}

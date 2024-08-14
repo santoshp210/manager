@@ -59,6 +59,6 @@ export interface AvailableMetrics {
 
 export interface Dimension {
   label: string;
-  dimension_label: string;
+  dim_label: string;
   values: string[];
 }
