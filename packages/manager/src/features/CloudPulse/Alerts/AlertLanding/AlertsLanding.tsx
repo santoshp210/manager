@@ -44,7 +44,7 @@ const AlertsLanding = React.memo(() => {
     return Boolean(matchPath(location.pathname, { exact: false, path: p }));
   };
   return (
-    <Paper>
+    <Paper sx={{padding: { xs: 0, sm: 2}}}>
       <Tabs
         index={Math.max(
           tabs.findIndex((tab) => matches(tab.routeName)),
@@ -58,6 +58,7 @@ const AlertsLanding = React.memo(() => {
             aligneItems: 'center',
             display: 'flex',
             justifyContent: 'space-between',
+            flexWrap: 'wrap',
             p: 2,
             width: '100%',
           }}
@@ -65,16 +66,18 @@ const AlertsLanding = React.memo(() => {
           <TabLinkList tabs={tabs} />
           {/* <Box> */}
           {location.pathname === `${path}/definitions` ? (
-            <Button
-              onClick={(event) => {
-                history.push(`${path}/definitions/create`);
-              }}
-              buttonType="primary"
-              sx={{ marginRight: 2 }}
-              variant="contained"
-            >
-              Create
-            </Button>
+            <Box display={'flex'} alignItems={'center'}>
+              <Button
+                onClick={(event) => {
+                  history.push(`${path}/definitions/create`);
+                }}
+                buttonType="primary"
+                sx={{ marginRight: 2 }}
+                variant="contained"
+              >
+                Create
+              </Button>
+            </Box>
           ) : null}
         </Box>
         <Switch>

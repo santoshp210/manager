@@ -64,7 +64,7 @@ export const AddChannelListing = (props: ChannelListProps) => {
                     <Typography variant="h3">Type:</Typography>
                   </Grid>
                   <Grid item md={11}>
-                    <Typography variant="body2">{notification.type}</Typography>
+                    <Typography variant="subtitle2">{notification.type}</Typography>
                   </Grid>
                 </Grid>
                 <Grid container paddingLeft={2}>

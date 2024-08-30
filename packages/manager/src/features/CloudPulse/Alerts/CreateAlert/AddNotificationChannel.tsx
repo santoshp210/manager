@@ -85,7 +85,7 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
   };
 
   const CustomErrorMessage = (props: any) => (
-    <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
+    <Box sx={(theme) => ({ color: theme.color.red })} display={"flex"} flexDirection={"column"} gap={1}>{props.children}</Box>
   );
 
   React.useEffect(() => {
@@ -101,6 +101,7 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
     }
   }, [formik.values.templateName]);
 
+  console.log(formik.touched);
   return (
     <FormikProvider value={formik}>
       <form onSubmit={formik.handleSubmit}>

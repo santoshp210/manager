@@ -15,7 +15,12 @@ export const CustomChannelAutocomplete = (Props: Props) => {
   const [customOption, setCustomOption] = React.useState('');
   const [selectedValue, setSelectedValue] = React.useState(value);
 
-  const handleChange = (_: any, newValue: any, operation: string) => {
+  const handleChange = (
+    e: React.SyntheticEvent<Element, Event>,
+    newValue: any,
+    operation: string
+  ) => {
+    e.preventDefault();
     if (!newValue) {
       setSelectedValue('');
       onChange('');

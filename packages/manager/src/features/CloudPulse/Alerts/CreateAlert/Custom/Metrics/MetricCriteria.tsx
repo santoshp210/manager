@@ -54,6 +54,7 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
               alignItems={'center'}
               display={'flex'}
               justifyContent={'space-between'}
+              marginBottom={1}
             >
               <Typography variant={'h2'}>2. Criteria</Typography>
             </Box>

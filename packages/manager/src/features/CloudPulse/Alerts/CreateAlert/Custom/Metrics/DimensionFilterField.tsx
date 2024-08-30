@@ -1,6 +1,6 @@
 import { Dimension } from '@linode/api-v4';
 import { DeleteOutlineOutlined } from '@mui/icons-material';
-import { styled } from '@mui/material';
+import { Grid, styled } from '@mui/material';
 import { ErrorMessage, useField, useFormikContext } from 'formik';
 import React from 'react';
 
@@ -44,7 +44,7 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
   );
   return (
     <>
-      <Stack direction="row" spacing={2}>
+      {/* <Stack direction="row" spacing={2}>
         <Autocomplete
           isOptionEqualToValue={(option, value) =>
             option.label === value?.label
@@ -113,7 +113,90 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
         <Box>
           <StyledDeleteIcon onClick={onFilterDelete} />
         </Box>
-      </Stack>
+      </Stack> */}
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} sm={3} md={3}> 
+          <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.label === value?.label
+            }
+            onBlur={(event) => {
+              formik.handleBlur(event);
+              formik.setFieldTouched(`${props.name}.dimension_label`, true);
+            }}
+            onChange={(event, newValue, operation) =>
+              handleSelectChange('dimension_label', newValue, operation)
+            }
+            value={
+              field.value.dimension_label
+                ? {
+                    label: field.value.dimension_label,
+                    value: field.value.dimension_label,
+                  }
+                : null
+            }
+            label="Data Field"
+            options={valueOptions}
+            // sx={{ width: '25%' }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={3} md={'auto'}> 
+          <Autocomplete
+            isOptionEqualToValue={(option, value) =>
+              option.label === value?.label
+            }
+            onBlur={(event) => {
+              formik.handleBlur(event);
+              formik.setFieldTouched(`${props.name}.operator`, true);
+            }}
+            onChange={(event, newValue, operation) =>
+              handleSelectChange('operator', newValue, operation)
+            }
+            value={
+              field.value.operator
+                ? { label: field.value.operator, value: field.value.operator }
+                : null
+            }
+            label={'Operator'}
+            options={DimensionOperatorOptions}
+            // sx={{ width: '13%' }}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}> 
+          <Grid container spacing={0} alignItems="center">
+            <Grid xs={10} sm={6} md={8}>
+            <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.label === value?.label
+              }
+              onBlur={(event) => {
+                formik.handleBlur(event);
+                formik.setFieldTouched(`${props.name}.value`, true);
+              }}
+              onChange={(event, newValue, operation) =>
+                handleSelectChange('value', newValue, operation)
+              }
+              value={
+                field.value.value
+                  ? { label: field.value.value, value: field.value.value }
+                  : null
+              }
+              label="Value"
+              options={valueOptions}
+            />
+            </Grid>
+        
+            <Grid sm={"auto"} paddingLeft={1}>
+              <StyledDeleteIcon onClick={onFilterDelete} />
+            </Grid>
+          </Grid>
+        </Grid>
+        {/* <Grid item xs={12} sm={3} md={3}> 
+          <Box>
+            <StyledDeleteIcon onClick={onFilterDelete} />
+          </Box>
+        </Grid> */}
+      </Grid>
       <Box>
         {meta.touched && meta.error && meta.error.dimension_label ? (
           <ErrorMessage

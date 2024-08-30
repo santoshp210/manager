@@ -1,6 +1,6 @@
 import { AvailableMetrics } from '@linode/api-v4';
 import { DeleteOutlineOutlined } from '@mui/icons-material';
-import { styled } from '@mui/material';
+import { Grid, styled } from '@mui/material';
 import { ErrorMessage, getIn, useFormikContext } from 'formik';
 import React from 'react';
 
@@ -94,7 +94,7 @@ export const Metric = (props: MetricProps) => {
             <StyledDeleteIcon onClick={onMetricDelete} />
           </Box>
         </Box>
-        <Stack direction="row" spacing={3}>
+        {/* <Stack direction="row" spacing={3}>
           <Box>
             <Autocomplete
               errorText={
@@ -203,7 +203,121 @@ export const Metric = (props: MetricProps) => {
               {unit}
             </Typography>
           </Box>
-        </Stack>
+        </Stack> */}
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={3}> 
+            <Autocomplete
+              errorText={
+                isMetricDefinitionError ? 'Error in fetching the data' : ''
+              }
+              onBlur={(event) => {
+                formik.handleBlur(event);
+                formik.setFieldTouched(`${name}.metric`, true);
+              }}
+              onChange={(event, newValue, operation) => {
+                handleDataFieldChange('metric', newValue, operation);
+                setMetric(newValue.label);
+              }}
+              textFieldProps={{
+                labelTooltipText:
+                  'Choose the metric that you intend to alert upon',
+              }}
+              disableClearable={true}
+              isOptionEqualToValue={(option, value) => option.label === value}
+              label="Data Field"
+              loading={isMetricDefinitionLoading}
+              loadingText={'Loading the data fields'}
+              options={metricOptions}
+              size="medium"
+              value={selectedMetricField ? selectedMetricField : null}
+            />
+          </Grid>
+          <Grid item xs={12} md={3} sm={6}>
+            <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.value === value?.value
+              }
+              onBlur={(event) => {
+                formik.handleBlur(event);
+                formik.setFieldTouched(`${name}.aggregation_type`, true);
+              }}
+              onChange={(event, newValue, operation) =>
+                handleSelectChange('aggregation_type', newValue, operation)
+              }
+              value={
+                values?.aggregation_type
+                  ? {
+                      label: values.aggregation_type,
+                      value: values.aggregation_type,
+                    }
+                  : null
+              }
+              label="Aggregation type"
+              options={aggOptions}
+              sx={{ paddingTop: { sm: 1, xs: 0 } }}
+            />
+          </Grid>
+          <Grid item xs={12} md={"auto"} sm={6}>
+            <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.label === value?.label
+              }
+              onBlur={(event) => {
+                formik.handleBlur(event);
+                formik.setFieldTouched(`${name}.operator`, true);
+              }}
+              onChange={(event, newValue, operation) =>
+                handleSelectChange('operator', newValue, operation)
+              }
+              value={
+                values.operator
+                  ? { label: values.operator, value: values.operator }
+                  : null
+              }
+              label={'Operator'}
+              options={MetricOperatorOptions}
+              sx={{ paddingTop: { sm: 1, xs: 0 } }}
+            />
+          </Grid>
+          <Grid item xs={12} md={"auto"} sm={6} marginTop={ { sm: 1, xs: 0 }}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={6} sm={6} md={"auto"}>
+                <TextField
+                  onWheel={(event) =>
+                    event.target instanceof HTMLElement && event.target.blur()
+                  }
+                  // sx={{
+                    
+                  //   // maxWidth: '90px',
+                  //   // minWidth: '70px',
+                  //   paddingTop: 1,
+                  // }}
+                  label="Value"
+                  min={0}
+                  name={`${name}.value`}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  type="number"
+                  value={values.value}
+                />
+              </Grid>
+              <Grid item xs={6} sm={6} md={"auto"}>
+                <Typography
+                  sx={{
+                    // alignItems: 'center',
+                    display: 'flex',
+                    // flexDirection: 'column-reverse',
+                    alignItems: 'flex-end',
+                    height: '56px',
+                  }}
+                  variant="body1"
+                >
+                  {unit}
+                </Typography>
+              </Grid> 
+            </Grid>
+          </Grid>
+        </Grid>
         <Box sx={(theme) => ({ marginTop: theme.spacing(1) })}>
           {touchedFields && touchedFields.metric && errors.metric ? (
             <ErrorMessage
