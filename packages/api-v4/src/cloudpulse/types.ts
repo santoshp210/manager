@@ -142,13 +142,14 @@ export interface MetricCriteria {
   aggregation_type: string;
   operator: string;
   value: number;
-  dimension_filters: {
-    dimension_label: string;
-    operator: string;
-    value: string;
-  }[];
+  dimension_filters: DimensionFilter[];
 }
 
+export interface DimensionFilter {
+  dimension_label: string;
+  operator: string;
+  value: string;
+}
 export interface TriggerCondition {
   criteria_condition: string;
   polling_interval_seconds: string;

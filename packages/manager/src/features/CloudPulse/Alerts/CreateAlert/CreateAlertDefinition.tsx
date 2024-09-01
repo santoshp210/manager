@@ -21,6 +21,8 @@ import {
 } from 'src/utilities/formikErrorUtils';
 
 import { AlertSeverityOptions } from '../constants';
+import { MetricCriteriaField } from './Criteria/MetricCriteria';
+import { TriggerConditions } from './Criteria/TriggerConditions';
 import { EngineOption } from './GeneralInformation/EngineOption';
 import { CloudPulseRegionSelect } from './GeneralInformation/RegionSelect';
 import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMultiSelect';
@@ -60,7 +62,7 @@ export const initialValues: CreateAlertDefinitionPayload = {
   triggerCondition: triggerConditionInitialValues,
 };
 
-interface ErrorUtilsProps {
+export interface ErrorUtilsProps {
   errors: string | string[] | undefined;
   touched: boolean | undefined;
 }
@@ -122,6 +124,7 @@ export const CreateAlertDefinition = React.memo(() => {
     values,
   } = formik;
 
+  const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
   const generalError = status?.generalError;
 
   const generateCrumbOverrides = (pathname: string) => {
@@ -240,6 +243,17 @@ export const CreateAlertDefinition = React.memo(() => {
           <ErrorMessage
             errors={errors['severity']}
             touched={touched['severity']}
+          />
+          <MetricCriteriaField
+            getMaxInterval={(interval: number) =>
+              setMaxScrapeInterval(interval)
+            }
+            name="criteria"
+            serviceType={'linode'}
+          />
+          <TriggerConditions
+            maxScrapingInterval={maxScrapeInterval}
+            name={'triggerCondition'}
           />
           <ActionsPanel
             primaryButtonProps={{
