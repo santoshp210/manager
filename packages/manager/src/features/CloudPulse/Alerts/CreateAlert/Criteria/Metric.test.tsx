@@ -7,7 +7,7 @@ import { initialValues } from '../CreateAlertDefinition';
 import { Metric } from './Metric';
 
 import type { AvailableMetrics } from '@linode/api-v4';
-
+const DATA_FIELD_OPTION = 'CPU utilization';
 const mockData: AvailableMetrics[] = [
   {
     available_aggregate_functions: ['min', 'max', 'avg'],
@@ -48,11 +48,21 @@ const mockData: AvailableMetrics[] = [
   },
 ];
 
+vi.mock('./DimensionFilter', () => {
+  return {
+    DimensionFilter: () => {
+      return <div />;
+    },
+    default: () => {
+      return <div />;
+    },
+  };
+});
 describe('Metric component tests', () => {
   it('should render all the components and names', () => {
     const container = renderWithThemeAndFormik(
       <Metric
-        apiError={[true, true]}
+        apiError={[false, false]}
         data={mockData}
         name={'criteria'}
         onMetricDelete={vi.fn()}
@@ -63,5 +73,73 @@ describe('Metric component tests', () => {
     expect(container.getByLabelText('Aggregation type')).toBeInTheDocument();
     expect(container.getByLabelText('Operator')).toBeInTheDocument();
     expect(container.getByLabelText('Value')).toBeInTheDocument();
+  });
+  it('should show the options for the Autocomplete component', () => {
+    const container = renderWithThemeAndFormik(
+      <Metric
+        apiError={[false, false]}
+        data={mockData}
+        name={'criteria'}
+        onMetricDelete={vi.fn()}
+      />,
+      { initialValues, onSubmit: vi.fn() }
+    );
+    const dataFieldContainer = container.getByTestId('Data-field');
+    const dataFieldInput = within(dataFieldContainer).getByRole('button', {
+      name: 'Open',
+    });
+    fireEvent.click(dataFieldInput);
+    expect(
+      screen.getByRole('option', { name: DATA_FIELD_OPTION })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('option', { name: DATA_FIELD_OPTION }));
+    const aggregationTypeContainer = container.getByTestId('Aggregation-type');
+    const aggregationTypeInput = within(
+      aggregationTypeContainer
+    ).getByRole('button', { name: 'Open' });
+    fireEvent.click(aggregationTypeInput);
+    expect(screen.getByRole('option', { name: 'min' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'avg' })).toBeInTheDocument();
+
+    const operatorContainer = container.getByTestId('Operator');
+    const operatorInput = within(operatorContainer).getByRole('button', {
+      name: 'Open',
+    });
+
+    fireEvent.click(operatorInput);
+    expect(screen.getByRole('option', { name: '>' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '>=' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '==' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '<' })).toBeInTheDocument();
+  });
+  it('should be able to select the chosen option', () => {
+    const container = renderWithThemeAndFormik(
+      <Metric
+        apiError={[false, false]}
+        data={mockData}
+        name={'criteria'}
+        onMetricDelete={vi.fn()}
+      />,
+      { initialValues, onSubmit: vi.fn() }
+    );
+    const dataFieldContainer = container.getByTestId('Data-field');
+    const dataFieldInput = within(dataFieldContainer).getByRole('button', {
+      name: 'Open',
+    });
+    fireEvent.click(dataFieldInput);
+    fireEvent.click(screen.getByRole('option', { name: DATA_FIELD_OPTION }));
+    expect(within(dataFieldContainer).getByRole('combobox')).toHaveAttribute(
+      'value',
+      DATA_FIELD_OPTION
+    );
+    const aggregationTypeContainer = container.getByTestId('Aggregation-type');
+    const aggregationTypeInput = within(
+      aggregationTypeContainer
+    ).getByRole('button', { name: 'Open' });
+    fireEvent.click(aggregationTypeInput);
+    fireEvent.click(screen.getByRole('option', { name: 'avg' }));
+    expect(
+      within(aggregationTypeContainer).getByRole('combobox')
+    ).toHaveAttribute('value', 'avg');
   });
 });

@@ -144,6 +144,7 @@ export const Metric = (props: MetricCriteriaProps) => {
                 labelTooltipText:
                   'Choose the metric that you intend to alert upon',
               }}
+              data-testid={'Data-field'}
               label="Data Field"
               loading={isMetricDefinitionLoading}
               loadingText={'Loading the data fields'}
@@ -176,6 +177,7 @@ export const Metric = (props: MetricCriteriaProps) => {
                     }
                   : null
               }
+              data-testid={'Aggregation-type'}
               key={values.metric}
               label="Aggregation type"
               options={aggOptions}
@@ -199,6 +201,7 @@ export const Metric = (props: MetricCriteriaProps) => {
                   ? { label: values.operator, value: values.operator }
                   : null
               }
+              data-testid={'Operator'}
               key={values.metric}
               label={'Operator'}
               options={MetricOperatorOptions}
