@@ -175,26 +175,6 @@ export interface Alert {
   created: string;
   updated: string;
 }
-
-export interface MetricDefinitions {
-  data: AvailableMetrics[];
-}
-
-export interface AvailableMetrics {
-  label: string;
-  metric: string;
-  metric_type: string;
-  unit: string;
-  scrape_interval: string;
-  available_aggregate_functions: string[];
-  dimensions: Dimension[];
-}
-
-export interface Dimension {
-  label: string;
-  dim_label: string;
-  values: string[];
-}
 export interface ServiceTypes {
   service_type: string;
 }

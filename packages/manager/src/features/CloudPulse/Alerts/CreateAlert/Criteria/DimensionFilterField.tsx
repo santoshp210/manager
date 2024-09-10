@@ -1,6 +1,6 @@
 import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
 import { Grid, styled } from '@mui/material';
-import { ErrorMessage, useField, useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
@@ -8,7 +8,8 @@ import { Box } from 'src/components/Box';
 
 import { DimensionOperatorOptions } from '../../constants';
 
-import type { Dimension } from '@linode/api-v4';
+import type { ErrorUtilsProps } from '../CreateAlertDefinition';
+import type { Alert, Dimension } from '@linode/api-v4';
 
 interface DimensionFilterFieldProps {
   /**
@@ -31,23 +32,19 @@ type DimensionDataFieldOption = {
 };
 export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
   const { dimensionOptions, name, onFilterDelete } = props;
-  const formik = useFormikContext();
-  const [field, meta] = useField(name);
-  const error: any = meta.error;
+  const formik = useFormikContext<Alert>();
+  // const [field, meta] = useField(name);
+  // const values = field.value;
+  // const error = meta.error;
   const dataFieldOptions = dimensionOptions.map((dimension) => ({
     label: dimension.label,
-    value: dimension.dim_label,
+    value: dimension.dimension_label,
   }));
-  const selectedDimension = field.value.dimension_label
-    ? dimensionOptions.find(
-        (dim) => dim.dim_label === field.value.dimension_label
-      )
-    : null;
 
-  const valueOptions =
-    selectedDimension && selectedDimension.values
-      ? selectedDimension.values.map((val) => ({ label: val, value: val }))
-      : [];
+  const [
+    selectedDataField,
+    setSelectedDataField,
+  ] = React.useState<DimensionDataFieldOption | null>(null);
 
   const handleSelectChange = (
     field: string,
@@ -61,30 +58,42 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
     }
   };
 
-  const [
-    selectedDataField,
-    setSelectedDataField,
-  ] = React.useState<DimensionDataFieldOption | null>(null);
-  const handleDataFieldChange = (
-    field: string,
-    value: string,
-    operation: string
-  ) => {
+  const handleDataFieldChange = (value: string, operation: string) => {
     const fieldValue = {
       dimension_label: '',
       operator: '',
       value: '',
     };
     if (operation === 'selectOption') {
-      formik.setFieldValue(`${name}.${field}`, value);
+      formik.setFieldValue(name, { ...fieldValue, dimension_label: value });
     } else {
-      formik.setFieldValue(`${name}`, fieldValue);
+      formik.setFieldValue(name, fieldValue);
     }
   };
 
-  const CustomErrorMessage = (props: any) => (
-    <Box sx={(theme) => ({ color: theme.color.red })}>{props.children}</Box>
-  );
+  const errors = getIn(formik.errors, name, {});
+  const touched = getIn(formik.touched, name, {});
+  const values = formik.getFieldProps(name).value;
+
+  const selectedDimension =
+    dimensionOptions && values.dimension_label
+      ? dimensionOptions.find(
+          (dim) => dim.dimension_label === values.dimension_label
+        )
+      : null;
+
+  const valueOptions =
+    selectedDimension && selectedDimension.values
+      ? selectedDimension.values.map((val) => ({ label: val, value: val }))
+      : [];
+
+  const ErrorMessage = ({ errors, touched }: ErrorUtilsProps) => {
+    if (touched && errors) {
+      return <Box sx={(theme) => ({ color: theme.color.red })}>{errors}</Box>;
+    } else {
+      return null;
+    }
+  };
   return (
     <>
       <Grid alignItems="center" container spacing={2}>
@@ -95,16 +104,13 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
             }
             onBlur={(event) => {
               formik.handleBlur(event);
-              formik.setFieldTouched(`${props.name}.dimension_label`, true);
+              formik.setFieldTouched(`${name}.dimension_label`, true);
             }}
-            onChange={(event, newValue, operation) => {
-              handleDataFieldChange(
-                'dimension_label',
-                newValue?.value ?? '',
-                operation
-              );
+            onChange={(_, newValue, operation) => {
+              handleDataFieldChange(newValue?.value ?? '', operation);
               setSelectedDataField(newValue);
             }}
+            data-testid="Data-field"
             label="Data Field"
             options={dataFieldOptions}
             value={selectedDataField}
@@ -117,16 +123,17 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
             }
             onBlur={(event) => {
               formik.handleBlur(event);
-              formik.setFieldTouched(`${props.name}.operator`, true);
+              formik.setFieldTouched(`${name}.operator`, true);
             }}
-            onChange={(event, newValue, operation) =>
+            onChange={(_, newValue, operation) =>
               handleSelectChange('operator', newValue?.value ?? '', operation)
             }
             value={
-              field.value.operator
-                ? { label: field.value.operator, value: field.value.operator }
+              values.operator
+                ? { label: values.operator, value: values.operator }
                 : null
             }
+            data-testid="Operator"
             label={'Operator'}
             options={DimensionOperatorOptions}
           />
@@ -140,16 +147,17 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
                 }
                 onBlur={(event) => {
                   formik.handleBlur(event);
-                  formik.setFieldTouched(`${props.name}.value`, true);
+                  formik.setFieldTouched(`${name}.value`, true);
                 }}
-                onChange={(event, newValue, operation) =>
+                onChange={(_, newValue, operation) =>
                   handleSelectChange('value', newValue?.value ?? '', operation)
                 }
                 value={
-                  field.value.value
-                    ? { label: field.value.value, value: field.value.value }
+                  values?.value
+                    ? { label: values.value, value: values.value }
                     : null
                 }
+                data-testid="Value"
                 label="Value"
                 options={valueOptions}
               />
@@ -161,24 +169,15 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
         </Grid>
       </Grid>
       <Box>
-        {meta.touched && error && error.dimension_label ? (
-          <ErrorMessage
-            component={CustomErrorMessage}
-            name={`${props.name}.dimension_label`}
-          />
-        ) : null}
-        {meta.touched && error && error.operator ? (
-          <ErrorMessage
-            component={CustomErrorMessage}
-            name={`${props.name}.operator`}
-          />
-        ) : null}
-        {meta.touched && error && error.value ? (
-          <ErrorMessage
-            component={CustomErrorMessage}
-            name={`${props.name}.value`}
-          />
-        ) : null}
+        <ErrorMessage
+          errors={errors['dimension_label']}
+          touched={touched['dimension_label']}
+        />
+        <ErrorMessage
+          errors={errors['operator']}
+          touched={touched['operator']}
+        />
+        <ErrorMessage errors={errors['value']} touched={touched['value']} />
       </Box>
     </>
   );

@@ -6,47 +6,46 @@ import { renderWithThemeAndFormik } from 'src/utilities/testHelpers';
 import { initialValues } from '../CreateAlertDefinition';
 import { Metric } from './Metric';
 
-import type { AvailableMetrics } from '@linode/api-v4';
+import type { MetricDefinitions } from '@linode/api-v4';
 const DATA_FIELD_OPTION = 'CPU utilization';
-const mockData: AvailableMetrics[] = [
-  {
-    available_aggregate_functions: ['min', 'max', 'avg'],
-    dimensions: [
-      {
-        dim_label: 'cpu',
-        dimension_label: 'cpu',
-        label: 'CPU name',
-        values: [],
-      },
-      {
-        dim_label: 'state',
-        dimension_label: 'state',
-        label: 'State of CPU',
-        values: [
-          'user',
-          'system',
-          'idle',
-          'interrupt',
-          'nice',
-          'softirq',
-          'steal',
-          'wait',
-        ],
-      },
-      {
-        dim_label: 'LINODE_ID',
-        dimension_label: 'LINODE_ID',
-        label: 'Linode ID',
-        values: [],
-      },
-    ],
-    label: 'CPU utilization',
-    metric: 'system_cpu_utilization_percent',
-    metric_type: 'gauge',
-    scrape_interval: '2m',
-    unit: 'percent',
-  },
-];
+const mockData: MetricDefinitions = {
+  data: [
+    {
+      available_aggregate_functions: ['min', 'max', 'avg'],
+      dimensions: [
+        {
+          dimension_label: 'cpu',
+          label: 'CPU name',
+          values: [],
+        },
+        {
+          dimension_label: 'state',
+          label: 'State of CPU',
+          values: [
+            'user',
+            'system',
+            'idle',
+            'interrupt',
+            'nice',
+            'softirq',
+            'steal',
+            'wait',
+          ],
+        },
+        {
+          dimension_label: 'LINODE_ID',
+          label: 'Linode ID',
+          values: [],
+        },
+      ],
+      label: 'CPU utilization',
+      metric: 'system_cpu_utilization_percent',
+      metric_type: 'gauge',
+      scrape_interval: '2m',
+      unit: 'percent',
+    },
+  ],
+};
 
 vi.mock('./DimensionFilter', () => {
   return {
@@ -63,7 +62,7 @@ describe('Metric component tests', () => {
     const container = renderWithThemeAndFormik(
       <Metric
         apiError={[false, false]}
-        data={mockData}
+        data={mockData.data}
         name={'criteria'}
         onMetricDelete={vi.fn()}
       />,
@@ -78,7 +77,7 @@ describe('Metric component tests', () => {
     const container = renderWithThemeAndFormik(
       <Metric
         apiError={[false, false]}
-        data={mockData}
+        data={mockData.data}
         name={'criteria'}
         onMetricDelete={vi.fn()}
       />,
@@ -116,7 +115,7 @@ describe('Metric component tests', () => {
     const container = renderWithThemeAndFormik(
       <Metric
         apiError={[false, false]}
-        data={mockData}
+        data={mockData.data}
         name={'criteria'}
         onMetricDelete={vi.fn()}
       />,

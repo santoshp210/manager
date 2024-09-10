@@ -69,9 +69,9 @@ export const Metric = (props: MetricCriteriaProps) => {
       value: 0,
     };
     if (operation === 'selectOption') {
-      formik.setFieldValue(`${name}`, { ...fieldValue, metric: value });
+      formik.setFieldValue(name, { ...fieldValue, metric: value });
     } else {
-      formik.setFieldValue(`${name}`, fieldValue);
+      formik.setFieldValue(name, fieldValue);
     }
   };
 
