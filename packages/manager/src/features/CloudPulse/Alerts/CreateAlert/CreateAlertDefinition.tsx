@@ -124,6 +124,7 @@ export const CreateAlertDefinition = React.memo(() => {
     values,
   } = formik;
 
+
   const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
   const generalError = status?.generalError;
 

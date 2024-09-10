@@ -4,6 +4,7 @@ export const AlertSeverityOptions = [
   { label: 'Medium - 1', value: '1' },
   { label: 'Severe - 0', value: '0' },
 ];
+
 export const DimensionOperatorOptions = [
   {
     label: 'is',
