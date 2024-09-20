@@ -17,6 +17,7 @@ import { Tabs } from 'src/components/Tabs/Tabs';
 import { useFlags } from 'src/hooks/useFlags';
 
 import { AlertDefinitionLanding } from './AlertDefinitionLanding';
+import { NotificationLanding } from '../NotificationLanding/NotificationLanding';
 
 const AlertsLanding = React.memo(() => {
   const flags = useFlags();
@@ -27,6 +28,11 @@ const AlertsLanding = React.memo(() => {
       accessible: flags.aclpAlerting?.alertDefinitions,
       routeName: `${path}/definitions`,
       title: 'Definitions',
+    },
+    {
+      accessible: flags.aclpAlerting?.alertDefinitions,
+      routeName: `${path}/notifications`,
+      title: 'Notification Channels',
     },
   ];
   const accessibleTabs = tabs.filter((tab) => tab.accessible);
@@ -76,6 +82,10 @@ const AlertsLanding = React.memo(() => {
           <Route
             component={() => <AlertDefinitionLanding />}
             path={'/monitor/cloudpulse/alerts/definitions'}
+          />
+          <Route
+            component={() => <NotificationLanding />}
+            path={'/monitor/cloudpulse/alerts/notifications'}
           />
           <Redirect
             from="/monitor/cloudpulse/alerts"

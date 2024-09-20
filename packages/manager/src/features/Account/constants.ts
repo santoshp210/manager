@@ -12,6 +12,7 @@ export const grantTypeMap = {
   lkeCluster: 'LKE Clusters', // Note: Not included in the user's grants returned from the API.
   longview: 'Longview Clients',
   nodebalancer: 'NodeBalancers',
+  notification: 'Notifications',
   placementGroups: 'Placement Groups',
   stackscript: 'StackScripts',
   volume: 'Volumes',

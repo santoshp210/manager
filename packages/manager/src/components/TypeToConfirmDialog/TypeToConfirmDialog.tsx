@@ -30,6 +30,7 @@ interface EntityInfo {
     | 'Linode'
     | 'Load Balancer'
     | 'NodeBalancer'
+    | 'Notification'
     | 'Placement Group'
     | 'Subnet'
     | 'VPC'
