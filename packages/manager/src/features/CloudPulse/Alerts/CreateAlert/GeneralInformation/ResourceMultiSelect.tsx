@@ -1,18 +1,17 @@
-import { useFormikContext } from 'formik';
 import * as React from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useResourcesQuery } from 'src/queries/cloudpulse/resources';
+
+import { ErrorMessage } from '../CreateAlertDefinition';
 interface CloudPulseResourceSelectProps {
   /**
-   * cluster type selected by the user
+   * engine option type selected by the user
    */
-  cluster: boolean;
+  engine: string;
   /**
-   * database engine type selected by the user
-   */
-  /**
-   * name used for the component to set formik field
+   * name used for the component to set the form field
    */
   name: string;
   /**
@@ -34,10 +33,9 @@ export interface CloudPulseResources {
 export const CloudPulseMultiResourceSelect = (
   props: CloudPulseResourceSelectProps
 ) => {
-  const { cluster, name, region, serviceType } = { ...props };
-  const formik = useFormikContext();
+  const { engine, name, region, serviceType } = { ...props };
+  const { control, setValue } = useFormContext();
 
-  const engine = formik.getFieldProps('engineOption').value;
   const [selectedResources, setSelectedResources] = React.useState<
     CloudPulseResources[]
   >([]);
@@ -45,50 +43,57 @@ export const CloudPulseMultiResourceSelect = (
     Boolean(region && serviceType),
     serviceType,
     {},
-    cluster ? { engine, region } : { region }
+    engine !== '' ? { engine, region } : { region }
   );
   const getResourcesList = (): CloudPulseResources[] => {
     return resources && resources.length > 0 ? resources : [];
   };
 
   React.useEffect(() => {
-    formik.setFieldValue(
+    setValue(
       `${name}`,
       selectedResources.map((resource: CloudPulseResources) => {
         return resource.id.toString();
       })
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedResources]);
+  }, [name, selectedResources, setValue]);
 
   React.useEffect(() => {
     setSelectedResources([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [region, serviceType]);
+  }, [region, serviceType, engine]);
 
   return (
-    <Autocomplete
-      isOptionEqualToValue={(option, value) => {
-        return option.id === value.id;
-      }}
-      onBlur={(event) => {
-        formik.handleBlur(event);
-        formik.setFieldTouched(name, true);
-      }}
-      onChange={(_: React.SyntheticEvent<Element, Event>, resources) => {
-        setSelectedResources(resources);
-      }}
-      autoHighlight
-      clearOnBlur
-      data-testid="resource-select"
-      disabled={!Boolean(region && serviceType)}
-      label={cluster ? 'Cluster' : 'Resources'}
-      limitTags={2}
-      loading={isLoading && Boolean(region && serviceType)}
-      multiple
-      options={getResourcesList()}
-      placeholder="Select Resources"
-      value={selectedResources}
+    <Controller
+      render={({ field, fieldState }) => (
+        <>
+          <Autocomplete
+            isOptionEqualToValue={(option, value) => {
+              return option.id === value.id;
+            }}
+            onChange={(_, resources) => {
+              setSelectedResources(resources);
+            }}
+            autoHighlight
+            clearOnBlur
+            data-testid="resource-select"
+            disabled={!Boolean(region && serviceType)}
+            label={serviceType === 'dbaas' ? 'Cluster' : 'Resources'}
+            limitTags={2}
+            loading={isLoading && Boolean(region && serviceType)}
+            multiple
+            onBlur={field.onBlur}
+            options={getResourcesList()}
+            placeholder="Select Resources"
+            value={selectedResources}
+          />
+          <ErrorMessage
+            errors={fieldState.error?.message}
+            touched={fieldState.isTouched}
+          />
+        </>
+      )}
+      control={control}
+      name={name}
     />
   );
 };

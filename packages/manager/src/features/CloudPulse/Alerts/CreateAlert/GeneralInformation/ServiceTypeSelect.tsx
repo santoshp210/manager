@@ -1,8 +1,10 @@
-import { useFormikContext } from 'formik';
 import * as React from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useCloudPulseServiceTypes } from 'src/queries/cloudpulse/services';
+
+import { ErrorMessage } from '../CreateAlertDefinition';
 
 interface CloudPulseServiceSelectProps {
   /**
@@ -25,7 +27,8 @@ export const CloudPulseServiceSelect = (
     error: serviceTypesError,
     isLoading: serviceTypesLoading,
   } = useCloudPulseServiceTypes(true);
-  const formik = useFormikContext();
+  // const formik = useFormikContext();
+  const { control, setValue } = useFormContext();
 
   const [
     selectedService,
@@ -33,9 +36,8 @@ export const CloudPulseServiceSelect = (
   ] = React.useState<CloudPulseServiceTypeOptions | null>(null);
 
   React.useEffect(() => {
-    formik.setFieldValue(name, selectedService?.value ?? '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedService]);
+    setValue(name, selectedService?.value ?? '');
+  }, [name, selectedService, setValue]);
 
   const getServicesList = (): CloudPulseServiceTypeOptions[] => {
     return serviceOptions
@@ -47,27 +49,36 @@ export const CloudPulseServiceSelect = (
   };
 
   return (
-    <Autocomplete
-      isOptionEqualToValue={(option, value) => {
-        return option.value === value.value;
-      }}
-      onBlur={(event) => {
-        formik.handleBlur(event);
-        formik.setFieldTouched(name, true);
-      }}
-      onChange={(_: React.SyntheticEvent<Element, Event>, newValue) => {
-        setSelectedService(newValue);
-      }}
-      data-testid="servicetype-select"
-      errorText={serviceTypesError ? 'Unable to load service types' : ''}
-      fullWidth
-      label="Service"
-      loading={serviceTypesLoading && !serviceTypesError}
-      noMarginTop
-      options={getServicesList()}
-      placeholder="Select a service"
-      sx={{ marginTop: '5px' }}
-      value={selectedService}
+    <Controller
+      render={({ field, fieldState }) => (
+        <>
+          <Autocomplete
+            isOptionEqualToValue={(option, value) => {
+              return option.value === value.value;
+            }}
+            onChange={(_, newValue) => {
+              setSelectedService(newValue);
+            }}
+            data-testid="servicetype-select"
+            errorText={serviceTypesError ? 'Unable to load service types' : ''}
+            fullWidth
+            label="Service"
+            loading={serviceTypesLoading && !serviceTypesError}
+            noMarginTop
+            onBlur={field.onBlur}
+            options={getServicesList()}
+            placeholder="Select a service"
+            sx={{ marginTop: '5px' }}
+            value={selectedService}
+          />
+          <ErrorMessage
+            errors={fieldState.error?.message}
+            touched={fieldState.isTouched}
+          />
+        </>
+      )}
+      control={control}
+      name={name}
     />
   );
 };

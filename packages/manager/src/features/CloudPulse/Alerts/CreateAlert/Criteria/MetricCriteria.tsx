@@ -1,5 +1,5 @@
-import { FieldArray, useFormikContext } from 'formik';
 import * as React from 'react';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 
 import { Box } from 'src/components/Box';
 import { Button } from 'src/components/Button/Button';
@@ -28,20 +28,22 @@ interface MetricCriteriaProps {
 }
 
 export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
+  const { getMaxInterval, name, serviceType } = props;
   const {
     data: metricDefinitions,
     isError: isMetricDefinitionError,
     isLoading: isMetricDefinitionLoading,
   } = useGetCloudPulseMetricDefinitionsByServiceType(
-    props.serviceType,
-    props.serviceType !== ''
+    serviceType,
+    serviceType !== ''
   );
 
-  const formik = useFormikContext<any>();
+  // const formik = useFormikContext<any>();
+  const { control, watch } = useFormContext();
 
   React.useEffect(() => {
     const formikMetricValues = new Set(
-      formik.getFieldProps(props.name).value.map((item: any) => item.metric)
+      watch(name).map((item: any) => item.metric)
     );
 
     const intervalList =
@@ -52,58 +54,51 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
     const maxInterval = Math.max(
       ...convertSeconds(intervalList ? intervalList : [])
     );
-    props.getMaxInterval(maxInterval);
+    getMaxInterval(maxInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formik.getFieldProps(props.name)]);
+  }, [watch(name)]);
 
+  const { append, fields, remove } = useFieldArray({
+    control,
+    name,
+  });
   return (
     <Box sx={(theme) => ({ marginTop: theme.spacing(3) })}>
-      <FieldArray name={'criteria'}>
-        {({ push, remove }) => (
-          <>
-            <Box
-              alignItems={'center'}
-              display={'flex'}
-              justifyContent={'space-between'}
-              sx={{ marginBottom: 1 }}
-            >
-              <Typography variant={'h2'}>2. Criteria</Typography>
-            </Box>
-            <Stack spacing={2}>
-              {formik
-                .getFieldProps(`criteria`)
-                .value.map((_: any, index: any) => (
-                  <Metric
-                    apiError={[
-                      isMetricDefinitionError,
-                      isMetricDefinitionLoading,
-                    ]}
-                    data={metricDefinitions ? metricDefinitions.data : []}
-                    key={index}
-                    name={`criteria[${index}]`}
-                    onMetricDelete={() => remove(index)}
-                  />
-                ))}
-            </Stack>
-            <Button
-              onClick={() =>
-                push({
-                  aggregation_type: '',
-                  dimension_filters: [],
-                  metric: '',
-                  operator: '',
-                  value: '',
-                })
-              }
-              buttonType={'outlined'}
-              size="medium"
-              sx={(theme) => ({ marginTop: theme.spacing(1) })}
-            >
-              Add Metric
-            </Button>
-          </>
-        )}
-      </FieldArray>
+      <Box
+        alignItems={'center'}
+        display={'flex'}
+        justifyContent={'space-between'}
+        sx={{ marginBottom: 1 }}
+      >
+        <Typography variant={'h2'}>2. Criteria</Typography>
+      </Box>
+      <Stack spacing={2}>
+        {fields.map((_, index) => (
+          <Metric
+            apiError={[isMetricDefinitionError, isMetricDefinitionLoading]}
+            data={metricDefinitions ? metricDefinitions.data : []}
+            key={index}
+            name={`criteria[${index}]`}
+            onMetricDelete={() => remove(index)}
+          />
+        ))}
+      </Stack>
+      <Button
+        onClick={() =>
+          append({
+            aggregation_type: '',
+            dimension_filters: [],
+            metric: '',
+            operator: '',
+            value: '',
+          })
+        }
+        buttonType={'outlined'}
+        size="medium"
+        sx={(theme) => ({ marginTop: theme.spacing(1) })}
+      >
+        Add Metric
+      </Button>
     </Box>
   );
 });

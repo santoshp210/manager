@@ -5,13 +5,12 @@ import { renderWithTheme } from 'src/utilities/testHelpers';
 import { CreateAlertDefinition } from './CreateAlertDefinition';
 describe('AlertDefinition Create', () => {
   it('should render inputs', () => {
-    const { getAllByText } = renderWithTheme(<CreateAlertDefinition />);
+    const { getByLabelText } = renderWithTheme(<CreateAlertDefinition />);
 
-    getAllByText('Name');
-    getAllByText('Description');
-    getAllByText('Service');
-    getAllByText('Region');
-    getAllByText('Resources');
-    getAllByText('Severity');
+    expect(getByLabelText('Name')).toBeVisible();
+    expect(getByLabelText('Description (optional)')).toBeVisible();
+    expect(getByLabelText('Service')).toBeVisible();
+    expect(getByLabelText('Region')).toBeVisible();
+    expect(getByLabelText('Severity')).toBeVisible();
   });
 });

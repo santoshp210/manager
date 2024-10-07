@@ -32,7 +32,7 @@ const triggerCondition = object({
 
 export const createAlertDefinitionSchema = object({
   name: string().required('Name is required'),
-  description: string(),
+  description: string().optional(),
   region: string().required('Region is required'),
   engineOption: engineOptionValidation,
   service_type: string().required('Service type is required'),

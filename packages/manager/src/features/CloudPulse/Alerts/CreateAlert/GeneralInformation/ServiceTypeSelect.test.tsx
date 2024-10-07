@@ -1,9 +1,8 @@
 import { fireEvent, screen } from '@testing-library/react';
 import * as React from 'react';
 
-import { renderWithThemeAndFormik } from 'src/utilities/testHelpers';
+import { renderWithThemeAndHookFormContext } from 'src/utilities/testHelpers';
 
-import { initialValues } from '../CreateAlertDefinition';
 import { CloudPulseServiceSelect } from './ServiceTypeSelect';
 
 const queryMocks = vi.hoisted(() => ({
@@ -18,20 +17,15 @@ vi.mock('src/queries/cloudpulse/services', async () => {
   };
 });
 
-const handleOnSubmit = vi.fn();
 describe('ServiceTypeSelect component tests', () => {
   it('should render the Autocomplete component', () => {
     const {
       getAllByText,
       getByPlaceholderText,
       getByTestId,
-    } = renderWithThemeAndFormik(
-      <CloudPulseServiceSelect name={'serviceType'} />,
-      {
-        initialValues,
-        onSubmit: handleOnSubmit,
-      }
-    );
+    } = renderWithThemeAndHookFormContext({
+      component: <CloudPulseServiceSelect name="service_type" />,
+    });
     expect(getByPlaceholderText('Select a service')).toBeInTheDocument();
     expect(getByTestId('servicetype-select')).toBeInTheDocument();
     getAllByText('Service');
@@ -46,20 +40,12 @@ describe('ServiceTypeSelect component tests', () => {
       isLoading: false,
       status: 'success',
     });
-    renderWithThemeAndFormik(<CloudPulseServiceSelect name={'serviceType'} />, {
-      initialValues,
-      onSubmit: handleOnSubmit,
+    renderWithThemeAndHookFormContext({
+      component: <CloudPulseServiceSelect name="service_type" />,
     });
     fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-    expect(
-      screen.getByRole('option', {
-      })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('option', {
-        name: 'DBAAS',
-      })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'LINODE' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'DBAAS' })).toBeInTheDocument();
   });
 
   it('should be able to select a service type', () => {
@@ -71,9 +57,8 @@ describe('ServiceTypeSelect component tests', () => {
       isLoading: false,
       status: 'success',
     });
-    renderWithThemeAndFormik(<CloudPulseServiceSelect name={'serviceType'} />, {
-      initialValues,
-      onSubmit: handleOnSubmit,
+    renderWithThemeAndHookFormContext({
+      component: <CloudPulseServiceSelect name="service_type" />,
     });
     fireEvent.click(screen.getByRole('button', { name: 'Open' }));
     fireEvent.click(screen.getByRole('option', { name: 'LINODE' }));

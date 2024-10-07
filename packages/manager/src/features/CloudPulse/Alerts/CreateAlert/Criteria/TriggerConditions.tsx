@@ -1,6 +1,6 @@
 import { Grid } from '@mui/material';
-import { getIn, useFormikContext } from 'formik';
 import * as React from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
@@ -12,6 +12,7 @@ import {
   PollingIntervalOptions,
   TriggerOptions,
 } from '../../constants';
+import { ControllerErrorMessage } from './Metric';
 
 import type { ErrorUtilsProps } from '../CreateAlertDefinition';
 interface TriggerConditionProps {
@@ -37,11 +38,10 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
     selectedPollingInterval,
     setPollingInterval,
   ] = React.useState<IntervalOptions | null>(null);
+
   const { maxScrapingInterval, name } = props;
-  const formik = useFormikContext();
-  const errors = getIn(formik.errors, name, {});
-  const touched = getIn(formik.touched, name, {});
-  const values = formik.getFieldProps(name).value;
+
+  const { control, setValue } = useFormContext();
   const getPollingIntervalOptions = () => {
     return PollingIntervalOptions.filter(
       (item) => parseInt(item.value, 10) >= maxScrapingInterval
@@ -55,18 +55,12 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
   };
   const handleSelectChange = (field: string, value: any, operation: string) => {
     if (operation === 'selectOption') {
-      formik.setFieldValue(`${name}.${field}`, value);
+      setValue(`${name}.${field}`, value);
     } else {
-      formik.setFieldValue(`${name}.${field}`, '');
+      setValue(`${name}.${field}`, '');
     }
   };
-  const ErrorMessage = ({ errors, touched }: ErrorUtilsProps) => {
-    if (touched && errors) {
-      return <Box sx={(theme) => ({ color: theme.color.red })}>{errors}</Box>;
-    } else {
-      return null;
-    }
-  };
+
   return (
     <Box
       sx={(theme) => ({
@@ -80,92 +74,94 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
       <Typography variant="h3"> Trigger Conditions</Typography>
       <Grid alignItems="center" container spacing={2}>
         <Grid item md={3} sm={6} xs={12}>
-          <Autocomplete
-            isOptionEqualToValue={(option, value) =>
-              option.value === value.value
-            }
-            onBlur={(event) => {
-              formik.handleBlur(event);
-              formik.setFieldTouched(`${name}.evaluation_period_seconds`, true);
-            }}
-            onChange={(_, value: IntervalOptions, operation) => {
-              handleSelectChange(
-                'evaluation_period_seconds',
-                value?.value ?? '',
-                operation
-              );
-              setEvaluationPeriod(value);
-            }}
-            textFieldProps={{
-              labelTooltipText:
-                'Choose the data lookback period on which thresholds are applied',
-            }}
-            data-testid="Evaluation-period"
-            label={'Evaluation period'}
-            options={getEvaluationPeriodOptions()}
-            value={selectedEvaluationPeriod}
+          <Controller
+            render={({ field }) => (
+              <Autocomplete
+                isOptionEqualToValue={(option, value) =>
+                  option.value === value.value
+                }
+                onChange={(_, value: IntervalOptions, operation) => {
+                  handleSelectChange(
+                    'evaluation_period_seconds',
+                    value?.value ?? '',
+                    operation
+                  );
+                  setEvaluationPeriod(value);
+                }}
+                textFieldProps={{
+                  labelTooltipText:
+                    'Choose the data lookback period on which thresholds are applied',
+                }}
+                data-testid="Evaluation-period"
+                label={'Evaluation period'}
+                onBlur={field.onBlur}
+                options={getEvaluationPeriodOptions()}
+                value={selectedEvaluationPeriod}
+              />
+            )}
+            control={control}
+            name={`${name}.evaluation_period_seconds`}
           />
         </Grid>
         <Grid item md={'auto'} sm={6} xs={12}>
-          <Autocomplete
-            isOptionEqualToValue={(option, value) =>
-              option.value === value.value
-            }
-            onBlur={(event) => {
-              formik.handleBlur(event);
-              formik.setFieldTouched(`${name}.polling_interval_seconds`, true);
-            }}
-            onChange={(_, value: IntervalOptions, operation) => {
-              handleSelectChange(
-                'polling_interval_seconds',
-                value?.value ?? '',
-                operation
-              );
-              setPollingInterval(value);
-            }}
-            textFieldProps={{
-              labelTooltipText:
-                'Choose how often you intend to evaulate the alert condition',
-            }}
-            data-testid="Polling-interval"
-            label={'Polling interval'}
-            options={getPollingIntervalOptions()}
-            value={selectedPollingInterval}
+          <Controller
+            render={({ field }) => (
+              <Autocomplete
+                isOptionEqualToValue={(option, value) =>
+                  option.value === value.value
+                }
+                onChange={(_, value: IntervalOptions, operation) => {
+                  handleSelectChange(
+                    'polling_interval_seconds',
+                    value?.value ?? '',
+                    operation
+                  );
+                  setPollingInterval(value);
+                }}
+                textFieldProps={{
+                  labelTooltipText:
+                    'Choose how often you intend to evaulate the alert condition',
+                }}
+                data-testid="Polling-interval"
+                label={'Polling interval'}
+                onBlur={field.onBlur}
+                options={getPollingIntervalOptions()}
+                value={selectedPollingInterval}
+              />
+            )}
+            control={control}
+            name={`${name}.polling_interval_seconds`}
           />
         </Grid>
         <Grid item md={'auto'} sm={12} xs={12}>
           <Grid alignItems="center" container spacing={2}>
             <Grid item md={'auto'} sm={'auto'} xs={6}>
-              <Autocomplete
-                isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
-                }
-                onBlur={(event) => {
-                  formik.handleBlur(event);
-                  formik.setFieldTouched(`${name}.criteria_condition`, true);
-                }}
-                onChange={(_, value, operation) => {
-                  handleSelectChange(
-                    'criteria_condition',
-                    value?.value,
-                    operation
-                  );
-                }}
-                textFieldProps={{
-                  labelTooltipText:
-                    'AND implies alert is triggered when all the metrics criteria are met',
-                }}
-                value={
-                  values?.criteria_condition
-                    ? {
-                        label: values.criteria_condition,
-                        value: values.criteria_condition,
-                      }
-                    : null
-                }
-                data-testid="Trigger-alert-condition"
-                label={'Trigger alert when'}
-                options={TriggerOptions}
+              <Controller
+                render={({ field }) => (
+                  <Autocomplete
+                    isOptionEqualToValue={(option, value) =>
+                      option.label === value
+                    }
+                    onChange={(_, value, operation) => {
+                      handleSelectChange(
+                        'criteria_condition',
+                        value?.value,
+                        operation
+                      );
+                    }}
+                    textFieldProps={{
+                      labelTooltipText:
+                        'AND implies alert is triggered when all the metrics criteria are met',
+                    }}
+                    data-testid="Trigger-alert-condition"
+                    label={'Trigger alert when'}
+                    onBlur={field.onBlur}
+                    options={TriggerOptions}
+                    value={field.value !== '' ? field.value : null}
+                  />
+                )}
+                control={control}
+                name={`${name}.criteria_condition`}
               />
             </Grid>
             <Grid item md={'auto'} sm={6} xs={12}>
@@ -183,24 +179,30 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
               </Box>
             </Grid>
             <Grid item md={'auto'} sm={'auto'} xs={'auto'}>
-              <TextField
-                onWheel={(event) =>
-                  event.target instanceof HTMLElement && event.target.blur()
-                }
-                sx={{
-                  maxWidth: '80px',
-                  minWidth: '70px',
-                  paddingTop: { sm: '26px', xs: 0 },
-                }}
-                data-testid={'Trigger-occurences'}
-                label={''}
-                min={0}
+              <Controller
+                render={({ field }) => (
+                  <TextField
+                    onWheel={(event) =>
+                      event.target instanceof HTMLElement && event.target.blur()
+                    }
+                    sx={{
+                      maxWidth: '80px',
+                      minWidth: '70px',
+                      paddingTop: { sm: '26px', xs: 0 },
+                    }}
+                    data-testid={'Trigger-occurences'}
+                    label={''}
+                    min={0}
+                    name={`${name}.trigger_occurrences`}
+                    noMarginTop={false}
+                    onBlur={field.onBlur}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    type="number"
+                    value={field.value ?? 0}
+                  />
+                )}
+                control={control}
                 name={`${name}.trigger_occurrences`}
-                noMarginTop={false}
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                type="number"
-                value={values?.trigger_occurrences ?? 0}
               />
             </Grid>
             <Grid item md={'auto'} sm={'auto'} xs={'auto'}>
@@ -221,21 +223,21 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
         </Grid>
       </Grid>
       <Box sx={(theme) => ({ marginTop: theme.spacing(2) })}>
-        <ErrorMessage
-          errors={errors['evaluation_period_seconds']}
-          touched={touched['evaluation_period_seconds']}
+        <ControllerErrorMessage
+          component={`${name}.evaluation_period_seconds`}
+          control={control}
         />
-        <ErrorMessage
-          errors={errors['polling_interval_seconds']}
-          touched={touched['polling_interval_seconds']}
+        <ControllerErrorMessage
+          component={`${name}.polling_interval_seconds`}
+          control={control}
         />
-        <ErrorMessage
-          errors={errors['criteria_condition']}
-          touched={touched['criteria_condition']}
+        <ControllerErrorMessage
+          component={`${name}.criteria_condition`}
+          control={control}
         />
-        <ErrorMessage
-          errors={errors['trigger_occurrences']}
-          touched={touched['trigger_occurrences']}
+        <ControllerErrorMessage
+          component={`${name}.trigger_occurrences`}
+          control={control}
         />
       </Box>
     </Box>

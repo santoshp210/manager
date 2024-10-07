@@ -1,34 +1,27 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { createAlertDefinitionSchema } from '@linode/validation';
-import { FormikProvider, useFormik } from 'formik';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
-import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
 import { Breadcrumb } from 'src/components/Breadcrumb/Breadcrumb';
-import { Notice } from 'src/components/Notice/Notice';
 import { Paper } from 'src/components/Paper';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 import { useCreateAlertDefinition } from 'src/queries/cloudpulse/alerts';
 import { useDatabaseEnginesQuery } from 'src/queries/databases/databases';
-import { getErrorMap } from 'src/utilities/errorUtils';
-import {
-  handleFieldErrors,
-  handleGeneralErrors,
-} from 'src/utilities/formikErrorUtils';
 
-import { AlertSeverityOptions } from '../constants';
 import { MetricCriteriaField } from './Criteria/MetricCriteria';
 import { TriggerConditions } from './Criteria/TriggerConditions';
+import { CloudPulseAlertSeveritySelect } from './GeneralInformation/AlertSeveritySelect';
 import { EngineOption } from './GeneralInformation/EngineOption';
 import { CloudPulseRegionSelect } from './GeneralInformation/RegionSelect';
 import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './GeneralInformation/ServiceTypeSelect';
 
-import type { APIError } from '@linode/api-v4';
 import type {
   CreateAlertDefinitionPayload,
   MetricCriteria,
@@ -66,9 +59,15 @@ export interface ErrorUtilsProps {
   errors: string | string[] | undefined;
   touched: boolean | undefined;
 }
+export const ErrorMessage = ({ errors, touched }: ErrorUtilsProps) => {
+  if (touched && errors) {
+    return <Box sx={(theme) => ({ color: theme.color.red })}>{errors}</Box>;
+  } else {
+    return null;
+  }
+};
+
 export const CreateAlertDefinition = React.memo(() => {
-  const { mutateAsync } = useCreateAlertDefinition();
-  const { enqueueSnackbar } = useSnackbar();
   const {
     data: engineOptions,
     isError: engineOptionError,
@@ -82,51 +81,35 @@ export const CreateAlertDefinition = React.memo(() => {
     const previousPage = pathParts.join('/');
     history.push(previousPage);
   };
-  const formik = useFormik({
-    initialValues,
-    onSubmit(
-      values: CreateAlertDefinitionPayload,
-      { resetForm, setErrors, setStatus, setSubmitting }
-    ) {
-      setStatus(undefined);
-      setErrors({});
-      const payload = { ...values };
 
-      mutateAsync(payload)
-        .then(() => {
-          setSubmitting(false);
-          enqueueSnackbar(`Alert created`, {
-            variant: 'success',
-          });
-          resetForm();
-          alertCreateExit();
-        })
-        .catch((err: APIError[]) => {
-          const mapErrorToStatus = () =>
-            setStatus({ generalError: getErrorMap([], err).none });
-          setSubmitting(false);
-          handleFieldErrors(setErrors, err);
-          handleGeneralErrors(mapErrorToStatus, err, 'Error creating an alert');
-        });
-    },
-    validationSchema: createAlertDefinitionSchema,
+  const formMethods = useForm<CreateAlertDefinitionPayload>({
+    defaultValues: initialValues,
+    mode: 'onBlur',
+    resolver: yupResolver(createAlertDefinitionSchema),
   });
 
-  const {
-    errors,
-    handleBlur,
-    handleChange,
-    handleSubmit,
-    isSubmitting,
-    setFieldValue,
-    status,
-    touched,
-    values,
-  } = formik;
+  const { control, formState, handleSubmit, setError, watch } = formMethods;
+  const { enqueueSnackbar } = useSnackbar();
+  const { mutateAsync: createAlert } = useCreateAlertDefinition();
 
-
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      await createAlert(values);
+      enqueueSnackbar('Alert successfully created', {
+        variant: 'success',
+      });
+      alertCreateExit();
+    } catch (errors) {
+      for (const error of errors) {
+        if (error.field) {
+          setError(error.field, { message: error.reason });
+        } else {
+          setError('root', { message: error.reason });
+        }
+      }
+    }
+  });
   const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
-  const generalError = status?.generalError;
 
   const generateCrumbOverrides = (pathname: string) => {
     const pathParts = pathname.split('/').filter(Boolean);
@@ -151,39 +134,88 @@ export const CreateAlertDefinition = React.memo(() => {
     []
   );
 
-  const ErrorMessage = ({ errors, touched }: ErrorUtilsProps) => {
-    if (touched && errors) {
-      return <Box sx={(theme) => ({ color: theme.color.red })}>{errors}</Box>;
-    } else {
-      return null;
-    }
-  };
-
+  const engineOptionValue = watch('service_type');
   return (
     <Paper>
       <Breadcrumb
         crumbOverrides={overrides}
         pathname={newPathname}
       ></Breadcrumb>
-      <FormikProvider value={formik}>
-        <form onSubmit={handleSubmit}>
-          {generalError && (
-            <Notice
-              data-qa-error
-              key={status}
-              text={status?.generalError ?? 'An unexpected error occurred'}
-              variant="error"
+      <form onSubmit={onSubmit}>
+        <FormProvider {...formMethods}>
+          <Typography variant="h2">1. General Information</Typography>
+          <Controller
+            render={({ field, fieldState }) => (
+              <>
+                <TextField
+                  label="Name"
+                  name={'name'}
+                  onBlur={field.onBlur}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  value={field.value ?? ''}
+                />
+                <ErrorMessage
+                  errors={fieldState.error?.message}
+                  touched={fieldState.isTouched}
+                />
+              </>
+            )}
+            control={control}
+            name="name"
+          />
+
+          <Controller
+            render={({ field, fieldState }) => (
+              <>
+                <TextField
+                  errorText={fieldState.error?.message}
+                  label="Description"
+                  name={'description'}
+                  onBlur={field.onBlur}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  optional
+                  value={field.value ?? ''}
+                />
+                <ErrorMessage
+                  errors={fieldState.error?.message}
+                  touched={fieldState.isTouched}
+                />
+              </>
+            )}
+            control={control}
+            name="description"
+          />
+          {/* <Controller  render={({field, fieldState}) => ()} control={control} name=""/> */}
+
+          <CloudPulseServiceSelect name="service_type" />
+          {engineOptionValue === 'dbaas' && (
+            <EngineOption
+              engineOptions={engineOptions ?? []}
+              isError={!!engineOptionError}
+              isLoading={engineOptionLoading}
+              name={'engineOption'}
             />
           )}
-          <Typography variant="h2">1. General Information</Typography>
-          <TextField
-            label="Name"
-            name={'name'}
-            onBlur={handleBlur}
-            onChange={handleChange}
-            value={values.name ?? ''}
+          <CloudPulseRegionSelect name="region" />
+          <CloudPulseMultiResourceSelect
+            engine={engineOptionValue}
+            name="resource_ids"
+            region={watch('region')}
+            serviceType={watch('service_type')}
           />
-          <ErrorMessage errors={errors['name']} touched={touched['name']} />
+          <CloudPulseAlertSeveritySelect name="severity" />
+          <MetricCriteriaField
+            getMaxInterval={(interval: number) =>
+              setMaxScrapeInterval(interval)
+            }
+            name="criteria"
+            serviceType={watch('service_type')}
+          />
+          <TriggerConditions
+            maxScrapingInterval={maxScrapeInterval}
+            name={'triggerCondition'}
+          />
+          {/* <ErrorMessage errors={errors['name']} touched={touched['name']} />
           <TextField
             label="Description"
             name={'description'}
@@ -255,23 +287,21 @@ export const CreateAlertDefinition = React.memo(() => {
           <TriggerConditions
             maxScrapingInterval={maxScrapeInterval}
             name={'triggerCondition'}
-          />
+          /> */}
           <ActionsPanel
             primaryButtonProps={{
-              'data-testid': 'submit',
               label: 'Submit',
-              loading: isSubmitting,
+              loading: formState.isSubmitting,
               type: 'submit',
             }}
             secondaryButtonProps={{
-              'data-testid': 'cancel',
               label: 'Cancel',
               onClick: alertCreateExit,
             }}
             sx={{ display: 'flex', justifyContent: 'flex-end' }}
           />
-        </form>
-      </FormikProvider>
+        </FormProvider>
+      </form>
     </Paper>
   );
 });
