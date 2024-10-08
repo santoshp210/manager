@@ -33,9 +33,10 @@ import type { PlanSelectionType } from 'src/features/components/PlansPanel/types
 
 interface Props {
   database: Database;
+  disabled?: boolean;
 }
 
-export const DatabaseResize = ({ database }: Props) => {
+export const DatabaseResize = ({ database, disabled = false }: Props) => {
   const history = useHistory();
 
   const [planSelected, setPlanSelected] = React.useState<string>();
@@ -66,7 +67,7 @@ export const DatabaseResize = ({ database }: Props) => {
     data: dbTypes,
     error: typesError,
     isLoading: typesLoading,
-  } = useDatabaseTypesQuery();
+  } = useDatabaseTypesQuery({ platform: database.platform });
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -210,6 +211,8 @@ export const DatabaseResize = ({ database }: Props) => {
       : type.disk <= currentPlanDisk
   );
 
+  const isDisabledSharedTab = database.cluster_size === 2;
+
   if (typesLoading) {
     return <CircleProgress />;
   }
@@ -229,10 +232,13 @@ export const DatabaseResize = ({ database }: Props) => {
         <StyledPlansPanel
           currentPlanHeading={currentPlan?.heading}
           data-qa-select-plan
+          disabled={disabled}
           disabledSmallerPlans={disabledPlans}
+          disabledTabs={isDisabledSharedTab ? ['shared'] : []}
           header="Choose a Plan"
           onSelect={(selected: string) => setPlanSelected(selected)}
           selectedId={planSelected}
+          tabDisabledMessage="Resizing a 2-nodes cluster is only allowed with Dedicated plans."
           types={displayTypes}
         />
       </Paper>
@@ -243,7 +249,7 @@ export const DatabaseResize = ({ database }: Props) => {
             setIsResizeConfirmationDialogOpen(true);
           }}
           buttonType="primary"
-          disabled={shouldSubmitBeDisabled}
+          disabled={shouldSubmitBeDisabled || disabled}
           type="submit"
         >
           Resize Database Cluster
