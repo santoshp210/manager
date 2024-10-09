@@ -163,7 +163,6 @@ export const CreateAlertDefinition = React.memo(() => {
             control={control}
             name="name"
           />
-
           <Controller
             render={({ field, fieldState }) => (
               <>
@@ -185,8 +184,6 @@ export const CreateAlertDefinition = React.memo(() => {
             control={control}
             name="description"
           />
-          {/* <Controller  render={({field, fieldState}) => ()} control={control} name=""/> */}
-
           <CloudPulseServiceSelect name="service_type" />
           {engineOptionValue === 'dbaas' && (
             <EngineOption
@@ -215,79 +212,6 @@ export const CreateAlertDefinition = React.memo(() => {
             maxScrapingInterval={maxScrapeInterval}
             name={'triggerCondition'}
           />
-          {/* <ErrorMessage errors={errors['name']} touched={touched['name']} />
-          <TextField
-            label="Description"
-            name={'description'}
-            onBlur={handleBlur}
-            onChange={handleChange}
-            optional
-            value={values.description ?? ''}
-          />
-          <CloudPulseServiceSelect name={'service_type'} />
-          <ErrorMessage
-            errors={errors['service_type']}
-            touched={touched['service_type']}
-          />
-          {formik.values.service_type === 'dbaas' && (
-            <EngineOption
-              engineOptions={engineOptions ?? []}
-              isError={!!engineOptionError}
-              isLoading={engineOptionLoading}
-              name={'engineOption'}
-            />
-          )}
-          <CloudPulseRegionSelect name={'region'} />
-          <ErrorMessage errors={errors['region']} touched={touched['region']} />
-          <CloudPulseMultiResourceSelect
-            cluster={values.service_type === 'dbaas'}
-            name={'resource_ids'}
-            region={values.region ?? ''}
-            serviceType={values.service_type ?? ''}
-          />
-          <ErrorMessage
-            errors={errors['resource_ids']}
-            touched={touched['resource_ids']}
-          />
-          <Autocomplete
-            isOptionEqualToValue={(option, value) =>
-              option.value === value.value
-            }
-            onBlur={(event) => {
-              formik.handleBlur(event);
-              formik.setFieldTouched('severity', true);
-            }}
-            onChange={(_, value) => {
-              setFieldValue('severity', value?.value);
-            }}
-            value={
-              values?.severity
-                ? {
-                    label: values.severity,
-                    value: values.severity,
-                  }
-                : null
-            }
-            label={'Severity'}
-            options={AlertSeverityOptions}
-            size="medium"
-            textFieldProps={{ labelTooltipText: 'Choose the alert severity' }}
-          />
-          <ErrorMessage
-            errors={errors['severity']}
-            touched={touched['severity']}
-          />
-          <MetricCriteriaField
-            getMaxInterval={(interval: number) =>
-              setMaxScrapeInterval(interval)
-            }
-            name="criteria"
-            serviceType={'linode'}
-          />
-          <TriggerConditions
-            maxScrapingInterval={maxScrapeInterval}
-            name={'triggerCondition'}
-          /> */}
           <ActionsPanel
             primaryButtonProps={{
               label: 'Submit',

@@ -23,7 +23,7 @@ interface DimensionFilterProps {
 export const DimensionFilter = (props: DimensionFilterProps) => {
   const { dimensionOptions, name } = props;
   // const formik = useFormikContext();
-  const { control, watch } = useFormContext();
+  const { control } = useFormContext();
 
   const { append, fields, remove } = useFieldArray({
     control,

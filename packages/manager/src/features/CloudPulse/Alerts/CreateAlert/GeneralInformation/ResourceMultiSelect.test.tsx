@@ -2,9 +2,8 @@ import { fireEvent, screen } from '@testing-library/react';
 import * as React from 'react';
 
 import { linodeFactory } from 'src/factories';
-import { renderWithThemeAndFormik } from 'src/utilities/testHelpers';
+import { renderWithThemeAndHookFormContext } from 'src/utilities/testHelpers';
 
-import { initialValues } from '../CreateAlertDefinition';
 import { CloudPulseMultiResourceSelect } from './ResourceMultiSelect';
 
 const queryMocks = vi.hoisted(() => ({
@@ -18,8 +17,6 @@ vi.mock('src/queries/cloudpulse/resources', async () => {
     useResourcesQuery: queryMocks.useResourcesQuery,
   };
 });
-
-const handleOnSubmit = vi.fn();
 const SELECT_ALL = 'Select All';
 const ARIA_SELECTED = 'aria-selected';
 describe('ResourceMultiSelect component tests', () => {
@@ -30,18 +27,19 @@ describe('ResourceMultiSelect component tests', () => {
       isLoading: false,
       status: 'success',
     });
-    const { getByPlaceholderText, getByTestId } = renderWithThemeAndFormik(
-      <CloudPulseMultiResourceSelect
-        cluster={false}
-        name={'resource_ids'}
-        region={undefined}
-        serviceType={undefined}
-      />,
-      {
-        initialValues,
-        onSubmit: handleOnSubmit,
-      }
-    );
+    const {
+      getByPlaceholderText,
+      getByTestId,
+    } = renderWithThemeAndHookFormContext({
+      component: (
+        <CloudPulseMultiResourceSelect
+          engine="mysql"
+          name="resource_ids"
+          region={undefined}
+          serviceType={undefined}
+        />
+      ),
+    });
     expect(getByTestId('resource-select')).toBeInTheDocument();
     expect(getByPlaceholderText('Select Resources')).toBeInTheDocument();
   });
@@ -52,18 +50,16 @@ describe('ResourceMultiSelect component tests', () => {
       isLoading: false,
       status: 'success',
     });
-    renderWithThemeAndFormik(
-      <CloudPulseMultiResourceSelect
-        cluster={false}
-        name={'resource_ids'}
-        region={'us-east'}
-        serviceType={'linode'}
-      />,
-      {
-        initialValues,
-        onSubmit: handleOnSubmit,
-      }
-    );
+    renderWithThemeAndHookFormContext({
+      component: (
+        <CloudPulseMultiResourceSelect
+          engine="mysql"
+          name="resource_ids"
+          region="us-east"
+          serviceType="linode"
+        />
+      ),
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Open' }));
     expect(
       screen.getByRole('option', {
@@ -83,18 +79,16 @@ describe('ResourceMultiSelect component tests', () => {
       isLoading: false,
       status: 'success',
     });
-    renderWithThemeAndFormik(
-      <CloudPulseMultiResourceSelect
-        cluster={false}
-        name={'resource_ids'}
-        region={'us-east'}
-        serviceType={'linode'}
-      />,
-      {
-        initialValues,
-        onSubmit: handleOnSubmit,
-      }
-    );
+    renderWithThemeAndHookFormContext({
+      component: (
+        <CloudPulseMultiResourceSelect
+          engine="mysql"
+          name="resource_ids"
+          region="us-east"
+          serviceType="linode"
+        />
+      ),
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Open' }));
     fireEvent.click(screen.getByRole('option', { name: SELECT_ALL }));
     expect(
@@ -115,18 +109,16 @@ describe('ResourceMultiSelect component tests', () => {
       isLoading: false,
       status: 'success',
     });
-    renderWithThemeAndFormik(
-      <CloudPulseMultiResourceSelect
-        cluster={false}
-        name={'resource_ids'}
-        region={'us-east'}
-        serviceType={'linode'}
-      />,
-      {
-        initialValues,
-        onSubmit: handleOnSubmit,
-      }
-    );
+    renderWithThemeAndHookFormContext({
+      component: (
+        <CloudPulseMultiResourceSelect
+          engine="mysql"
+          name="resource_ids"
+          region="us-east"
+          serviceType="linode"
+        />
+      ),
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Open' }));
     fireEvent.click(screen.getByRole('option', { name: SELECT_ALL }));
     fireEvent.click(screen.getByRole('option', { name: 'Deselect All' }));
@@ -149,18 +141,16 @@ describe('ResourceMultiSelect component tests', () => {
       isLoading: false,
       status: 'success',
     });
-    renderWithThemeAndFormik(
-      <CloudPulseMultiResourceSelect
-        cluster={false}
-        name={'resource_ids'}
-        region={'us-east'}
-        serviceType={'linode'}
-      />,
-      {
-        initialValues,
-        onSubmit: handleOnSubmit,
-      }
-    );
+    renderWithThemeAndHookFormContext({
+      component: (
+        <CloudPulseMultiResourceSelect
+          engine="mysql"
+          name="resource_ids"
+          region="us-east"
+          serviceType="linode"
+        />
+      ),
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Open' }));
     fireEvent.click(screen.getByRole('option', { name: 'linode-9' }));
     fireEvent.click(screen.getByRole('option', { name: 'linode-10' }));
@@ -187,18 +177,16 @@ describe('ResourceMultiSelect component tests', () => {
     ).toHaveAttribute(ARIA_SELECTED, 'false');
   });
   it('should render the label as cluster when resource is of dbaas type', () => {
-    const { getByLabelText } = renderWithThemeAndFormik(
-      <CloudPulseMultiResourceSelect
-        cluster={true}
-        name={'resource_ids'}
-        region={'us-east'}
-        serviceType={'dbaas'}
-      />,
-      {
-        initialValues,
-        onSubmit: handleOnSubmit,
-      }
-    );
+    const { getByLabelText } = renderWithThemeAndHookFormContext({
+      component: (
+        <CloudPulseMultiResourceSelect
+          engine="mysql"
+          name="resource_ids"
+          region="us-east"
+          serviceType="dbaas"
+        />
+      ),
+    });
     expect(getByLabelText('Cluster'));
   });
 });

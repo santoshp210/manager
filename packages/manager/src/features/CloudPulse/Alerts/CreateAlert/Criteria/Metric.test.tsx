@@ -1,9 +1,8 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import * as React from 'react';
 
-import { renderWithThemeAndFormik } from 'src/utilities/testHelpers';
+import { renderWithThemeAndHookFormContext } from 'src/utilities/testHelpers';
 
-import { initialValues } from '../CreateAlertDefinition';
 import { Metric } from './Metric';
 
 import type { MetricDefinitions } from '@linode/api-v4';
@@ -59,30 +58,32 @@ vi.mock('./DimensionFilter', () => {
 });
 describe('Metric component tests', () => {
   it('should render all the components and names', () => {
-    const container = renderWithThemeAndFormik(
-      <Metric
-        apiError={[false, false]}
-        data={mockData.data}
-        name={'criteria'}
-        onMetricDelete={vi.fn()}
-      />,
-      { initialValues, onSubmit: vi.fn() }
-    );
+    const container = renderWithThemeAndHookFormContext({
+      component: (
+        <Metric
+          apiError={[false, false]}
+          data={mockData.data}
+          name={'criteria'}
+          onMetricDelete={vi.fn()}
+        />
+      ),
+    });
     expect(container.getByLabelText('Data Field')).toBeInTheDocument();
     expect(container.getByLabelText('Aggregation type')).toBeInTheDocument();
     expect(container.getByLabelText('Operator')).toBeInTheDocument();
     expect(container.getByLabelText('Value')).toBeInTheDocument();
   });
   it('should show the options for the Autocomplete component', () => {
-    const container = renderWithThemeAndFormik(
-      <Metric
-        apiError={[false, false]}
-        data={mockData.data}
-        name={'criteria'}
-        onMetricDelete={vi.fn()}
-      />,
-      { initialValues, onSubmit: vi.fn() }
-    );
+    const container = renderWithThemeAndHookFormContext({
+      component: (
+        <Metric
+          apiError={[false, false]}
+          data={mockData.data}
+          name={'criteria'}
+          onMetricDelete={vi.fn()}
+        />
+      ),
+    });
     const dataFieldContainer = container.getByTestId('Data-field');
     const dataFieldInput = within(dataFieldContainer).getByRole('button', {
       name: 'Open',
@@ -112,15 +113,16 @@ describe('Metric component tests', () => {
     expect(screen.getByRole('option', { name: '<' })).toBeInTheDocument();
   });
   it('should be able to select the chosen option', () => {
-    const container = renderWithThemeAndFormik(
-      <Metric
-        apiError={[false, false]}
-        data={mockData.data}
-        name={'criteria'}
-        onMetricDelete={vi.fn()}
-      />,
-      { initialValues, onSubmit: vi.fn() }
-    );
+    const container = renderWithThemeAndHookFormContext({
+      component: (
+        <Metric
+          apiError={[false, false]}
+          data={mockData.data}
+          name={'criteria'}
+          onMetricDelete={vi.fn()}
+        />
+      ),
+    });
     const dataFieldContainer = container.getByTestId('Data-field');
     const dataFieldInput = within(dataFieldContainer).getByRole('button', {
       name: 'Open',

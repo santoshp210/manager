@@ -13,8 +13,6 @@ import {
   TriggerOptions,
 } from '../../constants';
 import { ControllerErrorMessage } from './Metric';
-
-import type { ErrorUtilsProps } from '../CreateAlertDefinition';
 interface TriggerConditionProps {
   /**
    * maximum scraping interval value for a metric to filter the evaluation period and polling interval options
