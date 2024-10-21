@@ -135,7 +135,7 @@ export interface CreateAlertDefinitionPayload {
   severity: string;
   criteria: MetricCriteria[];
   triggerCondition: TriggerCondition;
-  sink_ids: string[];
+  channel_ids: number[];
 }
 export interface MetricCriteria {
   metric: string;
@@ -183,4 +183,22 @@ export interface ServiceTypes {
 
 export interface ServiceTypesList {
   data: ServiceTypes[];
+}
+
+export interface NotificationChannel {
+  id: number;
+  notification_type: string;
+  template_name: string;
+  content: {
+    email_ids: string[];
+  };
+  associated_alerts: number[];
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotificationChannelList {
+  data: NotificationChannel[];
 }

@@ -59,7 +59,7 @@ export const EngineOption = (props: EngineOptionProps) => {
             isOptionEqualToValue={(option, value) =>
               option.label === value.label
             }
-            onChange={(_: any, newValue: CloudPulseEngineOptionType, reason) =>
+            onChange={(_, newValue: CloudPulseEngineOptionType, reason) =>
               reason === 'selectOption' && setDatabase(newValue)
             }
             data-testid="engine-options"

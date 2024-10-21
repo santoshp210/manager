@@ -27,7 +27,6 @@ export const CloudPulseServiceSelect = (
     error: serviceTypesError,
     isLoading: serviceTypesLoading,
   } = useCloudPulseServiceTypes(true);
-  // const formik = useFormikContext();
   const { control, setValue } = useFormContext();
 
   const [

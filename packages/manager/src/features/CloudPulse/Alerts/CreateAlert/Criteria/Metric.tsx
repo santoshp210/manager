@@ -73,7 +73,7 @@ export const Metric = (props: MetricCriteriaProps) => {
   ] = React.useState<MetricDataFieldOption | null>(null);
 
   const handleSelectChange = (
-    field: any,
+    field: string,
     value: number | string,
     operation: string
   ) => {

@@ -82,3 +82,10 @@ export const convertSeconds = (secondsList: string[]) => {
     }
   });
 };
+
+export const ChannelTypeOptions = [
+  {
+    label: 'Email',
+    value: 'email',
+  },
+];

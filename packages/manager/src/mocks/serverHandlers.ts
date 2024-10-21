@@ -2304,6 +2304,26 @@ export const handlers = [
 
     return HttpResponse.json(response);
   }),
+  http.get('*/monitor/notification', () => {
+    const response = {
+      data: [
+        {
+          associated_alerts: 0,
+          content: {
+            email_ids: ['default@mail.com', 'admin@email.com'],
+          },
+          created_at: '2021-10-16T04:00:00',
+          created_by: 'user1',
+          id: Math.random(),
+          notification_type: 'email',
+          template_name: 'default',
+          updated_at: '2021-10-16T04:00:00',
+          updated_by: 'user2',
+        },
+      ],
+    };
+    return HttpResponse.json(response);
+  }),
   http.post('*/monitor/alerts', async ({ request }) => {
     const reqBody = await request.json();
     const response = {

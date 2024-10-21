@@ -38,7 +38,6 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
     serviceType !== ''
   );
 
-  // const formik = useFormikContext<any>();
   const { control, watch } = useFormContext();
 
   React.useEffect(() => {
