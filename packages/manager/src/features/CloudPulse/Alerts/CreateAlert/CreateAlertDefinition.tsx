@@ -25,6 +25,7 @@ import { EngineOption } from './GeneralInformation/EngineOption';
 import { CloudPulseRegionSelect } from './GeneralInformation/RegionSelect';
 import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './GeneralInformation/ServiceTypeSelect';
+import { AddChannelListing } from './NotificationChannel/AddChannelListing';
 import { AddNotificationChannel } from './NotificationChannel/AddNotificationChannel';
 
 import type {
@@ -33,7 +34,6 @@ import type {
   NotificationChannel,
   TriggerCondition,
 } from '@linode/api-v4/lib/cloudpulse/types';
-import { AddChannelListing } from './NotificationChannel/AddChannelListing';
 
 const triggerConditionInitialValues: TriggerCondition = {
   criteria_condition: '',
@@ -87,7 +87,11 @@ export const CreateAlertDefinition = React.memo(() => {
     isLoading: notificationChannelLoading,
   } = useNotificationChannels();
   // eslint-disable-next-line no-console
-  console.log(notificationChannels);
+  console.log(
+    notificationChannels,
+    notificationChannelError,
+    notificationChannelLoading
+  );
   const history = useHistory();
   const alertCreateExit = () => {
     const pathParts = location.pathname.split('/');
@@ -111,8 +115,8 @@ export const CreateAlertDefinition = React.memo(() => {
     formState,
     handleSubmit,
     setError,
-    watch,
     setValue,
+    watch,
   } = formMethods;
   const { enqueueSnackbar } = useSnackbar();
   const { mutateAsync: createAlert } = useCreateAlertDefinition();
@@ -289,4 +293,4 @@ export const CreateAlertDefinition = React.memo(() => {
       )}
     </Paper>
   );
-}); 
+});

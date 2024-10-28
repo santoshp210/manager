@@ -6,9 +6,14 @@ import { queryFactory } from './queries';
 import type {
   Alert,
   CreateAlertDefinitionPayload,
-  NotificationChannelList,
+  NotificationChannel,
 } from '@linode/api-v4/lib/cloudpulse';
-import type { APIError } from '@linode/api-v4/lib/types';
+import type {
+  APIError,
+  Filter,
+  Params,
+  ResourcePage,
+} from '@linode/api-v4/lib/types';
 
 export const aclpQueryKey = 'aclp-alerts';
 
@@ -22,8 +27,20 @@ export const useCreateAlertDefinition = () => {
   });
 };
 
+export const useAlertDefinitionsQuery = (params?: Params, filter?: Filter) => {
+  return useQuery<ResourcePage<Alert>, APIError[]>({
+    ...queryFactory.lists._ctx.alerts(params, filter),
+  });
+};
+
+export const useAlertDefinitionQuery = (alertId: number) => {
+  return useQuery<Alert, APIError[]>({
+    ...queryFactory.alerts(alertId),
+    enabled: alertId !== undefined,
+  });
+};
 export const useNotificationChannels = () => {
-  return useQuery<NotificationChannelList, APIError[]>({
+  return useQuery<ResourcePage<NotificationChannel>, APIError[]>({
     ...queryFactory.notificationChannels,
   });
 };

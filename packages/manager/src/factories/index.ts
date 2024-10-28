@@ -52,6 +52,7 @@ export * from './vlans';
 export * from './volume';
 export * from './vpcs';
 export * from './dashboards';
+export * from './alerts';
 
 // Convert factory output to our itemsById pattern
 export const normalizeEntities = (entities: any[]) => {

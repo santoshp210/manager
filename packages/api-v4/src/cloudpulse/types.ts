@@ -161,11 +161,14 @@ export interface Alert {
   id: number;
   name: string;
   description: string;
+  region: string;
   status: string;
   severity: string;
   service_type: string;
   resource_ids: string[];
-  criteria: MetricCriteria[];
+  rule_criteria: {
+    rules: MetricCriteria[];
+  };
   triggerCondition: TriggerCondition;
   notification: {
     notification_id: string;
@@ -197,8 +200,4 @@ export interface NotificationChannel {
   updated_by: string;
   created_at: string;
   updated_at: string;
-}
-
-export interface NotificationChannelList {
-  data: NotificationChannel[];
 }
