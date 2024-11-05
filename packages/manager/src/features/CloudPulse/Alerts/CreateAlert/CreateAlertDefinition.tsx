@@ -6,24 +6,39 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
+
+import { Box } from 'src/components/Box';
 import { Breadcrumb } from 'src/components/Breadcrumb/Breadcrumb';
+import { Drawer } from 'src/components/Drawer';
 import { Paper } from 'src/components/Paper';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
-import { useCreateAlertDefinition } from 'src/queries/cloudpulse/alerts';
-
+import {
+  useCreateAlertDefinition,
+  useNotificationChannels,
+} from 'src/queries/cloudpulse/alerts';
+import { useDatabaseEnginesQuery } from 'src/queries/databases/databases';
+import { MetricCriteriaField } from './Criteria/MetricCriteria';
+import { TriggerConditions } from './Criteria/TriggerConditions';
 import { CloudPulseAlertSeveritySelect } from './GeneralInformation/AlertSeveritySelect';
+import { EngineOption } from './GeneralInformation/EngineOption';
+import { CloudPulseRegionSelect } from './GeneralInformation/RegionSelect';
+import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMultiSelect';
+import { CloudPulseServiceSelect } from './GeneralInformation/ServiceTypeSelect';
+import { AddChannelListing } from './NotificationChannel/AddChannelListing';
+import { AddNotificationChannel } from './NotificationChannel/AddNotificationChannel';
+
 
 import type {
   CreateAlertDefinitionPayload,
   MetricCriteria,
+  NotificationChannel,
   TriggerCondition,
 } from '@linode/api-v4/lib/cloudpulse/types';
 
 const triggerConditionInitialValues: TriggerCondition = {
-  criteria_condition: '',
-  evaluation_period_seconds: '',
-  polling_interval_seconds: '',
+  evaluation_period_seconds: 0,
+  polling_interval_seconds: 0,
   trigger_occurrences: 0,
 };
 const criteriaInitialValues: MetricCriteria[] = [
@@ -32,20 +47,19 @@ const criteriaInitialValues: MetricCriteria[] = [
     dimension_filters: [],
     metric: '',
     operator: '',
-    value: 0,
+    threshold: 0,
   },
 ];
 export const initialValues: CreateAlertDefinitionPayload = {
   channel_ids: [],
-  engineOption: '',
-  name: '',
-  region: '',
+  label: '',
   resource_ids: [],
   rule_criteria: { rules: criteriaInitialValues },
   service_type: '',
   severity: '',
   triggerCondition: triggerConditionInitialValues,
 };
+
 
 const generateCrumbOverrides = () => {
   const overrides = [
@@ -63,6 +77,20 @@ const generateCrumbOverrides = () => {
   return { newPathname: '/Definitions/Details', overrides };
 };
 export const CreateAlertDefinition = () => {
+
+export const CreateAlertDefinition = React.memo(() => {
+  const {
+    data: engineOptions,
+    isError: engineOptionError,
+    isLoading: engineOptionLoading,
+  } = useDatabaseEnginesQuery(true);
+
+  const {
+    data: notificationChannels,
+    isError: notificationChannelError,
+    isLoading: notificationChannelLoading,
+  } = useNotificationChannels();
+
   const history = useHistory();
   const alertCreateExit = () => {
     const pathParts = location.pathname.split('/');
@@ -77,9 +105,40 @@ export const CreateAlertDefinition = () => {
     resolver: yupResolver(createAlertDefinitionSchema),
   });
 
-  const { control, formState, handleSubmit, setError } = formMethods;
+
+  const [openAddNotification, setOpenAddNotification] = React.useState(false);
+  const [notifications, setNotifications] = React.useState<
+    NotificationChannel[]
+  >([]);
+  const {
+    control,
+    formState,
+    handleSubmit,
+    setError,
+    setValue,
+    watch,
+  } = formMethods;
   const { enqueueSnackbar } = useSnackbar();
-  const { mutateAsync: createAlert } = useCreateAlertDefinition();
+  const { mutateAsync: createAlert } = useCreateAlertDefinition(
+    watch('service_type')
+  );
+
+  const onChangeNotifications = (notifications: NotificationChannel[]) => {
+    const notificationTemplateList = notifications.map(
+      (notification) => notification.id
+    );
+    setValue('channel_ids', notificationTemplateList);
+  };
+
+  const onSubmitAddNotification = (notification: NotificationChannel) => {
+    const newNotifications = [...notifications, notification];
+    const notificationTemplateList = newNotifications.map(
+      (notification) => notification.id
+    );
+    setValue('channel_ids', notificationTemplateList);
+    setNotifications(newNotifications);
+    setOpenAddNotification(false);
+  };
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -101,6 +160,9 @@ export const CreateAlertDefinition = () => {
 
   const { newPathname, overrides } = generateCrumbOverrides();
 
+  const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
+
+  const engineOptionValue = watch('service_type');
   return (
     <Paper>
       <Breadcrumb
@@ -141,6 +203,39 @@ export const CreateAlertDefinition = () => {
             name="description"
           />
           <CloudPulseAlertSeveritySelect name="severity" />
+          <CloudPulseServiceSelect name="service_type" />
+          {engineOptionValue === 'dbaas' && (
+            <EngineOption
+              engineOptions={engineOptions ?? []}
+              isError={!!engineOptionError}
+              isLoading={engineOptionLoading}
+              name={'engineOption'}
+            />
+          )}
+          <CloudPulseRegionSelect name="region" />
+          <CloudPulseMultiResourceSelect
+            engine={engineOptionValue}
+            name="resource_ids"
+            region={watch('region')}
+            serviceType={watch('service_type')}
+          />
+          <CloudPulseAlertSeveritySelect name="severity" />
+          <MetricCriteriaField
+            getMaxInterval={(interval: number) =>
+              setMaxScrapeInterval(interval)
+            }
+            name="criteria"
+            serviceType={watch('service_type')}
+          />
+          <TriggerConditions
+            maxScrapingInterval={maxScrapeInterval}
+            name={'triggerCondition'}
+          />
+          <AddChannelListing
+            notifications={notifications}
+            onChangeNotifications={onChangeNotifications}
+            onClickAddNotification={() => setOpenAddNotification(true)}
+          />
           <ActionsPanel
             primaryButtonProps={{
               label: 'Submit',
@@ -155,6 +250,19 @@ export const CreateAlertDefinition = () => {
           />
         </form>
       </FormProvider>
+      {openAddNotification && (
+        <Drawer
+          onClose={() => setOpenAddNotification(false)}
+          open={openAddNotification}
+          title="Add Notification Channel"
+        >
+          <AddNotificationChannel
+            onCancel={() => setOpenAddNotification(false)}
+            onClickAddNotification={onSubmitAddNotification}
+            templateData={notificationChannels?.data ?? []}
+          />
+        </Drawer>
+      )}
     </Paper>
   );
-};
+});

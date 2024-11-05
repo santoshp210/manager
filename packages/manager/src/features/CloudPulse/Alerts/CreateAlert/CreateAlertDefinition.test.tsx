@@ -1,5 +1,6 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
 import * as React from 'react';
 
 import { renderWithTheme } from 'src/utilities/testHelpers';
@@ -8,7 +9,7 @@ import { CreateAlertDefinition } from './CreateAlertDefinition';
 describe('AlertDefinition Create', () => {
   it('should render input components', () => {
     const { getByLabelText } = renderWithTheme(<CreateAlertDefinition />);
-
+        
     expect(getByLabelText('Name')).toBeVisible();
     expect(getByLabelText('Description (optional)')).toBeVisible();
     expect(getByLabelText('Severity')).toBeVisible();

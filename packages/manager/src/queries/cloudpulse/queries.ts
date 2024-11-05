@@ -1,9 +1,12 @@
 import {
+  getAlertDefinitionById,
+  getAlertDefinitions,
   getCloudPulseServiceTypes,
   getDashboardById,
   getDashboards,
   getJWEToken,
   getMetricDefinitionsByServiceType,
+  getNotificationChannels,
 } from '@linode/api-v4';
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 
@@ -22,12 +25,20 @@ import type {
 const key = 'Clousepulse';
 
 export const queryFactory = createQueryKeys(key, {
+  alerts: (alertId: number) => ({
+    queryFn: () => getAlertDefinitionById(alertId),
+    queryKey: [alertId],
+  }),
   dashboardById: (dashboardId: number) => ({
     queryFn: () => getDashboardById(dashboardId),
     queryKey: [dashboardId],
   }),
   lists: {
     contextQueries: {
+      alerts: (serviceType: string, params?: Params, filter?: Filter) => ({
+        queryFn: () => getAlertDefinitions(serviceType, params, filter),
+        queryKey: [params, filter],
+      }),
       dashboards: (serviceType: string) => ({
         queryFn: () => getDashboards(serviceType),
         queryKey: [serviceType],
@@ -51,11 +62,15 @@ export const queryFactory = createQueryKeys(key, {
       fetchCloudPulseMetrics(token, readApiEndpoint, serviceType, requestData),
     queryKey: [requestData, timeStamp, label],
   }),
+
   metricsDefinitons: (serviceType: string | undefined) => ({
     queryFn: () => getMetricDefinitionsByServiceType(serviceType!),
     queryKey: [serviceType],
   }),
-
+  notificationChannels: {
+    queryFn: () => getNotificationChannels(),
+    queryKey: null,
+  },
   resources: (
     resourceType: string | undefined,
     params?: Params,
@@ -77,7 +92,10 @@ export const queryFactory = createQueryKeys(key, {
         return volumeQueries.lists._ctx.all(params, filters); // default to volumes
     }
   },
-
+  serviceTypes: {
+    queryFn: () => getCloudPulseServiceTypes(),
+    queryKey: null,
+  },
   token: (serviceType: string | undefined, request: JWETokenPayLoad) => ({
     queryFn: () => getJWEToken(request, serviceType!),
     queryKey: [serviceType],

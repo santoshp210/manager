@@ -1,20 +1,51 @@
 import { createAlertDefinition } from '@linode/api-v4/lib/cloudpulse';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { queryFactory } from './queries';
 
 import type {
   Alert,
   CreateAlertDefinitionPayload,
+  NotificationChannel,
 } from '@linode/api-v4/lib/cloudpulse';
-import type { APIError } from '@linode/api-v4/lib/types';
+import type {
+  APIError,
+  Filter,
+  Params,
+  ResourcePage,
+} from '@linode/api-v4/lib/types';
 
 export const aclpQueryKey = 'aclp-alerts';
 
-export const useCreateAlertDefinition = () => {
+export const useCreateAlertDefinition = (serviceType: string) => {
   const queryClient = useQueryClient();
   return useMutation<Alert, APIError[], CreateAlertDefinitionPayload>({
-    mutationFn: (data) => createAlertDefinition(data),
+    mutationFn: (data) => createAlertDefinition(data, serviceType),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: [aclpQueryKey] });
     },
   });
 };
+
+export const useAlertDefinitionsQuery = (
+  serviceType: string,
+  params?: Params,
+  filter?: Filter
+) => {
+  return useQuery<ResourcePage<Alert>, APIError[]>({
+    ...queryFactory.lists._ctx.alerts(serviceType, params, filter),
+  });
+};
+
+export const useAlertDefinitionQuery = (alertId: number) => {
+  return useQuery<Alert, APIError[]>({
+    ...queryFactory.alerts(alertId),
+    enabled: alertId !== undefined,
+  });
+};
+export const useNotificationChannels = () => {
+  return useQuery<ResourcePage<NotificationChannel>, APIError[]>({
+    ...queryFactory.notificationChannels,
+  });
+};
+
