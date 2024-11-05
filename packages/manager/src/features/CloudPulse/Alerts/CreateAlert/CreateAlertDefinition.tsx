@@ -6,6 +6,7 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
+
 import { Box } from 'src/components/Box';
 import { Breadcrumb } from 'src/components/Breadcrumb/Breadcrumb';
 import { Drawer } from 'src/components/Drawer';
@@ -17,7 +18,6 @@ import {
   useNotificationChannels,
 } from 'src/queries/cloudpulse/alerts';
 import { useDatabaseEnginesQuery } from 'src/queries/databases/databases';
-
 import { MetricCriteriaField } from './Criteria/MetricCriteria';
 import { TriggerConditions } from './Criteria/TriggerConditions';
 import { CloudPulseAlertSeveritySelect } from './GeneralInformation/AlertSeveritySelect';
@@ -27,6 +27,7 @@ import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMult
 import { CloudPulseServiceSelect } from './GeneralInformation/ServiceTypeSelect';
 import { AddChannelListing } from './NotificationChannel/AddChannelListing';
 import { AddNotificationChannel } from './NotificationChannel/AddNotificationChannel';
+
 
 import type {
   CreateAlertDefinitionPayload,
@@ -59,17 +60,23 @@ export const initialValues: CreateAlertDefinitionPayload = {
   triggerCondition: triggerConditionInitialValues,
 };
 
-export interface ErrorUtilsProps {
-  errors: string | string[] | undefined;
-  touched: boolean | undefined;
-}
-export const ErrorMessage = ({ errors, touched }: ErrorUtilsProps) => {
-  if (touched && errors) {
-    return <Box sx={(theme) => ({ color: theme.color.red })}>{errors}</Box>;
-  } else {
-    return null;
-  }
+
+const generateCrumbOverrides = () => {
+  const overrides = [
+    {
+      label: 'Definitions',
+      linkTo: '/monitor/cloudpulse/alerts/definitions',
+      position: 1,
+    },
+    {
+      label: 'Details',
+      linkTo: `/monitor/cloudpulse/alerts/definitions/create`,
+      position: 2,
+    },
+  ];
+  return { newPathname: '/Definitions/Details', overrides };
 };
+export const CreateAlertDefinition = () => {
 
 export const CreateAlertDefinition = React.memo(() => {
   const {
@@ -98,6 +105,7 @@ export const CreateAlertDefinition = React.memo(() => {
     resolver: yupResolver(createAlertDefinitionSchema),
   });
 
+
   const [openAddNotification, setOpenAddNotification] = React.useState(false);
   const [notifications, setNotifications] = React.useState<
     NotificationChannel[]
@@ -119,8 +127,6 @@ export const CreateAlertDefinition = React.memo(() => {
     const notificationTemplateList = notifications.map(
       (notification) => notification.id
     );
-    // eslint-disable-next-line no-console
-    console.log(notificationTemplateList);
     setValue('channel_ids', notificationTemplateList);
   };
 
@@ -151,30 +157,10 @@ export const CreateAlertDefinition = React.memo(() => {
       }
     }
   });
+
+  const { newPathname, overrides } = generateCrumbOverrides();
+
   const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
-
-  const generateCrumbOverrides = (pathname: string) => {
-    const pathParts = pathname.split('/').filter(Boolean);
-    const lastTwoParts = pathParts.slice(-2);
-    const fullPaths: string[] = [];
-
-    pathParts.forEach((_, index) => {
-      fullPaths.push('/' + pathParts.slice(0, index + 1).join('/'));
-    });
-
-    const overrides = lastTwoParts.map((part, index) => ({
-      label: part,
-      linkTo: fullPaths[pathParts.length - 2 + index],
-      position: index + 1,
-    }));
-
-    return { newPathname: '/' + lastTwoParts.join('/'), overrides };
-  };
-
-  const { newPathname, overrides } = React.useMemo(
-    () => generateCrumbOverrides(location.pathname),
-    []
-  );
 
   const engineOptionValue = watch('service_type');
   return (
@@ -188,44 +174,35 @@ export const CreateAlertDefinition = React.memo(() => {
           <Typography variant="h2">1. General Information</Typography>
           <Controller
             render={({ field, fieldState }) => (
-              <>
-                <TextField
-                  label="Name"
-                  name={'label'}
-                  onBlur={field.onBlur}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  value={field.value ?? ''}
-                />
-                <ErrorMessage
-                  errors={fieldState.error?.message}
-                  touched={fieldState.isTouched}
-                />
-              </>
+              <TextField
+                data-testid="alert-name"
+                errorText={fieldState.error?.message}
+                label="Name"
+                name={'name'}
+                onBlur={field.onBlur}
+                onChange={(e) => field.onChange(e.target.value)}
+                value={field.value ?? ''}
+              />
             )}
             control={control}
-            name="label"
+            name="name"
           />
           <Controller
             render={({ field, fieldState }) => (
-              <>
-                <TextField
-                  errorText={fieldState.error?.message}
-                  label="Description"
-                  name={'description'}
-                  onBlur={field.onBlur}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  optional
-                  value={field.value ?? ''}
-                />
-                <ErrorMessage
-                  errors={fieldState.error?.message}
-                  touched={fieldState.isTouched}
-                />
-              </>
+              <TextField
+                errorText={fieldState.error?.message}
+                label="Description"
+                name={'description'}
+                onBlur={field.onBlur}
+                onChange={(e) => field.onChange(e.target.value)}
+                optional
+                value={field.value ?? ''}
+              />
             )}
             control={control}
             name="description"
           />
+          <CloudPulseAlertSeveritySelect name="severity" />
           <CloudPulseServiceSelect name="service_type" />
           {engineOptionValue === 'dbaas' && (
             <EngineOption
