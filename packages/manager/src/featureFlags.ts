@@ -84,6 +84,7 @@ interface AclpAlerting {
   notificationChannels: boolean;
   recentActivity: boolean;
 }
+
 export interface Flags {
   aclp: AclpFlag;
   aclpAlerting: AclpAlerting;

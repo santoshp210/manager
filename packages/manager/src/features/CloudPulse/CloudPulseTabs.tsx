@@ -17,6 +17,7 @@ import { CloudPulseDashboardLanding } from './Dashboard/CloudPulseDashboardLandi
 
 import type { Tab } from 'src/components/Tabs/TabLinkList';
 
+
 export type EnabledAlertTab = {
   isEnabled: boolean;
   tab: Tab;

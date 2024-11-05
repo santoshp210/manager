@@ -124,6 +124,61 @@ export interface CloudPulseMetricsList {
   values: [number, string][];
 }
 
+export interface CreateAlertDefinitionPayload {
+  label: string;
+  description?: string;
+  service_type: string;
+  resource_ids: string[];
+  severity: string;
+  rule_criteria: {
+    rules: MetricCriteria[];
+  };
+  triggerCondition: TriggerCondition;
+  channel_ids: number[];
+}
+export interface MetricCriteria {
+  metric: string;
+  aggregation_type: string;
+  operator: string;
+  threshold: number;
+  dimension_filters?: DimensionFilter[];
+}
+
+export interface DimensionFilter {
+  dimension_label: string;
+  operator: string;
+  value: string;
+}
+
+export interface TriggerCondition {
+  polling_interval_seconds: number;
+  evaluation_period_seconds: number;
+  trigger_occurrences: number;
+}
+export interface Alert {
+  id: number;
+  label: string;
+  description: string;
+  status: string;
+  severity: string;
+  service_type: string;
+  resource_ids: string[];
+  rule_criteria: {
+    rules: MetricCriteria[];
+  };
+  triggerCondition: TriggerCondition;
+  channels: {
+    id: number;
+    label: string;
+    url: string;
+    type: string;
+  }[];
+  created_by: string;
+  updated_by: string;
+  created: string;
+  updated: string;
+}
+
 export interface ServiceTypes {
   service_type: string;
   label: string;
@@ -131,4 +186,18 @@ export interface ServiceTypes {
 
 export interface ServiceTypesList {
   data: ServiceTypes[];
+}
+
+export interface NotificationChannel {
+  id: number;
+  notification_type: string;
+  template_name: string;
+  content: {
+    email_ids: string[];
+  };
+  associated_alerts: number[];
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
 }
