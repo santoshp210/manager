@@ -11,7 +11,7 @@ import { Typography } from 'src/components/Typography';
 
 interface ChannelListProps {
   notifications: NotificationChannel[];
-  onChangeNotifications: (notifications: any[]) => void;
+  onChangeNotifications: (notifications: NotificationChannel[]) => void;
   onClickAddNotification: () => void;
 }
 
@@ -23,6 +23,9 @@ export const AddChannelListing = (props: ChannelListProps) => {
   } = props;
   const handleRemove = (index: number) => {
     const newList = notifications.filter((_, i) => i !== index);
+    // eslint-disable-next-line no-console
+    console.log(index, newList);
+
     onChangeNotifications(newList);
   };
   return (

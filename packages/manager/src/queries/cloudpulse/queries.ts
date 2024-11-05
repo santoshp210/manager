@@ -35,8 +35,8 @@ export const queryFactory = createQueryKeys(key, {
   }),
   lists: {
     contextQueries: {
-      alerts: (params?: Params, filter?: Filter) => ({
-        queryFn: () => getAlertDefinitions(params, filter),
+      alerts: (serviceType: string, params?: Params, filter?: Filter) => ({
+        queryFn: () => getAlertDefinitions(serviceType, params, filter),
         queryKey: [params, filter],
       }),
       dashboards: (serviceType: string) => ({

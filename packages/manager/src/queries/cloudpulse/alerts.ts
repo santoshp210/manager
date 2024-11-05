@@ -17,19 +17,23 @@ import type {
 
 export const aclpQueryKey = 'aclp-alerts';
 
-export const useCreateAlertDefinition = () => {
+export const useCreateAlertDefinition = (serviceType: string) => {
   const queryClient = useQueryClient();
   return useMutation<Alert, APIError[], CreateAlertDefinitionPayload>({
-    mutationFn: (data) => createAlertDefinition(data),
+    mutationFn: (data) => createAlertDefinition(data, serviceType),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: [aclpQueryKey] });
     },
   });
 };
 
-export const useAlertDefinitionsQuery = (params?: Params, filter?: Filter) => {
+export const useAlertDefinitionsQuery = (
+  serviceType: string,
+  params?: Params,
+  filter?: Filter
+) => {
   return useQuery<ResourcePage<Alert>, APIError[]>({
-    ...queryFactory.lists._ctx.alerts(params, filter),
+    ...queryFactory.lists._ctx.alerts(serviceType, params, filter),
   });
 };
 

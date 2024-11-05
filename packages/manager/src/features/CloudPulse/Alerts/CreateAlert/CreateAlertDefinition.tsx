@@ -36,9 +36,8 @@ import type {
 } from '@linode/api-v4/lib/cloudpulse/types';
 
 const triggerConditionInitialValues: TriggerCondition = {
-  criteria_condition: '',
-  evaluation_period_seconds: '',
-  polling_interval_seconds: '',
+  evaluation_period_seconds: 0,
+  polling_interval_seconds: 0,
   trigger_occurrences: 0,
 };
 const criteriaInitialValues: MetricCriteria[] = [
@@ -47,16 +46,14 @@ const criteriaInitialValues: MetricCriteria[] = [
     dimension_filters: [],
     metric: '',
     operator: '',
-    value: 0,
+    threshold: 0,
   },
 ];
 export const initialValues: CreateAlertDefinitionPayload = {
   channel_ids: [],
-  criteria: criteriaInitialValues,
-  engineOption: '',
-  name: '',
-  region: '',
+  label: '',
   resource_ids: [],
+  rule_criteria: { rules: criteriaInitialValues },
   service_type: '',
   severity: '',
   triggerCondition: triggerConditionInitialValues,
@@ -86,12 +83,7 @@ export const CreateAlertDefinition = React.memo(() => {
     isError: notificationChannelError,
     isLoading: notificationChannelLoading,
   } = useNotificationChannels();
-  // eslint-disable-next-line no-console
-  console.log(
-    notificationChannels,
-    notificationChannelError,
-    notificationChannelLoading
-  );
+
   const history = useHistory();
   const alertCreateExit = () => {
     const pathParts = location.pathname.split('/');
@@ -119,13 +111,16 @@ export const CreateAlertDefinition = React.memo(() => {
     watch,
   } = formMethods;
   const { enqueueSnackbar } = useSnackbar();
-  const { mutateAsync: createAlert } = useCreateAlertDefinition();
+  const { mutateAsync: createAlert } = useCreateAlertDefinition(
+    watch('service_type')
+  );
 
   const onChangeNotifications = (notifications: NotificationChannel[]) => {
-    setNotifications(notifications);
     const notificationTemplateList = notifications.map(
       (notification) => notification.id
     );
+    // eslint-disable-next-line no-console
+    console.log(notificationTemplateList);
     setValue('channel_ids', notificationTemplateList);
   };
 
@@ -196,7 +191,7 @@ export const CreateAlertDefinition = React.memo(() => {
               <>
                 <TextField
                   label="Name"
-                  name={'name'}
+                  name={'label'}
                   onBlur={field.onBlur}
                   onChange={(e) => field.onChange(e.target.value)}
                   value={field.value ?? ''}
@@ -208,7 +203,7 @@ export const CreateAlertDefinition = React.memo(() => {
               </>
             )}
             control={control}
-            name="name"
+            name="label"
           />
           <Controller
             render={({ field, fieldState }) => (
@@ -260,7 +255,7 @@ export const CreateAlertDefinition = React.memo(() => {
             name={'triggerCondition'}
           />
           <AddChannelListing
-            notifications={notificationChannels?.data ?? []}
+            notifications={notifications}
             onChangeNotifications={onChangeNotifications}
             onClickAddNotification={() => setOpenAddNotification(true)}
           />

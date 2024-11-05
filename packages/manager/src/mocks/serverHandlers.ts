@@ -2315,7 +2315,7 @@ export const handlers = [
           },
           created_at: '2021-10-16T04:00:00',
           created_by: 'user1',
-          id: Math.random(),
+          id: Math.ceil(Math.random() * 1000),
           notification_type: 'email',
           template_name: 'default',
           updated_at: '2021-10-16T04:00:00',
@@ -2325,7 +2325,7 @@ export const handlers = [
     };
     return HttpResponse.json(response);
   }),
-  http.post('*/monitor/alerts', async ({ request }) => {
+  http.post('*/monitor/:serviceType/alerts', async ({ request }) => {
     const reqBody = await request.json();
     const response = {
       data: [

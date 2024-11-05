@@ -126,14 +126,14 @@ export interface CloudPulseMetricsList {
 }
 
 export interface CreateAlertDefinitionPayload {
-  name: string;
-  region: string;
+  label: string;
   description?: string;
   service_type: string;
-  engineOption: string;
   resource_ids: string[];
   severity: string;
-  criteria: MetricCriteria[];
+  rule_criteria: {
+    rules: MetricCriteria[];
+  };
   triggerCondition: TriggerCondition;
   channel_ids: number[];
 }
@@ -141,8 +141,8 @@ export interface MetricCriteria {
   metric: string;
   aggregation_type: string;
   operator: string;
-  value: number;
-  dimension_filters: DimensionFilter[];
+  threshold: number;
+  dimension_filters?: DimensionFilter[];
 }
 
 export interface DimensionFilter {
@@ -152,16 +152,14 @@ export interface DimensionFilter {
 }
 
 export interface TriggerCondition {
-  criteria_condition: string;
-  polling_interval_seconds: string;
-  evaluation_period_seconds: string;
+  polling_interval_seconds: number;
+  evaluation_period_seconds: number;
   trigger_occurrences: number;
 }
 export interface Alert {
   id: number;
-  name: string;
+  label: string;
   description: string;
-  region: string;
   status: string;
   severity: string;
   service_type: string;
@@ -170,9 +168,11 @@ export interface Alert {
     rules: MetricCriteria[];
   };
   triggerCondition: TriggerCondition;
-  notification: {
-    notification_id: string;
-    template_name: string;
+  channels: {
+    id: number;
+    label: string;
+    url: string;
+    type: string;
   }[];
   created_by: string;
   updated_by: string;

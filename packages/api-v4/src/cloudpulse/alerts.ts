@@ -14,16 +14,27 @@ import {
 import { BETA_API_ROOT as API_ROOT } from 'src/constants';
 import { Filter, Params, ResourcePage } from 'src/types';
 
-export const createAlertDefinition = (data: CreateAlertDefinitionPayload) =>
+export const createAlertDefinition = (
+  data: CreateAlertDefinitionPayload,
+  serviceType: string
+) =>
   Request<Alert>(
-    setURL(`${API_ROOT}/monitor/alert-definitions`),
+    setURL(
+      `${API_ROOT}/monitor/${encodeURIComponent(serviceType)}/alert-definitions`
+    ),
     setMethod('POST'),
     setData(data, createAlertDefinitionSchema)
   );
 
-export const getAlertDefinitions = (params?: Params, filters?: Filter) =>
+export const getAlertDefinitions = (
+  serviceType: string,
+  params?: Params,
+  filters?: Filter
+) =>
   Request<ResourcePage<Alert>>(
-    setURL(`${API_ROOT}/monitor/alert-definitions`),
+    setURL(
+      `${API_ROOT}/monitor/${encodeURIComponent(serviceType)}/alert-definitions`
+    ),
     setMethod('GET'),
     setParams(params),
     setXFilter(filters)
