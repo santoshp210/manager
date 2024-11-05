@@ -1,5 +1,4 @@
 export const AlertSeverityOptions = [
-
   { label: 'Info', value: '3' },
   { label: 'Low', value: '2' },
   { label: 'Medium', value: '1' },
