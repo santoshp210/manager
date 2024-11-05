@@ -8,6 +8,7 @@ const config: StorybookConfig = {
   stories: [
     '../src/components/**/*.@(mdx|stories.@(js|ts|jsx|tsx))',
     '../src/features/**/*.@(mdx|stories.@(js|ts|jsx|tsx))',
+    '../../ui/src/components/**/*.@(mdx|stories.@(js|ts|jsx|tsx))',
   ],
   addons: [
     '@storybook/addon-docs',
@@ -17,6 +18,7 @@ const config: StorybookConfig = {
     '@storybook/addon-actions',
     'storybook-dark-mode',
     '@storybook/addon-storysource',
+    '@storybook/addon-a11y',
   ],
   staticDirs: ['../public'],
   framework: {

@@ -17,6 +17,8 @@ import { enableJunitReport } from './cypress/support/plugins/junit-report';
 import { generateTestWeights } from './cypress/support/plugins/generate-weights';
 import { logTestTagInfo } from './cypress/support/plugins/test-tagging-info';
 import cypressViteConfig from './cypress/vite.config';
+import { featureFlagOverrides } from './cypress/support/plugins/feature-flag-override';
+import { postRunCleanup } from './cypress/support/plugins/post-run-cleanup';
 
 /**
  * Exports a Cypress configuration object.
@@ -58,6 +60,14 @@ export default defineConfig({
     specPattern: './cypress/component/**/*.spec.tsx',
     viewportWidth: 500,
     viewportHeight: 500,
+
+    setupNodeEvents(on, config) {
+      return setupPlugins(on, config, [
+        loadEnvironmentConfig,
+        discardPassedTestRecordings,
+        enableJunitReport('Component', true),
+      ]);
+    },
   },
 
   e2e: {
@@ -83,10 +93,12 @@ export default defineConfig({
         fetchAccount,
         fetchLinodeRegions,
         regionOverrideCheck,
+        featureFlagOverrides,
         logTestTagInfo,
         splitCypressRun,
-        enableJunitReport,
+        enableJunitReport(),
         generateTestWeights,
+        postRunCleanup,
       ]);
     },
   },

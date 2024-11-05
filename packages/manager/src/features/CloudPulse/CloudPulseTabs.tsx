@@ -1,84 +1,87 @@
-import { styled } from '@mui/material/styles';
 import * as React from 'react';
-import { Redirect, Route, Switch, matchPath } from 'react-router-dom';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useLocation,
+  useRouteMatch,
+} from 'react-router-dom';
 
 import { SuspenseLoader } from 'src/components/SuspenseLoader';
-// import { SafeTabPanel } from 'src/components/Tabs/SafeTabPanel';
 import { TabLinkList } from 'src/components/Tabs/TabLinkList';
-// import { TabPanels } from 'src/components/Tabs/TabPanels';
 import { Tabs } from 'src/components/Tabs/Tabs';
 import { useFlags } from 'src/hooks/useFlags';
 
-import AlertsLanding from './Alerts/AlertLanding/AlertsLanding';
+import { AlertsLanding } from './Alerts/AlertsLanding/AlertsLanding';
 import { CloudPulseDashboardLanding } from './Dashboard/CloudPulseDashboardLanding';
 
-import type { RouteComponentProps } from 'react-router-dom';
-type Props = RouteComponentProps<{}>;
+import type { Tab } from 'src/components/Tabs/TabLinkList';
 
-export const CloudPulseTabs = React.memo((props: Props) => {
+
+export type EnabledAlertTab = {
+  isEnabled: boolean;
+  tab: Tab;
+};
+export const CloudPulseTabs = () => {
   const flags = useFlags();
-  const tabs = [
-    {
-      accessibile: true,
-      routeName: `${props.match.url}/dashboards`,
-      title: 'Dashboards',
-    },
-    {
-      accessibile:
-        flags.aclpAlerting?.alertDefinitions ||
-        flags.aclpAlerting?.recentActivity ||
-        flags.aclpAlerting?.notificationChannels,
-      routeName: `${props.match.url}/alerts`,
-      title: 'Alerts',
-    },
-  ];
-
-  const accessibleTabs = tabs.filter((tab) => tab.accessibile);
-  const matches = (p: string) => {
-    return Boolean(
-      matchPath(props.location.pathname, { exact: false, path: p })
-    );
-  };
-
-  const navToURL = (index: number) => {
-    props.history.push(accessibleTabs[index].routeName);
-  };
-
-  return (
-    <StyledTabs
-      index={Math.max(
-        accessibleTabs.findIndex((tab) => matches(tab.routeName)),
+  const { url } = useRouteMatch();
+  const { pathname } = useLocation();
+  const alertTabs = React.useMemo<EnabledAlertTab[]>(
+    () => [
+      {
+        isEnabled: true,
+        tab: {
+          routeName: `${url}/dashboards`,
+          title: 'Dashboards',
+        },
+      },
+      {
+        isEnabled: Boolean(
+          flags.aclpAlerting?.alertDefinitions ||
+            flags.aclpAlerting?.recentActivity ||
+            flags.aclpAlerting?.notificationChannels
+        ),
+        tab: {
+          routeName: `${url}/alerts`,
+          title: 'Alerts',
+        },
+      },
+    ],
+    [url, flags.aclpAlerting]
+  );
+  const accessibleTabs = React.useMemo(
+    () =>
+      alertTabs
+        .filter((alertTab) => alertTab.isEnabled)
+        .map((alertTab) => alertTab.tab),
+    [alertTabs]
+  );
+  const activeTabIndex = React.useMemo(
+    () =>
+      Math.max(
+        accessibleTabs.findIndex((tab) => pathname.startsWith(tab.routeName)),
         0
-      )}
-      onChange={navToURL}
-    >
+      ),
+    [accessibleTabs, pathname]
+  );
+  return (
+    <Tabs index={activeTabIndex} marginTop={0}>
       <TabLinkList tabs={accessibleTabs} />
 
       <React.Suspense fallback={<SuspenseLoader />}>
         <Switch>
           <Route
             component={CloudPulseDashboardLanding}
-            path={`${props.match.url}/dashboards`}
+            path={`${url}/dashboards`}
           />
-          <Route component={AlertsLanding} path={`${props.match.url}/alerts`} />
+          <Route component={AlertsLanding} path={`${url}/alerts`} />
           <Redirect
             exact
             from="/monitor/cloudpulse"
             to="/monitor/cloudpulse/dashboards"
           />
         </Switch>
-        {/* <TabPanels>
-          <SafeTabPanel index={0}>
-            <CloudPulseDashboardLanding />
-          </SafeTabPanel>
-        </TabPanels> */}
       </React.Suspense>
-    </StyledTabs>
+    </Tabs>
   );
-});
-
-const StyledTabs = styled(Tabs, {
-  label: 'StyledTabs',
-})(() => ({
-  marginTop: 0,
-}));
+};

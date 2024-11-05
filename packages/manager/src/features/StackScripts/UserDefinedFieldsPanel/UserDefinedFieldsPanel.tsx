@@ -1,10 +1,8 @@
-import { UserDefinedField } from '@linode/api-v4/lib/stackscripts';
-import { APIError } from '@linode/api-v4/lib/types';
+import { Box } from '@linode/ui';
 import Grid from '@mui/material/Unstable_Grid2';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
-import { Box } from 'src/components/Box';
 import { Divider } from 'src/components/Divider';
 import { Notice } from 'src/components/Notice/Notice';
 import { RenderGuard } from 'src/components/RenderGuard';
@@ -13,16 +11,18 @@ import { Typography } from 'src/components/Typography';
 import {
   getIsUDFHeader,
   getIsUDFMultiSelect,
-  getIsUDFSingleSelect,
   getIsUDFPasswordField,
+  getIsUDFSingleSelect,
   separateUDFsByRequiredStatus,
-} from 'src/features/Linodes/LinodeCreatev2/Tabs/StackScripts/UserDefinedFields/utilities';
+} from 'src/features/Linodes/LinodeCreate/Tabs/StackScripts/UserDefinedFields/utilities';
 
-import { AppInfo } from '../../Linodes/LinodesCreate/AppInfo';
+import { AppInfo } from './AppInfo';
 import UserDefinedMultiSelect from './FieldTypes/UserDefinedMultiSelect';
 import { UserDefinedSelect } from './FieldTypes/UserDefinedSelect';
 import UserDefinedText from './FieldTypes/UserDefinedText';
 import { StyledBox, StyledPaper } from './UserDefinedFieldsPanel.styles';
+
+import type { APIError, UserDefinedField } from '@linode/api-v4';
 
 interface Props {
   appLogo?: JSX.Element;

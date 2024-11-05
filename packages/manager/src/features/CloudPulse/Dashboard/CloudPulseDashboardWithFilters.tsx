@@ -1,14 +1,13 @@
-import { Divider, Grid, styled } from '@mui/material';
+import { Paper } from '@linode/ui';
+import { Grid } from '@mui/material';
 import React from 'react';
 
-import CloudPulseIcon from 'src/assets/icons/entityIcons/monitor.svg';
 import { CircleProgress } from 'src/components/CircleProgress';
 import { ErrorState } from 'src/components/ErrorState/ErrorState';
-import { Paper } from 'src/components/Paper';
-import { Placeholder } from 'src/components/Placeholder/Placeholder';
 import { useCloudPulseDashboardByIdQuery } from 'src/queries/cloudpulse/dashboards';
 
 import { CloudPulseDashboardFilterBuilder } from '../shared/CloudPulseDashboardFilterBuilder';
+import { CloudPulseErrorPlaceholder } from '../shared/CloudPulseErrorPlaceholder';
 import { CloudPulseTimeRangeSelect } from '../shared/CloudPulseTimeRangeSelect';
 import { FILTER_CONFIG } from '../Utils/FilterConfig';
 import {
@@ -65,7 +64,7 @@ export const CloudPulseDashboardWithFilters = React.memo(
     const renderPlaceHolder = (title: string) => {
       return (
         <Paper>
-          <StyledPlaceholder icon={CloudPulseIcon} isEntity title={title} />
+          <CloudPulseErrorPlaceholder errorMessage={title} />
         </Paper>
       );
     };
@@ -100,7 +99,11 @@ export const CloudPulseDashboardWithFilters = React.memo(
 
     return (
       <>
-        <Paper>
+        <Paper
+          sx={{
+            padding: 0,
+          }}
+        >
           <Grid
             justifyContent={{
               sm: 'flex-end',
@@ -126,16 +129,12 @@ export const CloudPulseDashboardWithFilters = React.memo(
               />
             </Grid>
           </Grid>
-          <Divider />
           {isFilterBuilderNeeded && (
-            <>
-              <CloudPulseDashboardFilterBuilder
-                dashboard={dashboard}
-                emitFilterChange={onFilterChange}
-                isServiceAnalyticsIntegration={true}
-              />
-              <Divider />
-            </>
+            <CloudPulseDashboardFilterBuilder
+              dashboard={dashboard}
+              emitFilterChange={onFilterChange}
+              isServiceAnalyticsIntegration={true}
+            />
           )}
         </Paper>
         {isMandatoryFiltersSelected ? (
@@ -148,16 +147,9 @@ export const CloudPulseDashboardWithFilters = React.memo(
             })}
           />
         ) : (
-          renderPlaceHolder('Mandatory Filters not Selected')
+          renderPlaceHolder('Select filters to visualize metrics.')
         )}
       </>
     );
   }
 );
-
-// keeping it here to avoid recreating
-const StyledPlaceholder = styled(Placeholder, {
-  label: 'StyledPlaceholder',
-})({
-  flex: 'auto',
-});

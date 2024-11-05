@@ -1,5 +1,7 @@
+import { IconButton, InputAdornment, Paper } from '@linode/ui';
 import CloseIcon from '@mui/icons-material/Close';
 import { useQueryClient } from '@tanstack/react-query';
+import { createLazyRoute } from '@tanstack/react-router';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -13,12 +15,9 @@ import { DocumentTitleSegment } from 'src/components/DocumentTitle';
 import { Drawer } from 'src/components/Drawer';
 import { ErrorState } from 'src/components/ErrorState/ErrorState';
 import { Hidden } from 'src/components/Hidden';
-import { IconButton } from 'src/components/IconButton';
-import { InputAdornment } from 'src/components/InputAdornment';
 import { LandingHeader } from 'src/components/LandingHeader';
 import { Notice } from 'src/components/Notice/Notice';
 import { PaginationFooter } from 'src/components/PaginationFooter/PaginationFooter';
-import { Paper } from 'src/components/Paper';
 import { Table } from 'src/components/Table';
 import { TableBody } from 'src/components/TableBody';
 import { TableCell } from 'src/components/TableCell';
@@ -394,7 +393,7 @@ export const ImagesLanding = () => {
           }),
         }}
         disabledCreateButton={isImagesReadOnly}
-        docsLink="https://www.linode.com/docs/platform/disk-images/linode-images/"
+        docsLink="https://techdocs.akamai.com/cloud-computing/docs/images"
         entity="Image"
         onButtonClick={() => history.push('/images/create')}
         title="Images"
@@ -449,14 +448,14 @@ export const ImagesLanding = () => {
                 <TableCell>Status</TableCell>
               </Hidden>
               {multiRegionsEnabled && (
-                <>
-                  <Hidden smDown>
-                    <TableCell>Replicated in</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell>Compatibility</TableCell>
-                  </Hidden>
-                </>
+                <Hidden smDown>
+                  <TableCell>Replicated in</TableCell>
+                </Hidden>
+              )}
+              {multiRegionsEnabled && !flags.imageServiceGen2Ga && (
+                <Hidden smDown>
+                  <TableCell>Compatibility</TableCell>
+                </Hidden>
               )}
               <TableSortCell
                 active={manualImagesOrderBy === 'size'}
@@ -639,5 +638,9 @@ export const ImagesLanding = () => {
     </React.Fragment>
   );
 };
+
+export const imagesLandingLazyRoute = createLazyRoute('/images')({
+  component: ImagesLanding,
+});
 
 export default ImagesLanding;

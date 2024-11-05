@@ -7,6 +7,8 @@ import type {
   PlacementGroup,
   Region,
   RegionAvailability,
+  SupportReply,
+  SupportTicket,
   Volume,
 } from '@linode/api-v4';
 import type { HttpHandler } from 'msw';
@@ -45,7 +47,7 @@ export interface MockPresetBaseline extends MockPresetBase {
  * Mock Preset Extra
  */
 export type MockPresetExtraGroup = {
-  id: 'API' | 'Account' | 'Managed' | 'Regions';
+  id: 'API' | 'Account' | 'Limits' | 'Managed' | 'Regions';
   type: 'checkbox' | 'select';
 };
 export type MockPresetExtraId =
@@ -54,9 +56,12 @@ export type MockPresetExtraId =
   | 'account:managed-enabled'
   | 'account:parent'
   | 'api:response-time'
+  | 'limits:linode-limits'
+  | 'limits:lke-limits'
   | 'regions:core-and-distributed'
   | 'regions:core-only'
   | 'regions:legacy';
+
 export interface MockPresetExtra extends MockPresetBase {
   canUpdateCount?: boolean;
   group: MockPresetExtraGroup;
@@ -67,11 +72,12 @@ export interface MockPresetExtra extends MockPresetBase {
  * Mock Preset Crud
  */
 export type MockPresetCrudGroup = {
-  id: 'Linodes' | 'Placement Groups' | 'Volumes';
+  id: 'Linodes' | 'Placement Groups' | 'Support Tickets' | 'Volumes';
 };
 export type MockPresetCrudId =
   | 'linodes:crud'
   | 'placement-groups:crud'
+  | 'support-tickets:crud'
   | 'volumes:crud';
 export interface MockPresetCrud extends MockPresetBase {
   canUpdateCount?: boolean;
@@ -93,6 +99,8 @@ export interface MockState {
   placementGroups: PlacementGroup[];
   regionAvailability: RegionAvailability[];
   regions: Region[];
+  supportReplies: SupportReply[];
+  supportTickets: SupportTicket[];
   volumes: Volume[];
 }
 

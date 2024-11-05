@@ -1,13 +1,12 @@
+import { Box, InputAdornment } from '@linode/ui';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import MuiAutocomplete from '@mui/material/Autocomplete';
 import React from 'react';
 
-import { Box } from 'src/components/Box';
 import { TextField } from 'src/components/TextField';
 
 import { CircleProgress } from '../CircleProgress';
-import { InputAdornment } from '../InputAdornment';
 import {
   CustomPopper,
   SelectedIcon,
@@ -26,7 +25,7 @@ export interface EnhancedAutocompleteProps<
     AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>,
     'renderInput'
   > {
-  /** Removes "select all" option for multiselect */
+  /** Removes "select all" option for mutliselect */
   disableSelectAll?: boolean;
   /** Provides a hint with error styling to assist users. */
   errorText?: string;
@@ -146,7 +145,7 @@ export const Autocomplete = <
         return renderOption ? (
           renderOption(props, option, state, ownerState)
         ) : (
-          <ListItem {...props} data-qa-option>
+          <ListItem {...props} data-qa-option key={props.key}>
             <>
               <Box
                 sx={{
@@ -165,7 +164,7 @@ export const Autocomplete = <
       ChipProps={{ deleteIcon: <CloseIcon /> }}
       PopperComponent={CustomPopper}
       clearOnBlur={clearOnBlur}
-      data-qa-autocomplete
+      data-qa-autocomplete={label}
       defaultValue={defaultValue}
       disableCloseOnSelect={multiple}
       disablePortal={disablePortal}

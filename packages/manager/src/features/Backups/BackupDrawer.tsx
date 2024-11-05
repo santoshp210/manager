@@ -1,9 +1,9 @@
+import { Box } from '@linode/ui';
 import { styled } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
-import { Box } from 'src/components/Box';
 import { DisplayPrice } from 'src/components/DisplayPrice';
 import { Drawer } from 'src/components/Drawer';
 import { Link } from 'src/components/Link';
@@ -31,10 +31,11 @@ import { UNKNOWN_PRICE } from 'src/utilities/pricing/constants';
 import { AutoEnroll } from './AutoEnroll';
 import { BackupLinodeRow } from './BackupLinodeRow';
 import {
-  EnableBackupsRejectedResult,
   getFailureNotificationText,
   useEnableBackupsOnLinodesMutation,
 } from './utils';
+
+import type { EnableBackupsRejectedResult } from './utils';
 
 interface Props {
   onClose: () => void;
@@ -151,7 +152,7 @@ all new Linodes will automatically be backed up.`
           Three backup slots are executed and rotated automatically: a daily
           backup, a 2-7 day old backup, and an 8-14 day old backup. See our
           {` `}
-          <Link to="https://www.linode.com/docs/platform/disk-images/linode-backup-service/">
+          <Link to="https://techdocs.akamai.com/cloud-computing/docs/backup-service">
             guide on Backups
           </Link>{' '}
           for more information on features and limitations.{' '}

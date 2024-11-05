@@ -9,7 +9,7 @@ import { Notice } from 'src/components/Notice/Notice';
 import { Stack } from 'src/components/Stack';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
-import { VPCPanel } from 'src/features/Linodes/LinodesCreate/VPCPanel';
+import { VPCPanel } from 'src/features/Linodes/LinodesDetail/LinodeSettings/VPCPanel';
 import { useVlansQuery } from 'src/queries/vlans';
 import { sendLinodeCreateDocsEvent } from 'src/utilities/analytics/customEventAnalytics';
 
@@ -395,7 +395,6 @@ export const InterfaceSelect = (props: InterfaceSelectProps) => {
             additionalIPv4RangesForVPC={additionalIPv4RangesForVPC ?? []}
             assignPublicIPv4Address={nattedIPv4Address !== undefined}
             autoassignIPv4WithinVPC={vpcIPv4 === undefined}
-            from="linodeConfig"
             handleIPv4RangeChange={handleIPv4RangeChange}
             handleSelectVPC={handleVPCLabelChange}
             handleSubnetChange={handleSubnetChange}

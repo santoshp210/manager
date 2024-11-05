@@ -1,5 +1,7 @@
+import { Box, Paper } from '@linode/ui';
 import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { createLazyRoute } from '@tanstack/react-router';
 import {
   append,
   clone,
@@ -14,7 +16,6 @@ import { useHistory } from 'react-router-dom';
 
 import { Accordion } from 'src/components/Accordion';
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
-import { Box } from 'src/components/Box';
 import { Button } from 'src/components/Button/Button';
 import { CheckoutSummary } from 'src/components/CheckoutSummary/CheckoutSummary';
 import { ConfirmationDialog } from 'src/components/ConfirmationDialog/ConfirmationDialog';
@@ -24,7 +25,6 @@ import { ErrorMessage } from 'src/components/ErrorMessage';
 import { LandingHeader } from 'src/components/LandingHeader';
 import { Link } from 'src/components/Link';
 import { Notice } from 'src/components/Notice/Notice';
-import { Paper } from 'src/components/Paper';
 import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
 import { SelectFirewallPanel } from 'src/components/SelectFirewallPanel/SelectFirewallPanel';
 import { RegionHelperText } from 'src/components/SelectRegionPanel/RegionHelperText';
@@ -36,7 +36,7 @@ import { FIREWALL_GET_STARTED_LINK } from 'src/constants';
 import { getRestrictedResourceText } from 'src/features/Account/utils';
 import {
   StyledDocsLinkContainer,
-  StyledRegionSelectStack,
+  StyledFieldWithDocsStack,
 } from 'src/features/Kubernetes/CreateCluster/CreateCluster.styles';
 import { useRestrictedGlobalGrantCheck } from 'src/hooks/useRestrictedGlobalGrantCheck';
 import {
@@ -527,7 +527,7 @@ const NodeBalancerCreate = () => {
           onChange={tagsChange}
           tagError={hasErrorFor('tags')}
         />
-        <StyledRegionSelectStack sx={{ marginTop: 1 }}>
+        <StyledFieldWithDocsStack sx={{ marginTop: 1 }}>
           <Stack>
             <RegionSelect
               textFieldProps={{
@@ -548,7 +548,7 @@ const NodeBalancerCreate = () => {
               label={DOCS_LINK_LABEL_DC_PRICING}
             />
           </StyledDocsLinkContainer>
-        </StyledRegionSelectStack>
+        </StyledFieldWithDocsStack>
       </Paper>
       <SelectFirewallPanel
         handleFirewallChange={(firewallId: number) => {
@@ -795,5 +795,11 @@ export const fieldErrorsToNodePathErrors = (errors: APIError[]) => {
     ];
   }, []);
 };
+
+export const nodeBalancerCreateLazyRoute = createLazyRoute(
+  '/nodebalancers/create'
+)({
+  component: NodeBalancerCreate,
+});
 
 export default NodeBalancerCreate;

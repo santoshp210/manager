@@ -1,4 +1,9 @@
-import { RELATIVE_TIME_DURATION, RESOURCE_ID, RESOURCES } from './constants';
+import {
+  REGION,
+  RELATIVE_TIME_DURATION,
+  RESOURCE_ID,
+  RESOURCES,
+} from './constants';
 import { FILTER_CONFIG } from './FilterConfig';
 import { CloudPulseSelectTypes } from './models';
 
@@ -12,7 +17,13 @@ import type {
 import type { CloudPulseTimeRangeSelectProps } from '../shared/CloudPulseTimeRangeSelect';
 import type { CloudPulseMetricsAdditionalFilters } from '../Widget/CloudPulseWidget';
 import type { CloudPulseServiceTypeFilters } from './models';
-import type { Dashboard, Filter, Filters, TimeDuration } from '@linode/api-v4';
+import type {
+  AclpConfig,
+  Dashboard,
+  Filter,
+  Filters,
+  TimeDuration,
+} from '@linode/api-v4';
 
 interface CloudPulseFilterProperties {
   config: CloudPulseServiceTypeFilters;
@@ -21,6 +32,7 @@ interface CloudPulseFilterProperties {
     [key: string]: FilterValueType;
   };
   isServiceAnalyticsIntegration: boolean;
+  preferences?: AclpConfig;
 }
 
 interface CloudPulseMandatoryFilterCheckProps {
@@ -42,12 +54,14 @@ interface CloudPulseMandatoryFilterCheckProps {
  */
 export const getRegionProperties = (
   props: CloudPulseFilterProperties,
-  handleRegionChange: (region: string | undefined) => void
+  handleRegionChange: (region: string | undefined, savePref?: boolean) => void
 ): CloudPulseRegionSelectProps => {
-  const { placeholder } = props.config.configuration;
-  const { dashboard, isServiceAnalyticsIntegration } = props;
+  const { name: label, placeholder } = props.config.configuration;
+  const { dashboard, isServiceAnalyticsIntegration, preferences } = props;
   return {
+    defaultValue: preferences?.[REGION],
     handleRegionChange,
+    label,
     placeholder,
     savePreferences: !isServiceAnalyticsIntegration,
     selectedDashboard: dashboard,
@@ -66,22 +80,28 @@ export const getRegionProperties = (
  */
 export const getResourcesProperties = (
   props: CloudPulseFilterProperties,
-  handleResourceChange: (resourceId: CloudPulseResources[]) => void
+  handleResourceChange: (
+    resourceId: CloudPulseResources[],
+    savePref?: boolean
+  ) => void
 ): CloudPulseResourcesSelectProps => {
-  const { filterKey, placeholder } = props.config.configuration;
+  const { filterKey, name: label, placeholder } = props.config.configuration;
   const {
     config,
     dashboard,
     dependentFilters,
     isServiceAnalyticsIntegration,
+    preferences,
   } = props;
   return {
+    defaultValue: preferences?.[RESOURCES],
     disabled: checkIfWeNeedToDisableFilterByFilterKey(
       filterKey,
       dependentFilters ?? {},
       dashboard
     ),
     handleResourcesSelection: handleResourceChange,
+    label,
     placeholder,
     resourceType: dashboard.service_type,
     savePreferences: !isServiceAnalyticsIntegration,
@@ -96,7 +116,12 @@ export const getResourcesProperties = (
  */
 export const getCustomSelectProperties = (
   props: CloudPulseFilterProperties,
-  handleCustomSelectChange: (filterKey: string, value: FilterValueType) => void
+  handleCustomSelectChange: (
+    filterKey: string,
+    value: FilterValueType,
+    savePref?: boolean,
+    updatedPreferenceData?: {}
+  ) => void
 ): CloudPulseCustomSelectProps => {
   const {
     apiIdField,
@@ -106,10 +131,16 @@ export const getCustomSelectProperties = (
     filterType,
     isMultiSelect,
     maxSelections,
+    name: label,
     options,
     placeholder,
   } = props.config.configuration;
-  const { dashboard, dependentFilters, isServiceAnalyticsIntegration } = props;
+  const {
+    dashboard,
+    dependentFilters,
+    isServiceAnalyticsIntegration,
+    preferences,
+  } = props;
   return {
     apiResponseIdField: apiIdField,
     apiResponseLabelField: apiLabelField,
@@ -118,6 +149,7 @@ export const getCustomSelectProperties = (
       filterKey,
       dashboard
     ),
+    defaultValue: preferences?.[filterKey],
     disabled: checkIfWeNeedToDisableFilterByFilterKey(
       filterKey,
       dependentFilters ?? {},
@@ -127,9 +159,11 @@ export const getCustomSelectProperties = (
     filterType,
     handleSelectionChange: handleCustomSelectChange,
     isMultiSelect,
+    label,
     maxSelections,
     options,
     placeholder,
+    preferences,
     savePreferences: !isServiceAnalyticsIntegration,
     type: options
       ? CloudPulseSelectTypes.static
@@ -147,12 +181,20 @@ export const getCustomSelectProperties = (
  */
 export const getTimeDurationProperties = (
   props: CloudPulseFilterProperties,
-  handleTimeRangeChange: (timeDuration: TimeDuration) => void
+  handleTimeRangeChange: (
+    timeDuration: TimeDuration,
+    timeDurationValue?: string,
+    savePref?: boolean
+  ) => void
 ): CloudPulseTimeRangeSelectProps => {
-  const { placeholder } = props.config.configuration;
-  const { isServiceAnalyticsIntegration } = props;
+  const { name: label, placeholder } = props.config.configuration;
+  const { isServiceAnalyticsIntegration, preferences } = props;
+
+  const timeDuration = preferences?.timeDuration;
   return {
+    defaultValue: timeDuration,
     handleStatsChange: handleTimeRangeChange,
+    label,
     placeholder,
     savePreferences: !isServiceAnalyticsIntegration,
   };
@@ -267,9 +309,11 @@ export const getMetricsCallCustomFilters = (
   selectedFilters: {
     [key: string]: FilterValueType;
   },
-  serviceType: string
+  serviceType?: string
 ): CloudPulseMetricsAdditionalFilters[] => {
-  const serviceTypeConfig = FILTER_CONFIG.get(serviceType);
+  const serviceTypeConfig = serviceType
+    ? FILTER_CONFIG.get(serviceType)
+    : undefined;
 
   // If configuration exists, filter and map it to the desired CloudPulseMetricsAdditionalFilters format
   return (
@@ -333,4 +377,70 @@ const getDependentFiltersByFilterKey = (
         ? RESOURCES
         : configuration.filterKey
     );
+};
+
+/**
+ * @param obj1 The first object to be compared
+ * @param obj2 The second object to be compared
+ * @returns True if, both are equal else false
+ */
+export const deepEqual = <T>(obj1: T, obj2: T): boolean => {
+  if (obj1 === obj2) {
+    return true; // Identical references or values
+  }
+
+  // If either is null or undefined, or they are not of object type, return false
+  if (
+    obj1 === null ||
+    obj2 === null ||
+    typeof obj1 !== 'object' ||
+    typeof obj2 !== 'object'
+  ) {
+    return false;
+  }
+
+  // Handle array comparison separately
+  if (Array.isArray(obj1) && Array.isArray(obj2)) {
+    return compareArrays(obj1, obj2);
+  }
+
+  // Ensure both objects have the same number of keys
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  // Recursively check each key
+  for (const key of keys1) {
+    if (!(key in obj2)) {
+      return false;
+    }
+    // Recursive deep equal check
+    if (!deepEqual((obj1 as any)[key], (obj2 as any)[key])) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+/**
+ * @param arr1 Array for comparison
+ * @param arr2 Array for comparison
+ * @returns True if, both the arrays are equal, else false
+ */
+const compareArrays = <T>(arr1: T[], arr2: T[]): boolean => {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < arr1.length; i++) {
+    if (!deepEqual(arr1[i], arr2[i])) {
+      return false;
+    }
+  }
+
+  return true;
 };
