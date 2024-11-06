@@ -4,7 +4,6 @@ import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { Box } from 'src/components/Box';
 import { Stack } from 'src/components/Stack';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
@@ -14,6 +13,7 @@ import { DimensionFilter } from './DimensionFilter';
 
 import type { AvailableMetrics } from '@linode/api-v4';
 import type { Control, FieldValues } from 'react-hook-form';
+import { Box } from '@linode/ui/src/components/Box';
 
 interface MetricCriteriaProps {
   /**
@@ -35,31 +35,8 @@ interface MetricCriteriaProps {
   onMetricDelete: () => void;
 }
 type MetricDataFieldOption = {
-  label: '';
-  value: '';
-};
-
-interface ControllerErrorMessageProps {
-  component: string;
-  control: Control<FieldValues>;
-}
-export const ControllerErrorMessage = ({
-  component,
-  control,
-}: ControllerErrorMessageProps) => {
-  return (
-    <Controller
-      render={({ fieldState }) => (
-        <Box sx={(theme) => ({ color: theme.color.red })}>
-          {fieldState.isTouched && fieldState.error
-            ? fieldState.error?.message
-            : null}
-        </Box>
-      )}
-      control={control}
-      name={`${component}`}
-    />
-  );
+  label: string;
+  value: string;
 };
 
 export const Metric = (props: MetricCriteriaProps) => {
@@ -142,10 +119,10 @@ export const Metric = (props: MetricCriteriaProps) => {
         <Grid alignItems="center" container spacing={2}>
           <Grid item md={3} sm={6} xs={12}>
             <Controller
-              render={({ field }) => (
+              render={({ field, fieldState}) => (
                 <Autocomplete
                   errorText={
-                    isMetricDefinitionError ? 'Error in fetching the data' : ''
+                    fieldState.error?.message ?? isMetricDefinitionError ? 'Error in fetching the data' : ''
                   }
                   isOptionEqualToValue={(option, value) =>
                     option.value === value.value
@@ -174,7 +151,7 @@ export const Metric = (props: MetricCriteriaProps) => {
           </Grid>
           <Grid item md={3} sm={6} xs={12}>
             <Controller
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <Autocomplete
                   isOptionEqualToValue={(option, value) =>
                     option.value === value || value === ''
@@ -191,6 +168,7 @@ export const Metric = (props: MetricCriteriaProps) => {
                   label="Aggregation type"
                   onBlur={field.onBlur}
                   options={aggOptions}
+                  errorText={fieldState.error?.message}
                   sx={{ paddingTop: { sm: 1, xs: 0 } }}
                   value={field.value !== '' ? field.value : null}
                 />
@@ -201,7 +179,7 @@ export const Metric = (props: MetricCriteriaProps) => {
           </Grid>
           <Grid item md={'auto'} sm={6} xs={12}>
             <Controller
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <Autocomplete
                   isOptionEqualToValue={(option, value) =>
                     option.label === value
@@ -209,6 +187,7 @@ export const Metric = (props: MetricCriteriaProps) => {
                   onChange={(_, newValue, operation) =>
                     handleSelectChange('operator', newValue?.value, operation)
                   }
+                  errorText={fieldState.error?.message}
                   data-testid={'Operator'}
                   key={metricWatcher}
                   label={'Operator'}
@@ -226,7 +205,7 @@ export const Metric = (props: MetricCriteriaProps) => {
             <Grid alignItems="center" container spacing={2}>
               <Grid item md={'auto'} sm={6} xs={6}>
                 <Controller
-                  render={({ field }) => (
+                  render={({ field, fieldState}) => (
                     <TextField
                       onWheel={(event) =>
                         event.target instanceof HTMLElement &&
@@ -236,6 +215,7 @@ export const Metric = (props: MetricCriteriaProps) => {
                       min={0}
                       name={`${name}.value`}
                       onBlur={field.onBlur}
+                      errorText={fieldState.error?.message}
                       onChange={(e) => field.onChange(e.target.value)}
                       type="number"
                       value={field.value ?? 0}
@@ -260,24 +240,6 @@ export const Metric = (props: MetricCriteriaProps) => {
             </Grid>
           </Grid>
         </Grid>
-        <Box sx={(theme) => ({ marginTop: theme.spacing(1) })}>
-          <ControllerErrorMessage
-            component={`${name}.metric`}
-            control={control}
-          />
-          <ControllerErrorMessage
-            component={`${name}.aggregation_type`}
-            control={control}
-          />
-          <ControllerErrorMessage
-            component={`${name}.operator`}
-            control={control}
-          />
-          <ControllerErrorMessage
-            component={`${name}.value`}
-            control={control}
-          />
-        </Box>
         <DimensionFilter
           dimensionOptions={dimensionOptions}
           name={`${name}.dimension_filters`}

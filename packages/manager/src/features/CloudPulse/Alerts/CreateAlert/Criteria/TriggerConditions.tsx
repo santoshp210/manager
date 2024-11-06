@@ -1,9 +1,9 @@
+import { Box } from '@linode/ui';
 import { Grid } from '@mui/material';
 import * as React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { Box } from 'src/components/Box';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 
@@ -12,7 +12,6 @@ import {
   PollingIntervalOptions,
   TriggerOptions,
 } from '../../constants';
-import { ControllerErrorMessage } from './Metric';
 interface TriggerConditionProps {
   /**
    * maximum scraping interval value for a metric to filter the evaluation period and polling interval options
@@ -73,7 +72,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
       <Grid alignItems="center" container spacing={2}>
         <Grid item md={3} sm={6} xs={12}>
           <Controller
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <Autocomplete
                 isOptionEqualToValue={(option, value) =>
                   option.value === value.value
@@ -91,6 +90,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                     'Choose the data lookback period on which thresholds are applied',
                 }}
                 data-testid="Evaluation-period"
+                errorText={fieldState.error?.message}
                 label={'Evaluation period'}
                 onBlur={field.onBlur}
                 options={getEvaluationPeriodOptions()}
@@ -103,7 +103,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
         </Grid>
         <Grid item md={'auto'} sm={6} xs={12}>
           <Controller
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <Autocomplete
                 isOptionEqualToValue={(option, value) =>
                   option.value === value.value
@@ -121,6 +121,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                     'Choose how often you intend to evaulate the alert condition',
                 }}
                 data-testid="Polling-interval"
+                errorText={fieldState.error?.message}
                 label={'Polling interval'}
                 onBlur={field.onBlur}
                 options={getPollingIntervalOptions()}
@@ -135,7 +136,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           <Grid alignItems="center" container spacing={2}>
             <Grid item md={'auto'} sm={'auto'} xs={6}>
               <Controller
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <Autocomplete
                     isOptionEqualToValue={(option, value) =>
                       option.label === value
@@ -152,6 +153,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                         'AND implies alert is triggered when all the metrics criteria are met',
                     }}
                     data-testid="Trigger-alert-condition"
+                    errorText={fieldState.error?.message}
                     label={'Trigger alert when'}
                     onBlur={field.onBlur}
                     options={TriggerOptions}
@@ -178,7 +180,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
             </Grid>
             <Grid item md={'auto'} sm={'auto'} xs={'auto'}>
               <Controller
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <TextField
                     onWheel={(event) =>
                       event.target instanceof HTMLElement && event.target.blur()
@@ -189,6 +191,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                       paddingTop: { sm: '26px', xs: 0 },
                     }}
                     data-testid={'Trigger-occurences'}
+                    errorText={fieldState.error?.message}
                     label={''}
                     min={0}
                     name={`${name}.trigger_occurrences`}
@@ -220,24 +223,6 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           </Grid>
         </Grid>
       </Grid>
-      <Box sx={(theme) => ({ marginTop: theme.spacing(2) })}>
-        <ControllerErrorMessage
-          component={`${name}.evaluation_period_seconds`}
-          control={control}
-        />
-        <ControllerErrorMessage
-          component={`${name}.polling_interval_seconds`}
-          control={control}
-        />
-        <ControllerErrorMessage
-          component={`${name}.criteria_condition`}
-          control={control}
-        />
-        <ControllerErrorMessage
-          component={`${name}.trigger_occurrences`}
-          control={control}
-        />
-      </Box>
     </Box>
   );
 });

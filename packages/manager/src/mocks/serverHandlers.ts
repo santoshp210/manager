@@ -2318,7 +2318,7 @@ export const handlers = [
 
     return HttpResponse.json(response);
   }),
-  http.post('*/monitor/alert-definitions', async ({ request }) => {
+  http.post('*/monitor/services/:serviceType/alert-definitions', async ({ request }) => {
     const reqBody = await request.json();
     const response = {
       data: [

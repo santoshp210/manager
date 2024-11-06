@@ -6,10 +6,9 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
-import { Box } from 'src/components/Box';
 import { Breadcrumb } from 'src/components/Breadcrumb/Breadcrumb';
 import { Drawer } from 'src/components/Drawer';
-import { Paper } from 'src/components/Paper';
+import { Paper } from '@linode/ui';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 import {
@@ -82,12 +81,12 @@ export const CreateAlertDefinition = React.memo(() => {
     isLoading: engineOptionLoading,
   } = useDatabaseEnginesQuery(true);
 
-  const {
-    data: notificationChannels,
-    isError: notificationChannelError,
-    isLoading: notificationChannelLoading,
-  } = useNotificationChannels();
-      
+  // const {
+  //   data: notificationChannels,
+  //   isError: notificationChannelError,
+  //   isLoading: notificationChannelLoading,
+  // } = useNotificationChannels();
+
   const history = useHistory();
   const alertCreateExit = () => {
     const pathParts = location.pathname.split('/');
@@ -102,10 +101,11 @@ export const CreateAlertDefinition = React.memo(() => {
     resolver: yupResolver(createAlertDefinitionSchema),
   });
 
-  const [openAddNotification, setOpenAddNotification] = React.useState(false);
-  const [notifications, setNotifications] = React.useState<
-    NotificationChannel[]
-  >([]);
+  const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
+  // const [openAddNotification, setOpenAddNotification] = React.useState(false);
+  // const [notifications, setNotifications] = React.useState<
+  //   NotificationChannel[]
+  // >([]);
   const {
     control,
     formState,
@@ -119,25 +119,26 @@ export const CreateAlertDefinition = React.memo(() => {
     watch('service_type')
   );
 
-  const onChangeNotifications = (notifications: NotificationChannel[]) => {
-    const notificationTemplateList = notifications.map(
-      (notification) => notification.id
-    );
-    setValue('channel_ids', notificationTemplateList);
-  };
+  // const onChangeNotifications = (notifications: NotificationChannel[]) => {
+  //   const notificationTemplateList = notifications.map(
+  //     (notification) => notification.id
+  //   ); 
+  //   setValue('channel_ids', notificationTemplateList);
+  // };
 
-  const onSubmitAddNotification = (notification: NotificationChannel) => {
-    const newNotifications = [...notifications, notification];
-    const notificationTemplateList = newNotifications.map(
-      (notification) => notification.id
-    );
-    setValue('channel_ids', notificationTemplateList);
-    setNotifications(newNotifications);
-    setOpenAddNotification(false);
-  };
+  // const onSubmitAddNotification = (notification: NotificationChannel) => {
+  //   const newNotifications = [...notifications, notification];
+  //   const notificationTemplateList = newNotifications.map(
+  //     (notification) => notification.id
+  //   );
+  //   setValue('channel_ids', notificationTemplateList);
+  //   setNotifications(newNotifications);
+  //   setOpenAddNotification(false);
+  // };
 
   const onSubmit = handleSubmit(async (values) => {
     try {
+
       await createAlert(values);
       enqueueSnackbar('Alert successfully created', {
         variant: 'success',
@@ -224,11 +225,11 @@ export const CreateAlertDefinition = React.memo(() => {
             maxScrapingInterval={maxScrapeInterval}
             name={'triggerCondition'}
           />
-          <AddChannelListing
+          {/* <AddChannelListing
             notifications={notifications}
             onChangeNotifications={onChangeNotifications}
             onClickAddNotification={() => setOpenAddNotification(true)}
-          />
+          /> */}
           <ActionsPanel
             primaryButtonProps={{
               label: 'Submit',
@@ -243,7 +244,7 @@ export const CreateAlertDefinition = React.memo(() => {
           />
         </form>
       </FormProvider>
-      {openAddNotification && (
+      {/* {openAddNotification && (
         <Drawer
           onClose={() => setOpenAddNotification(false)}
           open={openAddNotification}
@@ -255,7 +256,7 @@ export const CreateAlertDefinition = React.memo(() => {
             templateData={notificationChannels?.data ?? []}
           />
         </Drawer>
-      )}
+      )} */}
     </Paper>
   );
 });

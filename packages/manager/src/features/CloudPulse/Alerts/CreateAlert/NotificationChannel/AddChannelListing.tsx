@@ -1,9 +1,9 @@
 import { NotificationChannel } from '@linode/api-v4';
+import { Box } from '@linode/ui/src/components/Box';
 import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
 import { Grid, styled } from '@mui/material';
 import React from 'react';
 
-import { Box } from 'src/components/Box';
 import { Button } from 'src/components/Button/Button';
 import { Chip } from 'src/components/Chip';
 import { Stack } from 'src/components/Stack';
@@ -23,9 +23,6 @@ export const AddChannelListing = (props: ChannelListProps) => {
   } = props;
   const handleRemove = (index: number) => {
     const newList = notifications.filter((_, i) => i !== index);
-    // eslint-disable-next-line no-console
-    console.log(index, newList);
-
     onChangeNotifications(newList);
   };
   return (

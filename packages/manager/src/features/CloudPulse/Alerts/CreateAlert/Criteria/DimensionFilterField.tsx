@@ -4,10 +4,8 @@ import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { Box } from 'src/components/Box';
 
 import { DimensionOperatorOptions } from '../../constants';
-import { ControllerErrorMessage } from './Metric';
 
 import type { Dimension } from '@linode/api-v4';
 
@@ -84,98 +82,84 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
       : [];
 
   return (
-    <>
-      <Grid alignItems="center" container spacing={2}>
-        <Grid item md={3} sm={3} xs={12}>
-          <Controller
-            render={({ field }) => (
-              <Autocomplete
-                isOptionEqualToValue={(option, value) =>
-                  option.label === value.label
-                }
-                onChange={(_, newValue, operation) => {
-                  handleDataFieldChange(newValue?.value ?? '', operation);
-                  setSelectedDataField(newValue);
-                }}
-                data-testid="Data-field"
-                label="Data Field"
-                onBlur={field.onBlur}
-                options={dataFieldOptions}
-                value={selectedDataField}
-              />
-            )}
-            control={control}
-            name={`${name}.dimension_label`}
-          />
-        </Grid>
-        <Grid item md={'auto'} sm={3} xs={12}>
-          <Controller
-            render={({ field }) => (
-              <Autocomplete
-                onChange={(_, newValue, operation) =>
-                  handleSelectChange(
-                    'operator',
-                    newValue?.value ?? '',
-                    operation
-                  )
-                }
-                data-testid="Operator"
-                isOptionEqualToValue={(option, value) => option.label === value}
-                label={'Operator'}
-                onBlur={field.onBlur}
-                options={DimensionOperatorOptions}
-                value={field.value !== '' ? field.value : null}
-              />
-            )}
-            control={control}
-            name={`${name}.operator`}
-          />
-        </Grid>
-        <Grid item md={4} sm={6} xs={12}>
-          <Grid alignItems="center" container spacing={0}>
-            <Grid item md={8} sm={6} xs={10}>
-              <Controller
-                render={({ field }) => (
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) =>
-                      option.label === value
-                    }
-                    onChange={(_, newValue, operation) =>
-                      handleSelectChange(
-                        'value',
-                        newValue?.value ?? '',
-                        operation
-                      )
-                    }
-                    data-testid="Value"
-                    label="Value"
-                    onBlur={field.onBlur}
-                    options={valueOptions}
-                    value={field.value !== '' ? field.value : null}
-                  />
-                )}
-                control={control}
-                name={`${name}.value`}
-              />
-            </Grid>
+    <Grid alignItems="center" container spacing={2}>
+      <Grid item md={3} sm={3} xs={12}>
+        <Controller
+          render={({ field, fieldState }) => (
+            <Autocomplete
+              isOptionEqualToValue={(option, value) =>
+                option.label === value.label
+              }
+              onChange={(_, newValue, operation) => {
+                handleDataFieldChange(newValue?.value ?? '', operation);
+                setSelectedDataField(newValue);
+              }}
+              data-testid="Data-field"
+              errorText={fieldState.error?.message}
+              label="Data Field"
+              onBlur={field.onBlur}
+              options={dataFieldOptions}
+              value={selectedDataField}
+            />
+          )}
+          control={control}
+          name={`${name}.dimension_label`}
+        />
+      </Grid>
+      <Grid item md={'auto'} sm={3} xs={12}>
+        <Controller
+          render={({ field, fieldState }) => (
+            <Autocomplete
+              onChange={(_, newValue, operation) =>
+                handleSelectChange('operator', newValue?.value ?? '', operation)
+              }
+              data-testid="Operator"
+              errorText={fieldState.error?.message}
+              isOptionEqualToValue={(option, value) => option.label === value}
+              label={'Operator'}
+              onBlur={field.onBlur}
+              options={DimensionOperatorOptions}
+              value={field.value !== '' ? field.value : null}
+            />
+          )}
+          control={control}
+          name={`${name}.operator`}
+        />
+      </Grid>
+      <Grid item md={4} sm={6} xs={12}>
+        <Grid alignItems="center" container spacing={0}>
+          <Grid item md={8} sm={6} xs={10}>
+            <Controller
+              render={({ field, fieldState }) => (
+                <Autocomplete
+                  isOptionEqualToValue={(option, value) =>
+                    option.label === value
+                  }
+                  onChange={(_, newValue, operation) =>
+                    handleSelectChange(
+                      'value',
+                      newValue?.value ?? '',
+                      operation
+                    )
+                  }
+                  data-testid="Value"
+                  errorText={fieldState.error?.message}
+                  label="Value"
+                  onBlur={field.onBlur}
+                  options={valueOptions}
+                  value={field.value !== '' ? field.value : null}
+                />
+              )}
+              control={control}
+              name={`${name}.value`}
+            />
           </Grid>
         </Grid>
-        <Grid item paddingLeft={1} sm={'auto'}>
-          <StyledDeleteIcon onClick={onFilterDelete} />
-        </Grid>
       </Grid>
-      <Box>
-        <ControllerErrorMessage
-          component={`${name}.dimension_label`}
-          control={control}
-        />
-        <ControllerErrorMessage
-          component={`${name}.operator`}
-          control={control}
-        />
-        <ControllerErrorMessage component={`${name}.value`} control={control} />
-      </Box>
-    </>
+      <Grid item paddingLeft={1} sm={'auto'}>
+        <StyledDeleteIcon onClick={onFilterDelete} />
+      </Grid>
+    </Grid>
   );
 };
 

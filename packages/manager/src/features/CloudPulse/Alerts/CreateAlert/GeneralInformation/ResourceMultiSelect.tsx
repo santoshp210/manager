@@ -4,7 +4,6 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useResourcesQuery } from 'src/queries/cloudpulse/resources';
 
-import { ErrorMessage } from '../CreateAlertDefinition';
 interface CloudPulseResourceSelectProps {
   /**
    * engine option type selected by the user
@@ -39,7 +38,7 @@ export const CloudPulseMultiResourceSelect = (
   const [selectedResources, setSelectedResources] = React.useState<
     CloudPulseResources[]
   >([]);
-  const { data: resources, isLoading } = useResourcesQuery(
+  const { data: resources, isError, isLoading } = useResourcesQuery(
     Boolean(region && serviceType),
     serviceType,
     {},
@@ -65,32 +64,31 @@ export const CloudPulseMultiResourceSelect = (
   return (
     <Controller
       render={({ field, fieldState }) => (
-        <>
-          <Autocomplete
-            isOptionEqualToValue={(option, value) => {
-              return option.id === value.id;
-            }}
-            onChange={(_, resources) => {
-              setSelectedResources(resources);
-            }}
-            autoHighlight
-            clearOnBlur
-            data-testid="resource-select"
-            disabled={!Boolean(region && serviceType)}
-            label={serviceType === 'dbaas' ? 'Cluster' : 'Resources'}
-            limitTags={2}
-            loading={isLoading && Boolean(region && serviceType)}
-            multiple
-            onBlur={field.onBlur}
-            options={getResourcesList()}
-            placeholder="Select Resources"
-            value={selectedResources}
-          />
-          <ErrorMessage
-            errors={fieldState.error?.message}
-            touched={fieldState.isTouched}
-          />
-        </>
+        <Autocomplete
+          errorText={
+            fieldState.error?.message ?? isError
+              ? 'Error in fetching the data'
+              : ''
+          }
+          isOptionEqualToValue={(option, value) => {
+            return option.id === value.id;
+          }}
+          onChange={(_, resources) => {
+            setSelectedResources(resources);
+          }}
+          autoHighlight
+          clearOnBlur
+          data-testid="resource-select"
+          disabled={!Boolean(region && serviceType)}
+          label={serviceType === 'dbaas' ? 'Cluster' : 'Resources'}
+          limitTags={2}
+          loading={isLoading && Boolean(region && serviceType)}
+          multiple
+          onBlur={field.onBlur}
+          options={getResourcesList()}
+          placeholder="Select Resources"
+          value={selectedResources}
+        />
       )}
       control={control}
       name={name}

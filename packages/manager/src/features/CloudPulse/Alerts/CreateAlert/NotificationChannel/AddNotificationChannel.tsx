@@ -4,13 +4,14 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { Box } from 'src/components/Box';
+
 import { Chip } from 'src/components/Chip';
 import { Typography } from 'src/components/Typography';
 
 import { ChannelTypeOptions } from '../../constants';
 
 import type { NotificationChannel } from '@linode/api-v4';
+import { Box } from '@linode/ui/src/components/Box';
 
 interface AddNotificationChannelProps {
   onCancel: () => void;
