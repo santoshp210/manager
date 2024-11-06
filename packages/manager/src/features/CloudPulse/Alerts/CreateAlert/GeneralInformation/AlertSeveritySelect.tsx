@@ -4,6 +4,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 
 import { AlertSeverityOptions } from '../../constants';
+
 export interface CloudViewRegionSelectProps {
   /**
    * name used for the component in the form

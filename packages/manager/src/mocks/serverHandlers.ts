@@ -19,6 +19,7 @@ import {
   accountFactory,
   accountMaintenanceFactory,
   accountTransferFactory,
+  alertFactory,
   appTokenFactory,
   betaFactory,
   contactFactory,
@@ -2377,6 +2378,59 @@ export const handlers = [
 
     return HttpResponse.json(response);
   }),
+  http.get('*/monitor/notification', () => {
+    const response = {
+      data: [
+        {
+          associated_alerts: 0,
+          content: {
+            email_ids: ['default@mail.com', 'admin@email.com'],
+          },
+          created_at: '2021-10-16T04:00:00',
+          created_by: 'user1',
+          id: Math.ceil(Math.random() * 1000),
+          notification_type: 'email',
+          template_name: 'default',
+          updated_at: '2021-10-16T04:00:00',
+          updated_by: 'user2',
+        },
+      ],
+    };
+    return HttpResponse.json(response);
+  }),
+  http.post('*/monitor/:serviceType/alerts', async ({ request }) => {
+    const reqBody = await request.json();
+    const response = {
+      data: [
+        {
+          created: '2021-10-16T04:00:00',
+          created_by: 'user1',
+          id: '35892357',
+          notifications: [
+            {
+              notification_id: '42804',
+              template_name: 'notification',
+            },
+          ],
+          reqBody,
+          updated: '2021-10-16T04:00:00',
+          updated_by: 'user2',
+        },
+      ],
+    };
+    return HttpResponse.json(response);
+  }),
+  http.get('*/monitor/alert-definitions', () => {
+    const alerts = alertFactory.buildList(5);
+
+    return HttpResponse.json(makeResourcePage(alerts));
+  }),
+  http.get('*/monitor/alert-definitions/:id', ({ params }) => {
+    if (params.id !== undefined) {
+      return HttpResponse.json(alertFactory.build({ id: Number(params.id) }));
+    }
+    return HttpResponse.json({}, { status: 404 });
+  }),
   http.get('*/monitor/services/:serviceType/metric-definitions', () => {
     const response = {
       data: [
@@ -2384,12 +2438,12 @@ export const handlers = [
           available_aggregate_functions: ['min', 'max', 'avg'],
           dimensions: [
             {
-              dim_label: 'cpu',
+              dimension_label: 'cpu',
               label: 'CPU name',
               values: null,
             },
             {
-              dim_label: 'state',
+              dimension_label: 'state',
               label: 'State of CPU',
               values: [
                 'user',
@@ -2403,7 +2457,7 @@ export const handlers = [
               ],
             },
             {
-              dim_label: 'LINODE_ID',
+              dimension_label: 'LINODE_ID',
               label: 'Linode ID',
               values: null,
             },
@@ -2418,7 +2472,7 @@ export const handlers = [
           available_aggregate_functions: ['min', 'max', 'avg', 'sum'],
           dimensions: [
             {
-              dim_label: 'state',
+              dimension_label: 'state',
               label: 'State of memory',
               values: [
                 'used',
@@ -2430,7 +2484,7 @@ export const handlers = [
               ],
             },
             {
-              dim_label: 'LINODE_ID',
+              dimension_label: 'LINODE_ID',
               label: 'Linode ID',
               values: null,
             },
@@ -2445,17 +2499,17 @@ export const handlers = [
           available_aggregate_functions: ['min', 'max', 'avg', 'sum'],
           dimensions: [
             {
-              dim_label: 'device',
+              dimension_label: 'device',
               label: 'Device name',
               values: ['lo', 'eth0'],
             },
             {
-              dim_label: 'direction',
+              dimension_label: 'direction',
               label: 'Direction of network transfer',
               values: ['transmit', 'receive'],
             },
             {
-              dim_label: 'LINODE_ID',
+              dimension_label: 'LINODE_ID',
               label: 'Linode ID',
               values: null,
             },
@@ -2470,17 +2524,17 @@ export const handlers = [
           available_aggregate_functions: ['min', 'max', 'avg', 'sum'],
           dimensions: [
             {
-              dim_label: 'device',
+              dimension_label: 'device',
               label: 'Device name',
               values: ['loop0', 'sda', 'sdb'],
             },
             {
-              dim_label: 'direction',
+              dimension_label: 'direction',
               label: 'Operation direction',
               values: ['read', 'write'],
             },
             {
-              dim_label: 'LINODE_ID',
+              dimension_label: 'LINODE_ID',
               label: 'Linode ID',
               values: null,
             },

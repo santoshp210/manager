@@ -124,21 +124,10 @@ export interface CloudPulseMetricsList {
   values: [number, string][];
 }
 
-export interface ServiceTypes {
-  service_type: string;
-  label: string;
-}
-
-export interface ServiceTypesList {
-  data: ServiceTypes[];
-}
-
 export interface CreateAlertDefinitionPayload {
-  name: string;
-  region: string;
+  label: string;
   description?: string;
   service_type: string;
-  engineOption: string;
   resource_ids: string[];
   severity: string;
   rule_criteria: {
@@ -151,8 +140,8 @@ export interface MetricCriteria {
   metric: string;
   aggregation_type: string;
   operator: string;
-  value: number;
-  dimension_filters: DimensionFilter[];
+  threshold: number;
+  dimension_filters?: DimensionFilter[];
 }
 
 export interface DimensionFilter {
@@ -162,14 +151,13 @@ export interface DimensionFilter {
 }
 
 export interface TriggerCondition {
-  criteria_condition: string;
-  polling_interval_seconds: string;
-  evaluation_period_seconds: string;
+  polling_interval_seconds: number;
+  evaluation_period_seconds: number;
   trigger_occurrences: number;
 }
 export interface Alert {
   id: number;
-  name: string;
+  label: string;
   description: string;
   status: string;
   severity: string;
@@ -177,14 +165,39 @@ export interface Alert {
   resource_ids: string[];
   rule_criteria: {
     rules: MetricCriteria[];
-  }
+  };
   triggerCondition: TriggerCondition;
-  channel_ids: {
-    notification_id: string;
-    template_name: string;
+  channels: {
+    id: number;
+    label: string;
+    url: string;
+    type: string;
   }[];
   created_by: string;
   updated_by: string;
   created: string;
   updated: string;
+}
+
+export interface ServiceTypes {
+  service_type: string;
+  label: string;
+}
+
+export interface ServiceTypesList {
+  data: ServiceTypes[];
+}
+
+export interface NotificationChannel {
+  id: number;
+  notification_type: string;
+  template_name: string;
+  content: {
+    email_ids: string[];
+  };
+  associated_alerts: number[];
+  created_by: string;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
 }
