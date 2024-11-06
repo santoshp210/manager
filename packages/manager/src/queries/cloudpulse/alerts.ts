@@ -27,6 +27,7 @@ export const useCreateAlertDefinition = (serviceType: string) => {
   });
 };
 
+
 export const useAlertDefinitionsQuery = (
   serviceType: string,
   params?: Params,
