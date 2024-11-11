@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
-import { Box } from 'src/components/Box';
+import { Box } from '@linode/ui';
 import { Button } from 'src/components/Button/Button';
 import { Stack } from 'src/components/Stack';
 import { Typography } from 'src/components/Typography';
@@ -40,9 +40,10 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
 
   const { control, watch } = useFormContext();
 
+  const metricCriteriaWatcher = watch(name);
   React.useEffect(() => {
     const formikMetricValues = new Set(
-      watch(name).map((item: any) => item.metric)
+      metricCriteriaWatcher.map((item: any) => item.metric)
     );
 
     const intervalList =
@@ -55,7 +56,7 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
     );
     getMaxInterval(maxInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch(name)]);
+  }, [metricCriteriaWatcher]);
 
   const { append, fields, remove } = useFieldArray({
     control,
@@ -71,7 +72,7 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
       >
         <Typography variant={'h2'}>2. Criteria</Typography>
       </Box>
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={(theme) => ({ marginTop: theme.spacing(3) })}>
         {fields.map((_, index) => (
           <Metric
             apiError={[isMetricDefinitionError, isMetricDefinitionLoading]}
@@ -94,9 +95,9 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
         }
         buttonType={'outlined'}
         size="medium"
-        sx={(theme) => ({ marginTop: theme.spacing(1) })}
+        sx={(theme) => ({ marginTop: theme.spacing(2) })}
       >
-        Add Metric
+        Add metric
       </Button>
     </Box>
   );

@@ -61,6 +61,7 @@ export const EngineOption = (props: EngineOptionProps) => {
           groupBy={(option) => option.group}
           isOptionEqualToValue={(option, value) => option.label === value.label}
           label="Engine Options"
+          placeholder="Select an Engine"
           loading={isLoading && !isError}
           onBlur={field.onBlur}
           options={getEnginesList()}

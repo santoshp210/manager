@@ -1,3 +1,7 @@
+export type NotificationStatus = 'Enabled' | 'Disabled';
+export type ChannelTypes = 'email' | 'slack' | 'pagerduty' | 'webhook';
+export type NotificationType = 'default' | 'custom';
+export type ALERT_DEFINTION_TYPE = 'alerts-definitions';
 export interface Dashboard {
   id: number;
   label: string;
@@ -149,7 +153,6 @@ export interface DimensionFilter {
   operator: string;
   value: string;
 }
-
 export interface TriggerCondition {
   polling_interval_seconds: number;
   evaluation_period_seconds: number;
@@ -188,16 +191,70 @@ export interface ServiceTypesList {
   data: ServiceTypes[];
 }
 
-export interface NotificationChannel {
+interface NotificationChannelBase {
   id: number;
-  notification_type: string;
-  template_name: string;
-  content: {
-    email_ids: string[];
+  label: string;
+  channel_type: ChannelTypes;
+  type: string;
+  status: NotificationStatus;
+  alerts: {
+    id: number;
+    label: string;
+    url: string;
+    type: ALERT_DEFINTION_TYPE;
   };
-  associated_alerts: number[];
   created_by: string;
   updated_by: string;
   created_at: string;
   updated_at: string;
 }
+
+interface NotificationChannelEmail extends NotificationChannelBase {
+  channel_type: 'email';
+  content: {
+    channel_type: {
+      email_addresses: string[];
+      subject: string;
+      message: string;
+    };
+  };
+}
+
+interface NotificationChannelSlack extends NotificationChannelBase {
+  channel_type: 'slack';
+  content: {
+    channel_type: {
+      slack_webhook_url: string;
+      slack_channel: string;
+      message: string;
+    };
+  };
+}
+
+interface NotificationChannelPagerDuty extends NotificationChannelBase {
+  channel_type: 'pagerduty';
+  content: {
+    channel_type: {
+      service_api_key: string;
+      attributes: string[];
+      description: string;
+    };
+  };
+}
+interface NotificationChannelWebHook extends NotificationChannelBase {
+  channel_type: 'webhook';
+  content: {
+    channel_type: {
+      webhook_url: string;
+      http_headers: {
+        header_key: string;
+        header_value: string;
+      }[];
+    };
+  };
+}
+export type NotificationChannel =
+  | NotificationChannelEmail
+  | NotificationChannelSlack
+  | NotificationChannelWebHook
+  | NotificationChannelPagerDuty;

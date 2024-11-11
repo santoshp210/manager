@@ -1,4 +1,4 @@
-import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import ClearOutlineOutlined from '@mui/icons-material/ClearOutlined';
 import { Grid, styled } from '@mui/material';
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -69,12 +69,11 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
   };
 
   const dimensionFieldWatcher = watch(`${name}.dimension_label`);
-  const selectedDimension =
-    dimensionOptions && dimensionFieldWatcher
-      ? dimensionOptions.find(
-          (dim) => dim.dimension_label === dimensionFieldWatcher
-        )
-      : null;
+  const selectedDimension: Dimension | null =
+    (dimensionOptions && dimensionFieldWatcher) ??
+    dimensionOptions.find(
+      (dim) => dim.dimension_label === dimensionFieldWatcher
+    );
 
   const valueOptions =
     selectedDimension && selectedDimension.values
@@ -96,9 +95,10 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
               }}
               data-testid="Data-field"
               errorText={fieldState.error?.message}
-              label="Data Field"
+              label="Data field"
               onBlur={field.onBlur}
               options={dataFieldOptions}
+              placeholder="Select a Data field"
               value={selectedDataField}
             />
           )}
@@ -147,6 +147,7 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
                   label="Value"
                   onBlur={field.onBlur}
                   options={valueOptions}
+                  placeholder="Select a Value"
                   value={field.value !== '' ? field.value : null}
                 />
               )}
@@ -163,7 +164,7 @@ export const DimensionFilterField = (props: DimensionFilterFieldProps) => {
   );
 };
 
-const StyledDeleteIcon = styled(DeleteOutlineOutlined)(({ theme }) => ({
+const StyledDeleteIcon = styled(ClearOutlineOutlined)(({ theme }) => ({
   '&:active': {
     transform: 'scale(0.9)',
   },

@@ -2318,28 +2318,31 @@ export const handlers = [
 
     return HttpResponse.json(response);
   }),
-  http.post('*/monitor/services/:serviceType/alert-definitions', async ({ request }) => {
-    const reqBody = await request.json();
-    const response = {
-      data: [
-        {
-          created: '2021-10-16T04:00:00',
-          created_by: 'user1',
-          id: '35892357',
-          notifications: [
-            {
-              notification_id: '42804',
-              template_name: 'notification',
-            },
-          ],
-          reqBody,
-          updated: '2021-10-16T04:00:00',
-          updated_by: 'user2',
-        },
-      ],
-    };
-    return HttpResponse.json(response);
-  }),
+  http.post(
+    '*/monitor/services/:serviceType/alert-definitions',
+    async ({ request }) => {
+      const reqBody = await request.json();
+      const response = {
+        data: [
+          {
+            created: '2021-10-16T04:00:00',
+            created_by: 'user1',
+            id: '35892357',
+            notifications: [
+              {
+                notification_id: '42804',
+                template_name: 'notification',
+              },
+            ],
+            reqBody,
+            updated: '2021-10-16T04:00:00',
+            updated_by: 'user2',
+          },
+        ],
+      };
+      return HttpResponse.json(response);
+    }
+  ),
   http.get('*/monitor/services', () => {
     const response: ServiceTypesList = {
       data: [
@@ -2378,19 +2381,23 @@ export const handlers = [
 
     return HttpResponse.json(response);
   }),
-  http.get('*/monitor/notification', () => {
+  http.get('*/monitor/alert-channels', () => {
     const response = {
       data: [
         {
-          associated_alerts: 0,
+          alerts: {},
+          channel_type: 'email',
           content: {
-            email_ids: ['default@mail.com', 'admin@email.com'],
+            email: {
+              email_addresses: ['default@mail.com', 'admin@email.com'],
+              message: 'Resources have breached the alert',
+              subject: 'Default alert',
+            },
           },
           created_at: '2021-10-16T04:00:00',
           created_by: 'user1',
           id: Math.ceil(Math.random() * 1000),
-          notification_type: 'email',
-          template_name: 'default',
+          label: 'default',
           updated_at: '2021-10-16T04:00:00',
           updated_by: 'user2',
         },

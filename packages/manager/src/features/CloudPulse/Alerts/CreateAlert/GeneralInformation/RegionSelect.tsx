@@ -27,7 +27,7 @@ export const CloudPulseRegionSelect = React.memo(
             disableClearable={false}
             fullWidth
             label="Region"
-            noMarginTop
+            placeholder="Select a Region"
             regions={regions ?? []}
             textFieldProps={{ onBlur: field.onBlur }}
             value={field.value}

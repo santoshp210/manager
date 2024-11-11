@@ -10,7 +10,6 @@ import { Typography } from 'src/components/Typography';
 import {
   EvaluationPeriodOptions,
   PollingIntervalOptions,
-  TriggerOptions,
 } from '../../constants';
 interface TriggerConditionProps {
   /**
@@ -87,13 +86,14 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                 }}
                 textFieldProps={{
                   labelTooltipText:
-                    'Choose the data lookback period on which thresholds are applied',
+                    'Defines the timeframe for collecting data in polling intervals to understand the service performance. Choose the data lookback period where the thresholds are applied to gather the information impactful for your business.',
                 }}
                 data-testid="Evaluation-period"
                 errorText={fieldState.error?.message}
                 label={'Evaluation period'}
                 onBlur={field.onBlur}
                 options={getEvaluationPeriodOptions()}
+                placeholder="Select an Evaluation period"
                 value={selectedEvaluationPeriod}
               />
             )}
@@ -101,7 +101,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
             name={`${name}.evaluation_period_seconds`}
           />
         </Grid>
-        <Grid item md={'auto'} sm={6} xs={12}>
+        <Grid item md={2.5} sm={6} xs={12}>
           <Controller
             render={({ field, fieldState }) => (
               <Autocomplete
@@ -125,6 +125,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                 label={'Polling interval'}
                 onBlur={field.onBlur}
                 options={getPollingIntervalOptions()}
+                placeholder="Select a Polling"
                 value={selectedPollingInterval}
               />
             )}
@@ -134,36 +135,6 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
         </Grid>
         <Grid item md={'auto'} sm={12} xs={12}>
           <Grid alignItems="center" container spacing={2}>
-            <Grid item md={'auto'} sm={'auto'} xs={6}>
-              <Controller
-                render={({ field, fieldState }) => (
-                  <Autocomplete
-                    isOptionEqualToValue={(option, value) =>
-                      option.label === value
-                    }
-                    onChange={(_, value, operation) => {
-                      handleSelectChange(
-                        'criteria_condition',
-                        value?.value,
-                        operation
-                      );
-                    }}
-                    textFieldProps={{
-                      labelTooltipText:
-                        'AND implies alert is triggered when all the metrics criteria are met',
-                    }}
-                    data-testid="Trigger-alert-condition"
-                    errorText={fieldState.error?.message}
-                    label={'Trigger alert when'}
-                    onBlur={field.onBlur}
-                    options={TriggerOptions}
-                    value={field.value !== '' ? field.value : null}
-                  />
-                )}
-                control={control}
-                name={`${name}.criteria_condition`}
-              />
-            </Grid>
             <Grid item md={'auto'} sm={6} xs={12}>
               <Box marginTop={1}>
                 <Typography
@@ -178,7 +149,13 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                 </Typography>
               </Box>
             </Grid>
-            <Grid item md={'auto'} sm={'auto'} xs={'auto'}>
+            <Grid
+              item
+              md={3}
+              sm={'auto'}
+              sx={{ marginTop: { md: '27px' } }}
+              xs={'auto'}
+            >
               <Controller
                 render={({ field, fieldState }) => (
                   <TextField
@@ -186,16 +163,14 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                       event.target instanceof HTMLElement && event.target.blur()
                     }
                     sx={{
-                      maxWidth: '80px',
-                      minWidth: '70px',
                       paddingTop: { sm: '26px', xs: 0 },
+                      width: '30px',
                     }}
                     data-testid={'Trigger-occurences'}
                     errorText={fieldState.error?.message}
                     label={''}
                     min={0}
                     name={`${name}.trigger_occurrences`}
-                    noMarginTop={false}
                     onBlur={field.onBlur}
                     onChange={(e) => field.onChange(e.target.value)}
                     type="number"
@@ -207,7 +182,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
               />
             </Grid>
             <Grid item md={'auto'} sm={'auto'} xs={'auto'}>
-              <Box sx={{ paddingTop: 1 }}>
+              <Box sx={{ marginTop: 1 }}>
                 <Typography
                   sx={{
                     alignItems: 'flex-end',
@@ -216,7 +191,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                   }}
                   variant="body1"
                 >
-                  occurences.
+                  consecutive occurences.
                 </Typography>
               </Box>
             </Grid>

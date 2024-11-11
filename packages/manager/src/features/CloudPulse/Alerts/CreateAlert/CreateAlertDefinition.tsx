@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Paper } from '@linode/ui';
 import { createAlertDefinitionSchema } from '@linode/validation';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
@@ -8,7 +9,6 @@ import { useHistory } from 'react-router-dom';
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Breadcrumb } from 'src/components/Breadcrumb/Breadcrumb';
 import { Drawer } from 'src/components/Drawer';
-import { Paper } from '@linode/ui';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 import {
@@ -48,7 +48,7 @@ const criteriaInitialValues: MetricCriteria[] = [
     threshold: 0,
   },
 ];
-export const initialValues: CreateAlertDefinitionPayload = {
+const initialValues: CreateAlertDefinitionPayload = {
   channel_ids: [],
   label: '',
   resource_ids: [],
@@ -66,12 +66,12 @@ const generateCrumbOverrides = () => {
       position: 1,
     },
     {
-      label: 'Details',
+      label: 'Create',
       linkTo: `/monitor/cloudpulse/alerts/definitions/create`,
       position: 2,
     },
   ];
-  return { newPathname: '/Definitions/Details', overrides };
+  return { newPathname: '/definitions/create', overrides };
 };
 
 export const CreateAlertDefinition = React.memo(() => {
@@ -81,11 +81,11 @@ export const CreateAlertDefinition = React.memo(() => {
     isLoading: engineOptionLoading,
   } = useDatabaseEnginesQuery(true);
 
-  // const {
-  //   data: notificationChannels,
-  //   isError: notificationChannelError,
-  //   isLoading: notificationChannelLoading,
-  // } = useNotificationChannels();
+  const {
+    data: notificationChannels,
+    isError: notificationChannelError,
+    isLoading: notificationChannelLoading,
+  } = useNotificationChannels();
 
   const history = useHistory();
   const alertCreateExit = () => {
@@ -102,10 +102,10 @@ export const CreateAlertDefinition = React.memo(() => {
   });
 
   const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
-  // const [openAddNotification, setOpenAddNotification] = React.useState(false);
-  // const [notifications, setNotifications] = React.useState<
-  //   NotificationChannel[]
-  // >([]);
+  const [openAddNotification, setOpenAddNotification] = React.useState(false);
+  const [notifications, setNotifications] = React.useState<
+    NotificationChannel[]
+  >([]);
   const {
     control,
     formState,
@@ -119,28 +119,27 @@ export const CreateAlertDefinition = React.memo(() => {
     watch('service_type')
   );
 
-  // const onChangeNotifications = (notifications: NotificationChannel[]) => {
-  //   const notificationTemplateList = notifications.map(
-  //     (notification) => notification.id
-  //   ); 
-  //   setValue('channel_ids', notificationTemplateList);
-  // };
+  const onChangeNotifications = (notifications: NotificationChannel[]) => {
+    const notificationTemplateList = notifications.map(
+      (notification) => notification.id
+    );
+    setValue('channel_ids', notificationTemplateList);
+  };
 
-  // const onSubmitAddNotification = (notification: NotificationChannel) => {
-  //   const newNotifications = [...notifications, notification];
-  //   const notificationTemplateList = newNotifications.map(
-  //     (notification) => notification.id
-  //   );
-  //   setValue('channel_ids', notificationTemplateList);
-  //   setNotifications(newNotifications);
-  //   setOpenAddNotification(false);
-  // };
+  const onSubmitAddNotification = (notification: NotificationChannel) => {
+    const newNotifications = [...notifications, notification];
+    const notificationTemplateList = newNotifications.map(
+      (notification) => notification.id
+    );
+    setValue('channel_ids', notificationTemplateList);
+    setNotifications(newNotifications);
+    setOpenAddNotification(false);
+  };
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-
       await createAlert(values);
-      enqueueSnackbar('Alert successfully created', {
+      enqueueSnackbar(`${watch('label')} alert has been successfully created`, {
         variant: 'success',
       });
       alertCreateExit();
@@ -159,14 +158,16 @@ export const CreateAlertDefinition = React.memo(() => {
 
   const engineOptionValue = watch('service_type');
   return (
-    <Paper>
+    <Paper sx={{ paddingTop: 2 }}>
       <Breadcrumb
         crumbOverrides={overrides}
         pathname={newPathname}
       ></Breadcrumb>
       <FormProvider {...formMethods}>
         <form onSubmit={onSubmit}>
-          <Typography variant="h2">1. General Information</Typography>
+          <Typography marginTop={2} variant="h2">
+            1. General information
+          </Typography>
           <Controller
             render={({ field, fieldState }) => (
               <TextField
@@ -176,6 +177,7 @@ export const CreateAlertDefinition = React.memo(() => {
                 name={'label'}
                 onBlur={field.onBlur}
                 onChange={(e) => field.onChange(e.target.value)}
+                placeholder="Enter name"
                 value={field.value ?? ''}
               />
             )}
@@ -191,6 +193,7 @@ export const CreateAlertDefinition = React.memo(() => {
                 onBlur={field.onBlur}
                 onChange={(e) => field.onChange(e.target.value)}
                 optional
+                placeholder="Enter description"
                 value={field.value ?? ''}
               />
             )}
@@ -210,7 +213,7 @@ export const CreateAlertDefinition = React.memo(() => {
           <CloudPulseMultiResourceSelect
             engine={engineOptionValue}
             name="resource_ids"
-            region={watch('region')}
+            region={'us-ord'}
             serviceType={watch('service_type')}
           />
           <CloudPulseAlertSeveritySelect name="severity" />
@@ -218,18 +221,18 @@ export const CreateAlertDefinition = React.memo(() => {
             getMaxInterval={(interval: number) =>
               setMaxScrapeInterval(interval)
             }
-            name="criteria"
+            name="rule_criteria.rules"
             serviceType={watch('service_type')}
           />
           <TriggerConditions
             maxScrapingInterval={maxScrapeInterval}
             name={'triggerCondition'}
           />
-          {/* <AddChannelListing
+          <AddChannelListing
             notifications={notifications}
             onChangeNotifications={onChangeNotifications}
             onClickAddNotification={() => setOpenAddNotification(true)}
-          /> */}
+          />
           <ActionsPanel
             primaryButtonProps={{
               label: 'Submit',
@@ -244,7 +247,7 @@ export const CreateAlertDefinition = React.memo(() => {
           />
         </form>
       </FormProvider>
-      {/* {openAddNotification && (
+      {openAddNotification && (
         <Drawer
           onClose={() => setOpenAddNotification(false)}
           open={openAddNotification}
@@ -256,7 +259,7 @@ export const CreateAlertDefinition = React.memo(() => {
             templateData={notificationChannels?.data ?? []}
           />
         </Drawer>
-      )} */}
+      )}
     </Paper>
   );
 });

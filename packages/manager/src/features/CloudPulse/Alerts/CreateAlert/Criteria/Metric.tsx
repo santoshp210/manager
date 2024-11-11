@@ -1,4 +1,5 @@
-import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import { Box } from '@linode/ui';
+import ClearOutlineOutlined from '@mui/icons-material/ClearOutlined';
 import { Grid, styled } from '@mui/material';
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -12,8 +13,6 @@ import { MetricOperatorOptions } from '../../constants';
 import { DimensionFilter } from './DimensionFilter';
 
 import type { AvailableMetrics } from '@linode/api-v4';
-import type { Control, FieldValues } from 'react-hook-form';
-import { Box } from '@linode/ui/src/components/Box';
 
 interface MetricCriteriaProps {
   /**
@@ -98,8 +97,8 @@ export const Metric = (props: MetricCriteriaProps) => {
       ? selectedMetric.dimensions
       : [];
 
-  const unit = selectedMetric ? selectedMetric.unit : '%';
-
+  const unit = selectedMetric ? selectedMetric.unit : '';
+  // const isError = control.getFieldState(name).error === undefined;
   return (
     <Box
       sx={(theme) => ({
@@ -119,10 +118,12 @@ export const Metric = (props: MetricCriteriaProps) => {
         <Grid alignItems="center" container spacing={2}>
           <Grid item md={3} sm={6} xs={12}>
             <Controller
-              render={({ field, fieldState}) => (
+              render={({ field, fieldState }) => (
                 <Autocomplete
                   errorText={
-                    fieldState.error?.message ?? isMetricDefinitionError ? 'Error in fetching the data' : ''
+                    fieldState.error?.message ?? isMetricDefinitionError
+                      ? 'Error in fetching the data'
+                      : ''
                   }
                   isOptionEqualToValue={(option, value) =>
                     option.value === value.value
@@ -133,14 +134,15 @@ export const Metric = (props: MetricCriteriaProps) => {
                   }}
                   textFieldProps={{
                     labelTooltipText:
-                      'Choose the metric that you intend to alert upon',
+                      'Represents the metric you want to receive alerts for. Choose the one that helps you evaluate performance of your service in the most efficient way.',
                   }}
                   data-testid={'Data-field'}
-                  label="Data Field"
+                  label="Data field"
                   loading={isMetricDefinitionLoading}
                   loadingText={'Loading the data fields'}
                   onBlur={field.onBlur}
                   options={metricOptions}
+                  placeholder="Select a Data field"
                   size="medium"
                   value={selectedMetricField}
                 />
@@ -164,11 +166,12 @@ export const Metric = (props: MetricCriteriaProps) => {
                     )
                   }
                   data-testid={'Aggregation-type'}
+                  errorText={fieldState.error?.message}
                   key={metricWatcher}
                   label="Aggregation type"
                   onBlur={field.onBlur}
                   options={aggOptions}
-                  errorText={fieldState.error?.message}
+                  placeholder="Select an Aggregation type"
                   sx={{ paddingTop: { sm: 1, xs: 0 } }}
                   value={field.value !== '' ? field.value : null}
                 />
@@ -177,7 +180,7 @@ export const Metric = (props: MetricCriteriaProps) => {
               name={`${name}.aggregation_type`}
             />
           </Grid>
-          <Grid item md={'auto'} sm={6} xs={12}>
+          <Grid item md={2} sm={6} xs={12}>
             <Controller
               render={({ field, fieldState }) => (
                 <Autocomplete
@@ -187,12 +190,13 @@ export const Metric = (props: MetricCriteriaProps) => {
                   onChange={(_, newValue, operation) =>
                     handleSelectChange('operator', newValue?.value, operation)
                   }
-                  errorText={fieldState.error?.message}
                   data-testid={'Operator'}
+                  errorText={fieldState.error?.message}
                   key={metricWatcher}
                   label={'Operator'}
                   onBlur={field.onBlur}
                   options={MetricOperatorOptions}
+                  placeholder="Select an operator"
                   sx={{ paddingTop: { sm: 1, xs: 0 } }}
                   value={field.value !== '' ? field.value : null}
                 />
@@ -202,30 +206,30 @@ export const Metric = (props: MetricCriteriaProps) => {
             />
           </Grid>
           <Grid item marginTop={{ sm: 1, xs: 0 }} md={'auto'} sm={6} xs={12}>
-            <Grid alignItems="center" container spacing={2}>
-              <Grid item md={'auto'} sm={6} xs={6}>
+            <Grid alignItems="flex-start" container spacing={2}>
+              <Grid item md={6} sm={6} xs={6}>
                 <Controller
-                  render={({ field, fieldState}) => (
+                  render={({ field, fieldState }) => (
                     <TextField
                       onWheel={(event) =>
                         event.target instanceof HTMLElement &&
                         event.target.blur()
                       }
-                      label="Value"
-                      min={0}
-                      name={`${name}.value`}
-                      onBlur={field.onBlur}
                       errorText={fieldState.error?.message}
+                      label="Threshold"
+                      min={0}
+                      name={`${name}.threshold`}
+                      onBlur={field.onBlur}
                       onChange={(e) => field.onChange(e.target.value)}
                       type="number"
                       value={field.value ?? 0}
                     />
                   )}
                   control={control}
-                  name={`${name}.value`}
+                  name={`${name}.threshold`}
                 />
               </Grid>
-              <Grid item md={'auto'} sm={6} xs={6}>
+              <Grid item marginTop={0.5} md={'auto'} sm={6} xs={6}>
                 <Typography
                   sx={{
                     alignItems: 'flex-end',
@@ -249,7 +253,7 @@ export const Metric = (props: MetricCriteriaProps) => {
   );
 };
 
-const StyledDeleteIcon = styled(DeleteOutlineOutlined)(({ theme }) => ({
+const StyledDeleteIcon = styled(ClearOutlineOutlined)(({ theme }) => ({
   '&:active': {
     transform: 'scale(0.9)',
   },
@@ -258,5 +262,6 @@ const StyledDeleteIcon = styled(DeleteOutlineOutlined)(({ theme }) => ({
   },
   color: theme.palette.text.primary,
   cursor: 'pointer',
-  padding: 0,
+  margin: 2,
+  padding: 2,
 }));

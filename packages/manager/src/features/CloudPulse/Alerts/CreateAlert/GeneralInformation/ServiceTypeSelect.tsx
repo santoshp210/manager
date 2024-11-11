@@ -36,14 +36,14 @@ export const CloudPulseServiceSelect = (
     setValue(name, selectedService?.value ?? '');
   }, [name, selectedService, setValue]);
 
-  const getServicesList = (): CloudPulseServiceTypeOptions[] => {
+  const getServicesList = React.useMemo((): CloudPulseServiceTypeOptions[] => {
     return serviceOptions
       ? serviceOptions.data.map((service) => ({
-          label: service.service_type.toUpperCase(),
+          label: service.label,
           value: service.service_type,
         }))
       : [];
-  };
+  });
 
   return (
     <Controller
@@ -64,10 +64,9 @@ export const CloudPulseServiceSelect = (
           fullWidth
           label="Service"
           loading={serviceTypesLoading && !serviceTypesError}
-          noMarginTop
           onBlur={field.onBlur}
           options={getServicesList()}
-          placeholder="Select a service"
+          placeholder="Select a Service"
           sx={{ marginTop: '5px' }}
           value={selectedService}
         />

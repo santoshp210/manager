@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box } from '@linode/ui';
 import React from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -62,10 +62,11 @@ export const DimensionFilter = (props: DimensionFilterProps) => {
             })
           }
           buttonType="secondary"
+          compactX={true}
           size="small"
           sx={(theme) => ({ marginTop: theme.spacing(1) })}
         >
-          Add Dimension Filter
+          Add dimension filter
         </Button>
       </>
     </Box>

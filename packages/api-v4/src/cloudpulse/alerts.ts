@@ -49,6 +49,6 @@ export const getAlertDefinitionById = (alertId: number) =>
   );
 export const getNotificationChannels = () =>
   Request<ResourcePage<NotificationChannel>>(
-    setURL(`${API_ROOT}/monitor/notification`),
+    setURL(`${API_ROOT}/monitor/alert-channels`),
     setMethod('GET')
   );
