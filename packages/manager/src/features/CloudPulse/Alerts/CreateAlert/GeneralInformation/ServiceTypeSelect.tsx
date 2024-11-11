@@ -36,15 +36,15 @@ export const CloudPulseServiceSelect = (
     setValue(name, selectedService?.value ?? '');
   }, [name, selectedService, setValue]);
 
-  const getServicesList = React.useMemo((): CloudPulseServiceTypeOptions[] => {
+  const getServicesList = (): CloudPulseServiceTypeOptions[] => {
     return serviceOptions
       ? serviceOptions.data.map((service) => ({
           label: service.label,
           value: service.service_type,
         }))
       : [];
-  });
-
+  };
+ 
   return (
     <Controller
       render={({ field, fieldState }) => (

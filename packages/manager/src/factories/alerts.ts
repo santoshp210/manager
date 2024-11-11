@@ -6,13 +6,12 @@ import type { Alert } from '@linode/api-v4';
 const status = ['Enabled', 'Disabled'];
 
 export const alertFactory = Factory.Sync.makeFactory<Alert>({
+  channels: [],
   created: new Date().toISOString(),
   created_by: Factory.each(() => pickRandom(['user1', 'user2', 'user3'])),
   description: '',
   id: Factory.each(() => Math.floor(Math.random() * 1000000)),
-  name: Factory.each((id) => `Alert-${id}`),
-  notification: [],
-  region: 'us-west',
+  label: Factory.each((id) => `Alert-${id}`),
   resource_ids: ['1', '2', '3'],
   rule_criteria: {
     rules: [],
@@ -21,9 +20,8 @@ export const alertFactory = Factory.Sync.makeFactory<Alert>({
   severity: Factory.each(() => pickRandom(['0', '1', '2', '3'])),
   status: Factory.each(() => pickRandom(status)),
   triggerCondition: {
-    criteria_condition: '',
-    evaluation_period_seconds: '',
-    polling_interval_seconds: '',
+    evaluation_period_seconds: 0,
+    polling_interval_seconds: 0,
     trigger_occurrences: 0,
   },
   updated: new Date().toISOString(),

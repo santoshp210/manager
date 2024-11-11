@@ -1,6 +1,6 @@
 export type NotificationStatus = 'Enabled' | 'Disabled';
 export type ChannelTypes = 'email' | 'slack' | 'pagerduty' | 'webhook';
-export type NotificationType = 'default' | 'custom';
+export type AlertNotificationType = 'default' | 'custom';
 export type ALERT_DEFINTION_TYPE = 'alerts-definitions';
 export interface Dashboard {
   id: number;
@@ -195,7 +195,7 @@ interface NotificationChannelBase {
   id: number;
   label: string;
   channel_type: ChannelTypes;
-  type: string;
+  type: AlertNotificationType;
   status: NotificationStatus;
   alerts: {
     id: number;

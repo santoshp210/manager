@@ -11,7 +11,7 @@ import { Typography } from 'src/components/Typography';
 import { ChannelTypeOptions } from '../../constants';
 
 import type { NotificationChannel } from '@linode/api-v4';
-import { Box } from '@linode/ui/src/components/Box';
+import { Box } from '@linode/ui';
 
 interface AddNotificationChannelProps {
   onCancel: () => void;
@@ -47,29 +47,27 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
   });
 
   React.useEffect(() => {
-    setValue('notification_type', selectedType?.value ?? '');
+    setValue('channel_type', selectedType?.value ?? '');
   }, [setValue, selectedType]);
 
   React.useEffect(() => {
-    setValue('template_name', selectedChannel?.value ?? '');
+    setValue('label', selectedChannel?.value ?? '');
   }, [selectedChannel, setValue]);
 
-  const typeWatcher = watch(`notification_type`);
+  const typeWatcher = watch(`channel_type`);
   const selectedTypeTemplate =
     typeWatcher && templateData
-      ? templateData.filter(
-          (template) => template.notification_type === typeWatcher
-        )
+      ? templateData.filter((template) => template.channel_type === typeWatcher)
       : null;
   const templateOptions = selectedTypeTemplate
     ? selectedTypeTemplate.map((template) => ({
-        label: template.template_name,
-        value: template.template_name,
+        label: template.label,
+        value: template.label,
       }))
     : [];
 
   const selectedTemplate = selectedTypeTemplate?.find(
-    (template) => template.template_name === watch('template_name')
+    (template) => template.label === watch('label')
   );
 
   return (
@@ -104,7 +102,7 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
               />
             )}
             control={control}
-            name={'notification_type'}
+            name={'channel_type'}
           ></Controller>
           <Box>
             <Controller
@@ -121,7 +119,7 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
                 />
               )}
               control={control}
-              name={'template_name'}
+              name={'label'}
             />
           </Box>
 
@@ -133,8 +131,10 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
                 </Grid>
                 <Grid item md={10}>
                   {selectedTemplate.content &&
-                    selectedTemplate.content.email_ids.length > 0 &&
-                    selectedTemplate.content.email_ids.map(
+                    selectedTemplate.channel_type === 'email' &&
+                    selectedTemplate.content.channel_type.email_addresses
+                      .length > 0 &&
+                    selectedTemplate.content.channel_type.email_addresses.map(
                       (email: string, id: number) => (
                         <Chip key={id} label={email} />
                       )
