@@ -33,5 +33,6 @@ describe('AlertDefinition Create', () => {
     expect(getByText('Name is required.')).toBeVisible();
     expect(getByText('Severity is required.')).toBeVisible();
     expect(getByText('Service type is required.')).toBeVisible();
+    expect(getByText('Region is required.')).toBeVisible();
   });
 });
