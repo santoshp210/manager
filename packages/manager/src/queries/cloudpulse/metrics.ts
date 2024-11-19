@@ -84,11 +84,11 @@ export const fetchCloudPulseMetrics = (
       Authorization: `Bearer ${token}`,
     },
     method: 'POST',
-    url: `${readApiEndpoint}${encodeURIComponent(serviceType!)}/metrics`,
+    url: `${readApiEndpoint}${encodeURIComponent(serviceType)}/metrics`,
   };
 
   return axiosInstance
     .request(config)
     .then((response) => response.data)
-    .catch((error) => Promise.reject(error.response.data.errors));
+    .catch((error) => Promise.reject(error.response?.data?.errors));
 };

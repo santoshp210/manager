@@ -13,14 +13,15 @@ export type Capabilities =
   | 'Kubernetes'
   | 'Linodes'
   | 'Managed Databases'
-  | 'Managed Databases V2'
   | 'Metadata'
   | 'NodeBalancers'
+  | 'NETINT Quadra T1U'
   | 'Object Storage'
   | 'Placement Group'
   | 'Premium Plans'
   | 'Vlans'
-  | 'VPCs';
+  | 'VPCs'
+  | 'StackScripts';
 
 export interface DNSResolvers {
   ipv4: string; // Comma-separated IP addresses
@@ -29,7 +30,7 @@ export interface DNSResolvers {
 
 export type RegionStatus = 'ok' | 'outage';
 
-export type RegionSite = 'core' | 'distributed' | 'edge';
+export type RegionSite = 'core' | 'distributed';
 
 export interface Region {
   id: string;

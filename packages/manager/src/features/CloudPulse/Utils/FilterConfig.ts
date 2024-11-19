@@ -2,7 +2,7 @@ import { CloudPulseSelectTypes } from './models';
 
 import type { CloudPulseServiceTypeFilterMap } from './models';
 
-const TIME_DURATION = 'Time Duration';
+const TIME_DURATION = 'Time Range';
 
 export const LINODE_CONFIG: Readonly<CloudPulseServiceTypeFilterMap> = {
   filters: [
@@ -26,7 +26,7 @@ export const LINODE_CONFIG: Readonly<CloudPulseServiceTypeFilterMap> = {
         isFilterable: true,
         isMetricsFilter: true,
         isMultiSelect: true,
-        name: 'Resource',
+        name: 'Resources',
         neededInServicePage: false,
         placeholder: 'Select Resources',
         priority: 2,
@@ -41,8 +41,8 @@ export const LINODE_CONFIG: Readonly<CloudPulseServiceTypeFilterMap> = {
         isMetricsFilter: true,
         isMultiSelect: false,
         name: TIME_DURATION,
-        neededInServicePage: true,
-        placeholder: 'Select Duration',
+        neededInServicePage: false,
+        placeholder: 'Select a Duration',
         priority: 3,
       },
       name: TIME_DURATION,
@@ -60,7 +60,7 @@ export const DBAAS_CONFIG: Readonly<CloudPulseServiceTypeFilterMap> = {
         isFilterable: false, // isFilterable -- this determines whethere you need to pass it metrics api
         isMetricsFilter: false, // if it is false, it will go as a part of filter params, else global filter
         isMultiSelect: false,
-        name: 'DB Engine',
+        name: 'Database Engine',
         neededInServicePage: false,
         options: [
           {
@@ -72,7 +72,7 @@ export const DBAAS_CONFIG: Readonly<CloudPulseServiceTypeFilterMap> = {
             label: 'PostgreSQL',
           },
         ],
-        placeholder: 'Select an Engine',
+        placeholder: 'Select a Database Engine',
         priority: 2,
         type: CloudPulseSelectTypes.static,
       },
@@ -98,9 +98,9 @@ export const DBAAS_CONFIG: Readonly<CloudPulseServiceTypeFilterMap> = {
         isFilterable: true,
         isMetricsFilter: true,
         isMultiSelect: true,
-        name: 'Resource',
+        name: 'Database Clusters',
         neededInServicePage: false,
-        placeholder: 'Select DB Cluster Names',
+        placeholder: 'Select Database Clusters',
         priority: 3,
       },
       name: 'Resources',
@@ -113,11 +113,36 @@ export const DBAAS_CONFIG: Readonly<CloudPulseServiceTypeFilterMap> = {
         isMetricsFilter: true,
         isMultiSelect: false,
         name: TIME_DURATION,
-        neededInServicePage: true,
-        placeholder: 'Select Duration',
+        neededInServicePage: false, // we will have a static time duration component, no need render from filter builder
+        placeholder: 'Select a Duration',
         priority: 4,
       },
       name: TIME_DURATION,
+    },
+    {
+      configuration: {
+        filterKey: 'node_type',
+        filterType: 'string',
+        isFilterable: true, // isFilterable -- this determines whether you need to pass it metrics api
+        isMetricsFilter: false, // if it is false, it will go as a part of filter params, else global filter
+        isMultiSelect: false,
+        name: 'Node Type',
+        neededInServicePage: true,
+        options: [
+          {
+            id: 'primary',
+            label: 'Primary',
+          },
+          {
+            id: 'secondary',
+            label: 'Secondary',
+          },
+        ],
+        placeholder: 'Select a Node Type',
+        priority: 5,
+        type: CloudPulseSelectTypes.static,
+      },
+      name: 'Node Type',
     },
   ],
   serviceType: 'dbaas',

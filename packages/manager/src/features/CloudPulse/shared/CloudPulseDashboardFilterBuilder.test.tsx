@@ -32,7 +32,7 @@ describe('CloudPulseDashboardFilterBuilder component tests', () => {
       />
     );
 
-    expect(getByPlaceholderText('Select DB Cluster Names')).toBeDefined();
-    expect(getByPlaceholderText('Select Region')).toBeDefined();
+    expect(getByPlaceholderText('Select a Database Engine')).toBeDefined();
+    expect(getByPlaceholderText('Select a Region')).toBeDefined();
   });
 });

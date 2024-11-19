@@ -1,16 +1,15 @@
+import { Button, CircleProgress, Notice } from '@linode/ui';
 import { styled } from '@mui/material/styles';
+import { createLazyRoute } from '@tanstack/react-router';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { Button } from 'src/components/Button/Button';
-import { CircleProgress } from 'src/components/CircleProgress';
 import { DeletionDialog } from 'src/components/DeletionDialog/DeletionDialog';
 import { DocumentTitleSegment } from 'src/components/DocumentTitle';
 import { ErrorState } from 'src/components/ErrorState/ErrorState';
 import { Hidden } from 'src/components/Hidden';
 import { LandingHeader } from 'src/components/LandingHeader';
-import { Notice } from 'src/components/Notice/Notice';
 import { PaginationFooter } from 'src/components/PaginationFooter/PaginationFooter';
 import { Table } from 'src/components/Table';
 import { TableBody } from 'src/components/TableBody';
@@ -232,7 +231,7 @@ export const DomainsLanding = (props: DomainsLandingProps) => {
             Import a Zone
           </StyledButon>
         }
-        docsLink="https://www.linode.com/docs/platform/manager/dns-manager/"
+        docsLink="https://techdocs.akamai.com/cloud-computing/docs/dns-manager"
         entity="Domain"
         onButtonClick={navigateToCreate}
         title="Domains"
@@ -333,3 +332,7 @@ const StyledButon = styled(Button, { label: 'StyledButton' })(({ theme }) => ({
   marginLeft: `-${theme.spacing()}`,
   whiteSpace: 'nowrap',
 }));
+
+export const domainsLandingLazyRoute = createLazyRoute('/domains')({
+  component: DomainsLanding,
+});

@@ -1,7 +1,7 @@
-import { Box, Typography } from '@mui/material';
+import { CircleProgress } from '@linode/ui';
+import { Box, Typography, useTheme } from '@mui/material';
 import * as React from 'react';
 
-import { CircleProgress } from 'src/components/CircleProgress';
 import { ErrorState } from 'src/components/ErrorState/ErrorState';
 import { LineGraph } from 'src/components/LineGraph/LineGraph';
 
@@ -22,6 +22,8 @@ export interface CloudPulseLineGraph extends LineGraphProps {
 
 export const CloudPulseLineGraph = React.memo((props: CloudPulseLineGraph) => {
   const { ariaLabel, data, error, legendRows, loading, ...rest } = props;
+
+  const theme = useTheme();
 
   if (loading) {
     return <CircleProgress sx={{ minHeight: '380px' }} />;
@@ -46,6 +48,11 @@ export const CloudPulseLineGraph = React.memo((props: CloudPulseLineGraph) => {
             '& .MuiTable-root': {
               border: 0,
             },
+            backgroundColor: theme.bg.offWhite,
+            maxHeight: `calc(${theme.spacing(14)} + 3px)`,
+            minHeight: `calc(${theme.spacing(10)})`,
+            overflow: 'auto',
+            paddingLeft: theme.spacing(1),
           }}
           ariaLabel={ariaLabel}
           data={data}

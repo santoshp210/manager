@@ -1,9 +1,8 @@
+import { Box, Button } from '@linode/ui';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import * as React from 'react';
 
-import AddNewLink from 'src/components/AddNewLink';
-import { Box } from 'src/components/Box';
 import { DocumentTitleSegment } from 'src/components/DocumentTitle';
 import { PaginationFooter } from 'src/components/PaginationFooter/PaginationFooter';
 import { Table } from 'src/components/Table';
@@ -146,16 +145,18 @@ export const UsersLanding = () => {
             User Settings
           </Typography>
         )}
-        <AddNewLink
-          disabledReason={
+        <Button
+          tooltipText={
             isRestrictedUser
               ? 'You cannot create other users as a restricted user.'
               : undefined
           }
+          buttonType="primary"
           disabled={isRestrictedUser}
-          label="Add a User"
           onClick={() => setIsCreateDrawerOpen(true)}
-        />
+        >
+          Add a User
+        </Button>
       </Box>
       <Table aria-label="List of Users">
         <UsersLandingTableHead

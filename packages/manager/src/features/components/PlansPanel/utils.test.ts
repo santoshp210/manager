@@ -10,6 +10,7 @@ import {
   getIsLimitedAvailability,
   getPlanSelectionsByPlanType,
   planTypeOrder,
+  replaceOrAppendPlaceholder512GbPlans,
 } from './utils';
 
 import type { PlanSelectionType } from './types';
@@ -28,6 +29,10 @@ const nanode = typeFactory.build({ class: 'nanode', id: 'g6-nanode-1' });
 const premium = typeFactory.build({ class: 'premium', id: 'g6-premium-2' });
 const highmem = typeFactory.build({ class: 'highmem', id: 'g6-highmem-1' });
 const gpu = typeFactory.build({ class: 'gpu', id: 'g6-gpu-1' });
+const accelerated = typeFactory.build({
+  class: 'accelerated',
+  id: 'accelerated-1',
+});
 
 describe('getPlanSelectionsByPlanType', () => {
   it('should return an object with plans grouped by type', () => {
@@ -59,6 +64,7 @@ describe('getPlanSelectionsByPlanType', () => {
       nanode,
       dedicated,
       prodedicated,
+      accelerated,
     ]);
     const expectedOrder = planTypeOrder;
 
@@ -415,6 +421,41 @@ describe('extractPlansInformation', () => {
       const result = getDisabledPlanReasonCopy({} as any);
 
       expect(result).toBe(PLAN_IS_CURRENTLY_UNAVAILABLE_COPY);
+    });
+  });
+
+  describe('replaceOrAppendPlaceholder512GbPlans', () => {
+    it('should not append to DBaaS plans', () => {
+      const plans = [
+        {
+          id: 'g6-dedicated-56',
+          label: 'DBaaS - Dedicated 256GB',
+        },
+      ] as PlanSelectionType[];
+      const results = replaceOrAppendPlaceholder512GbPlans(plans);
+      expect(results.length).toEqual(1);
+    });
+
+    it('should append to Linode plans', () => {
+      const plans = [
+        {
+          id: 'g6-dedicated-56',
+          label: 'Dedicated 256GB',
+        },
+      ] as PlanSelectionType[];
+      const results = replaceOrAppendPlaceholder512GbPlans(plans);
+      expect(results.length).toEqual(3);
+    });
+
+    it('should replace the Linode plan', () => {
+      const plans = [
+        {
+          id: 'not-the-right-id',
+          label: 'Premium 512GB',
+        },
+      ] as PlanSelectionType[];
+      const results = replaceOrAppendPlaceholder512GbPlans(plans);
+      expect(results[0].id).toEqual('g7-premium-64');
     });
   });
 });

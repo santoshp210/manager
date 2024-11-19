@@ -1,8 +1,8 @@
-import { Box, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Paper } from '@linode/ui';
+import { Box, Grid, Stack, Typography, useTheme } from '@mui/material';
 import { DateTime } from 'luxon';
 import React from 'react';
 
-import { Divider } from 'src/components/Divider';
 import { useFlags } from 'src/hooks/useFlags';
 import { useCloudPulseMetricsQuery } from 'src/queries/cloudpulse/metrics';
 import { useProfile } from 'src/queries/profile/profile';
@@ -10,14 +10,16 @@ import { useProfile } from 'src/queries/profile/profile';
 import {
   generateGraphData,
   getCloudPulseMetricRequest,
+  fillMissingTimeStampsAcrossDimensions,
 } from '../Utils/CloudPulseWidgetUtils';
 import { AGGREGATE_FUNCTION, SIZE, TIME_GRANULARITY } from '../Utils/constants';
 import { constructAdditionalRequestFilters } from '../Utils/FilterBuilder';
-import { convertValueToUnit, formatToolTip } from '../Utils/unitConversion';
 import {
-  getUserPreferenceObject,
-  updateWidgetPreference,
-} from '../Utils/UserPreference';
+  convertValueToUnit,
+  formatToolTip,
+  generateCurrentUnit,
+} from '../Utils/unitConversion';
+import { useAclpPreference } from '../Utils/UserPreference';
 import { convertStringToCamelCasesWithSpaces } from '../Utils/utils';
 import { CloudPulseAggregateFunction } from './components/CloudPulseAggregateFunction';
 import { CloudPulseIntervalSelect } from './components/CloudPulseIntervalSelect';
@@ -120,11 +122,13 @@ export interface LegendRow {
 }
 
 export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
+  const { updateWidgetPreference: updatePreferences } = useAclpPreference();
   const { data: profile } = useProfile();
-
   const timezone = profile?.timezone ?? DateTime.local().zoneName;
 
   const [widget, setWidget] = React.useState<Widgets>({ ...props.widget });
+
+  const theme = useTheme();
 
   const {
     additionalFilters,
@@ -138,9 +142,10 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
     serviceType,
     timeStamp,
     unit,
+    widget: widgetProp,
   } = props;
-
   const flags = useFlags();
+  const scaledWidgetUnit = React.useRef(generateCurrentUnit(unit));
 
   const jweTokenExpiryError = 'Token expired';
 
@@ -150,7 +155,7 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
    */
   const handleZoomToggle = React.useCallback((zoomInValue: boolean) => {
     if (savePref) {
-      updateWidgetPreference(widget.label, {
+      updatePreferences(widget.label, {
         [SIZE]: zoomInValue ? 12 : 6,
       });
     }
@@ -170,20 +175,19 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
   const handleAggregateFunctionChange = React.useCallback(
     (aggregateValue: string) => {
       // To avoid updation if user again selected the currently selected value from drop down.
-      if (aggregateValue !== widget.aggregate_function) {
-        if (savePref) {
-          updateWidgetPreference(widget.label, {
-            [AGGREGATE_FUNCTION]: aggregateValue,
-          });
-        }
 
-        setWidget((currentWidget: Widgets) => {
-          return {
-            ...currentWidget,
-            aggregate_function: aggregateValue,
-          };
+      if (savePref) {
+        updatePreferences(widget.label, {
+          [AGGREGATE_FUNCTION]: aggregateValue,
         });
       }
+
+      setWidget((currentWidget: Widgets) => {
+        return {
+          ...currentWidget,
+          aggregate_function: aggregateValue,
+        };
+      });
     },
     []
   );
@@ -194,47 +198,21 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
    */
   const handleIntervalChange = React.useCallback(
     (intervalValue: TimeGranularity) => {
-      if (
-        !widget.time_granularity ||
-        intervalValue.unit !== widget.time_granularity.unit ||
-        intervalValue.value !== widget.time_granularity.value
-      ) {
-        if (savePref) {
-          updateWidgetPreference(widget.label, {
-            [TIME_GRANULARITY]: { ...intervalValue },
-          });
-        }
-
-        setWidget((currentWidget: Widgets) => {
-          return {
-            ...currentWidget,
-            time_granularity: { ...intervalValue },
-          };
+      if (savePref) {
+        updatePreferences(widget.label, {
+          [TIME_GRANULARITY]: { ...intervalValue },
         });
       }
+
+      setWidget((currentWidget: Widgets) => {
+        return {
+          ...currentWidget,
+          time_granularity: { ...intervalValue },
+        };
+      });
     },
     []
   );
-  // Update the widget preference if already not present in the preferences
-  React.useEffect(() => {
-    if (savePref) {
-      const widgets = getUserPreferenceObject()?.widgets;
-      if (!widgets || !widgets[widget.label]) {
-        updateWidgetPreference(widget.label, {
-          [AGGREGATE_FUNCTION]: widget.aggregate_function,
-          [SIZE]: widget.size,
-          [TIME_GRANULARITY]: widget.time_granularity,
-        });
-      }
-    }
-  }, []);
-
-  /**
-   *
-   * @param value number value for the tool tip
-   * @param unit string unit for the tool tip
-   * @returns formatted string using @value & @unit
-   */
 
   const {
     data: metricsList,
@@ -265,8 +243,6 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
 
   let legendRows: LegendRow[] = [];
   let today: boolean = false;
-
-  let currentUnit = unit;
   if (!isLoading && metricsList) {
     const generatedData = generateGraphData({
       flags,
@@ -281,43 +257,57 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
     });
 
     data = generatedData.dimensions;
+
+    // add missing timestamps across all the dimensions
+    const filledArrays = fillMissingTimeStampsAcrossDimensions(
+      ...data.map((data) => data.data)
+    );
+
+    //update the chart data with updated arrays
+    filledArrays.forEach((arr, index) => {
+      data[index].data = arr;
+    });
+
     legendRows = generatedData.legendRowsData;
     today = generatedData.today;
-    currentUnit = generatedData.unit;
+    scaledWidgetUnit.current = generatedData.unit; // here state doesn't matter, as this is always the latest re-render
   }
 
   const metricsApiCallError = error?.[0]?.reason;
+
   return (
-    <Grid item lg={widget.size} xs={12}>
-      <Paper>
-        <Stack spacing={2}>
+    <Grid container item lg={widget.size} xs={12}>
+      <Stack flexGrow={1} spacing={2}>
+        <Paper
+          data-qa-widget={convertStringToCamelCasesWithSpaces(widget.label)}
+          sx={{ flexGrow: 1 }}
+        >
           <Stack
             alignItems={'center'}
             direction={{ sm: 'row' }}
             gap={{ sm: 0, xs: 2 }}
             justifyContent={{ sm: 'space-between' }}
+            marginBottom={1}
             padding={1}
           >
-            <Typography
-              fontSize={{ sm: '1.5rem', xs: '2rem' }}
-              marginLeft={1}
-              variant="h1"
-            >
-              {convertStringToCamelCasesWithSpaces(widget.label)}{' '}
-              {!isLoading &&
-                `(${currentUnit}${unit.endsWith('ps') ? '/s' : ''})`}
+            <Typography marginLeft={1} variant="h2">
+              {convertStringToCamelCasesWithSpaces(widget.label)} (
+              {scaledWidgetUnit.current}
+              {unit.endsWith('ps') ? '/s' : ''})
             </Typography>
             <Stack
               alignItems={'center'}
               direction={{ sm: 'row' }}
-              gap={1}
+              gap={2}
+              maxHeight={`calc(${theme.spacing(10)} + 5px)`}
+              overflow="auto"
               width={{ sm: 'inherit', xs: '100%' }}
             >
               {availableMetrics?.scrape_interval && (
                 <CloudPulseIntervalSelect
-                  default_interval={widget?.time_granularity}
+                  defaultInterval={widgetProp?.time_granularity}
                   onIntervalChange={handleIntervalChange}
-                  scrape_interval={availableMetrics.scrape_interval}
+                  scrapeInterval={availableMetrics.scrape_interval}
                 />
               )}
               {Boolean(
@@ -327,7 +317,7 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
                   availableAggregateFunctions={
                     availableMetrics!.available_aggregate_functions
                   }
-                  defaultAggregateFunction={widget?.aggregate_function}
+                  defaultAggregateFunction={widgetProp?.aggregate_function}
                   onAggregateFuncChange={handleAggregateFunctionChange}
                 />
               )}
@@ -339,30 +329,31 @@ export const CloudPulseWidget = (props: CloudPulseWidgetProperties) => {
               </Box>
             </Stack>
           </Stack>
-          <Divider />
-
           <CloudPulseLineGraph
             error={
               status === 'error' && metricsApiCallError !== jweTokenExpiryError // show the error only if the error is not related to token expiration
                 ? metricsApiCallError ?? 'Error while rendering graph'
                 : undefined
             }
+            formatData={(data: number | null) =>
+              data === null
+                ? data
+                : convertValueToUnit(data, scaledWidgetUnit.current)
+            }
             legendRows={
               legendRows && legendRows.length > 0 ? legendRows : undefined
             }
             ariaLabel={ariaLabel ? ariaLabel : ''}
             data={data}
-            formatData={(data: number) => convertValueToUnit(data, currentUnit)}
             formatTooltip={(value: number) => formatToolTip(value, unit)}
             gridSize={widget.size}
             loading={isLoading || metricsApiCallError === jweTokenExpiryError} // keep loading until we fetch the refresh token
-            nativeLegend
             showToday={today}
             timezone={timezone}
             title={widget.label}
           />
-        </Stack>
-      </Paper>
+        </Paper>
+      </Stack>
     </Grid>
   );
 };

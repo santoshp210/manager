@@ -1,3 +1,4 @@
+import { Button, Notice } from '@linode/ui';
 import { AutoscaleNodePoolSchema } from '@linode/validation/lib/kubernetes.schema';
 import Grid from '@mui/material/Unstable_Grid2';
 import { useFormik } from 'formik';
@@ -6,11 +7,9 @@ import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
-import { Button } from 'src/components/Button/Button';
 import { ConfirmationDialog } from 'src/components/ConfirmationDialog/ConfirmationDialog';
 import { FormControlLabel } from 'src/components/FormControlLabel';
 import { Link } from 'src/components/Link';
-import { Notice } from 'src/components/Notice/Notice';
 import { TextField } from 'src/components/TextField';
 import { Toggle } from 'src/components/Toggle/Toggle';
 import { Typography } from 'src/components/Typography';
@@ -166,7 +165,7 @@ export const AutoscalePoolDialog = (props: Props) => {
         Set minimum and maximum node pool constraints for LKE to resize your
         cluster automatically based on resource demand and overall usage.
         Maximum limit is 100 nodes.{' '}
-        <Link to="https://www.linode.com/docs/products/compute/kubernetes/guides/enable-cluster-autoscaling">
+        <Link to="https://techdocs.akamai.com/cloud-computing/docs/manage-nodes-and-node-pools">
           Learn more.
         </Link>
       </Typography>

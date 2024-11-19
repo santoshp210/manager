@@ -6,10 +6,7 @@ import {
   objectStorageKeyFactory,
   objectStorageBucketFactory,
 } from 'src/factories/objectStorage';
-import {
-  mockAppendFeatureFlags,
-  mockGetFeatureFlagClientstream,
-} from 'support/intercepts/feature-flags';
+import { mockAppendFeatureFlags } from 'support/intercepts/feature-flags';
 import {
   mockCreateAccessKey,
   mockDeleteAccessKey,
@@ -17,7 +14,6 @@ import {
   mockGetBucketsForRegion,
   mockUpdateAccessKey,
 } from 'support/intercepts/object-storage';
-import { makeFeatureFlagData } from 'support/util/feature-flags';
 import {
   randomDomainName,
   randomLabel,
@@ -46,11 +42,11 @@ describe('object storage access keys smoke tests', () => {
       secret_key: randomString(39),
     });
 
-    mockGetAccount(accountFactory.build({ capabilities: [] }));
+    mockGetAccount(accountFactory.build({ capabilities: ['Object Storage'] }));
     mockAppendFeatureFlags({
-      objMultiCluster: makeFeatureFlagData(false),
+      objMultiCluster: false,
+      objectStorageGen2: { enabled: false },
     });
-    mockGetFeatureFlagClientstream();
 
     mockGetAccessKeys([]).as('getKeys');
     mockCreateAccessKey(mockAccessKey).as('createKey');
@@ -118,11 +114,11 @@ describe('object storage access keys smoke tests', () => {
       secret_key: randomString(39),
     });
 
-    mockGetAccount(accountFactory.build({ capabilities: [] }));
+    mockGetAccount(accountFactory.build({ capabilities: ['Object Storage'] }));
     mockAppendFeatureFlags({
-      objMultiCluster: makeFeatureFlagData(false),
+      objMultiCluster: false,
+      objectStorageGen2: { enabled: false },
     });
-    mockGetFeatureFlagClientstream();
 
     // Mock initial GET request to include an access key.
     mockGetAccessKeys([accessKey]).as('getKeys');
@@ -168,13 +164,13 @@ describe('object storage access keys smoke tests', () => {
     beforeEach(() => {
       mockGetAccount(
         accountFactory.build({
-          capabilities: ['Object Storage Access Key Regions'],
+          capabilities: ['Object Storage', 'Object Storage Access Key Regions'],
         })
       );
       mockAppendFeatureFlags({
-        objMultiCluster: makeFeatureFlagData(true),
+        objMultiCluster: true,
+        objectStorageGen2: { enabled: false },
       });
-      mockGetFeatureFlagClientstream();
     });
 
     /*

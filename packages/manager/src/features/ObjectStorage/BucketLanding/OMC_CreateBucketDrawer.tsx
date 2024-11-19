@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Notice } from '@linode/ui';
 import { CreateBucketSchema } from '@linode/validation';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -7,7 +8,6 @@ import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Drawer } from 'src/components/Drawer';
 import { Link } from 'src/components/Link';
-import { Notice } from 'src/components/Notice/Notice';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 import { BucketRateLimitTable } from 'src/features/ObjectStorage/BucketLanding/BucketRateLimitTable';
@@ -165,7 +165,7 @@ export const OMC_CreateBucketDrawer = (props: Props) => {
     // since this is optional in the schema.
     if (Boolean(endpoints) && !formValues.endpoint_type) {
       setError('endpoint_type', {
-        message: 'Endpoint Type is required',
+        message: 'Endpoint Type is required.',
         type: 'manual',
       });
       return;
@@ -179,7 +179,7 @@ export const OMC_CreateBucketDrawer = (props: Props) => {
   };
 
   const selectedRegion = watchRegion
-    ? regions?.find((region) => watchRegion.includes(region.id))
+    ? regions?.find((region) => watchRegion === region.id)
     : undefined;
 
   const filteredEndpoints = endpoints?.filter(
@@ -341,7 +341,10 @@ export const OMC_CreateBucketDrawer = (props: Props) => {
                       <Typography component="span">
                         Endpoint types impact the performance, capacity, and
                         rate limits for your bucket. Understand{' '}
-                        <Link to="#">endpoint types</Link>.
+                        <Link to="https://techdocs.akamai.com/cloud-computing/docs/object-storage">
+                          endpoint types
+                        </Link>
+                        .
                       </Typography>
                     ),
                     helperTextPosition: 'top',

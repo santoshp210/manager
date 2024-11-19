@@ -26,6 +26,7 @@ export const linodeAlertsFactory = Factory.Sync.makeFactory<LinodeAlerts>({
 });
 
 export const linodeSpecsFactory = Factory.Sync.makeFactory<LinodeSpecs>({
+  accelerated_devices: 1,
   disk: 51200,
   gpus: 0,
   memory: 2048,
@@ -163,6 +164,7 @@ export const linodeTransferFactory = Factory.Sync.makeFactory<RegionalNetworkUti
 );
 
 export const linodeTypeFactory = Factory.Sync.makeFactory<LinodeType>({
+  accelerated_devices: 0,
   addons: {
     backups: {
       price: {
@@ -218,6 +220,7 @@ export const dedicatedTypeFactory = linodeTypeFactory.extend({
 });
 
 export const proDedicatedTypeFactory = Factory.Sync.makeFactory<LinodeType>({
+  accelerated_devices: 0,
   addons: {
     backups: {
       price: {
@@ -269,6 +272,7 @@ export const proDedicatedTypeFactory = Factory.Sync.makeFactory<LinodeType>({
 export const linodeFactory = Factory.Sync.makeFactory<Linode>({
   alerts: linodeAlertsFactory.build(),
   backups: linodeBackupsFactory.build(),
+  capabilities: [],
   created: '2020-01-01',
   disk_encryption: 'enabled',
   group: '',

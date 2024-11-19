@@ -1,11 +1,13 @@
+import { Notice } from '@linode/ui';
 import * as React from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { Notice } from 'src/components/Notice/Notice';
 import { isDistributedRegionSupported } from 'src/components/RegionSelect/RegionSelect.utils';
 import { getIsDistributedRegion } from 'src/components/RegionSelect/RegionSelect.utils';
+import { useIsGeckoEnabled } from 'src/components/RegionSelect/RegionSelect.utils';
 import { TabbedPanel } from 'src/components/TabbedPanel/TabbedPanel';
 import { useFlags } from 'src/hooks/useFlags';
+import { useAccount } from 'src/queries/account/account';
 import { useRegionAvailabilityQuery } from 'src/queries/regions/regions';
 import { plansNoticesUtils } from 'src/utilities/planNotices';
 import { getQueryParamsFromQueryString } from 'src/utilities/queryParams';
@@ -35,6 +37,7 @@ export interface PlansPanelProps {
   disabledTabs?: string[];
   docsLink?: JSX.Element;
   error?: string;
+  handleTabChange?: (index: number) => void;
   header?: string;
   isCreate?: boolean;
   linodeID?: number | undefined;
@@ -66,6 +69,7 @@ export const PlansPanel = (props: PlansPanelProps) => {
     disabledSmallerPlans,
     docsLink,
     error,
+    handleTabChange,
     header,
     isCreate,
     linodeID,
@@ -78,10 +82,14 @@ export const PlansPanel = (props: PlansPanelProps) => {
   } = props;
 
   const flags = useFlags();
+  const { isGeckoLAEnabled } = useIsGeckoEnabled();
   const location = useLocation();
   const params = getQueryParamsFromQueryString<LinodeCreateQueryParams>(
     location.search
   );
+
+  const { data: account } = useAccount();
+  const hasVPUCapability = account?.capabilities?.includes('NETINT Quadra T1U');
 
   const { data: regionAvailabilities } = useRegionAvailabilityQuery(
     selectedRegionID || '',
@@ -90,7 +98,9 @@ export const PlansPanel = (props: PlansPanelProps) => {
 
   const _types = types.filter(
     (type) =>
-      !type.id.includes('dedicated-edge') && !type.id.includes('nanode-edge')
+      !type.id.includes('dedicated-edge') &&
+      !type.id.includes('nanode-edge') &&
+      (!hasVPUCapability ? type.class !== 'accelerated' : true)
   );
   const _plans = getPlanSelectionsByPlanType(
     flags.disableLargestGbPlans
@@ -108,9 +118,7 @@ export const PlansPanel = (props: PlansPanelProps) => {
   const getDedicatedDistributedRegionPlanType = () => {
     return types.filter(
       (type) =>
-        type.id.includes('dedicated-edge') ||
-        type.id.includes('nanode-edge') ||
-        type.class === 'edge'
+        type.id.includes('dedicated-edge') || type.id.includes('nanode-edge')
     );
   };
 
@@ -167,7 +175,7 @@ export const PlansPanel = (props: PlansPanelProps) => {
                 planType={plan}
                 regionsData={regionsData || []}
               />
-              {showDistributedRegionPlanTable && (
+              {showDistributedRegionPlanTable && !isGeckoLAEnabled && (
                 <Notice
                   text="Distributed region pricing is temporarily $0 during the beta period, after which billing will begin."
                   variant="warning"
@@ -190,7 +198,7 @@ export const PlansPanel = (props: PlansPanelProps) => {
             </>
           );
         },
-        title: planTabInfoContent[plan === 'edge' ? 'dedicated' : plan]?.title,
+        title: planTabInfoContent[plan]?.title,
       };
     }
   );
@@ -223,6 +231,7 @@ export const PlansPanel = (props: PlansPanelProps) => {
       data-qa-select-plan
       docsLink={docsLink}
       error={error}
+      handleTabChange={handleTabChange}
       header={header || 'Linode Plan'}
       initTab={initialTab >= 0 ? initialTab : 0}
       innerClass={props.tabbedPanelInnerClass}

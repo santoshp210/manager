@@ -1,9 +1,8 @@
+import { Box, Button } from '@linode/ui';
 import Grid from '@mui/material/Unstable_Grid2';
 import copy from 'copy-to-clipboard';
 import * as React from 'react';
 
-import { Box } from 'src/components/Box';
-import { Button } from 'src/components/Button/Button';
 import { ErrorState } from 'src/components/ErrorState/ErrorState';
 import { Link } from 'src/components/Link';
 import { Typography } from 'src/components/Typography';
@@ -23,7 +22,7 @@ import {
 
 // @todo: is this URL correct? Are there new docs being written?
 const DOC_URL =
-  'https://www.linode.com/docs/platform/linode-managed/#adding-the-public-key';
+  'https://techdocs.akamai.com/cloud-computing/docs/getting-started-with-the-linode-managed-service#adding-the-public-key';
 
 const LinodePubKey = () => {
   const { data, error, isLoading } = useManagedSSHKey();

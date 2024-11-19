@@ -1,7 +1,8 @@
+import { CircleProgress } from '@linode/ui';
+import { createLazyRoute } from '@tanstack/react-router';
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { CircleProgress } from 'src/components/CircleProgress';
 import { ErrorState } from 'src/components/ErrorState/ErrorState';
 import { NotFound } from 'src/components/NotFound';
 import { useDomainQuery } from 'src/queries/domains';
@@ -42,3 +43,7 @@ export const DomainDetailRouting = () => {
   // page with an open drawer.
   return <DomainsLanding domainForEditing={domain} />;
 };
+
+export const domainDetailLazyRoute = createLazyRoute('/domains/$domainId')({
+  component: DomainDetailRouting,
+});

@@ -1,3 +1,4 @@
+import { CircleProgress, Notice } from '@linode/ui';
 import {
   createObjectStorageKeysSchema,
   updateObjectStorageKeysSchema,
@@ -6,10 +7,8 @@ import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
-import { CircleProgress } from 'src/components/CircleProgress';
 import { Drawer } from 'src/components/Drawer';
 import { Link } from 'src/components/Link';
-import { Notice } from 'src/components/Notice/Notice';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
 import { useAccountSettings } from 'src/queries/account/settings';
@@ -255,7 +254,7 @@ export const OMC_AccessKeyDrawer = (props: AccessKeyDrawerProps) => {
               Generate an Access Key for use with an{' '}
               <Link
                 className="h-u"
-                to="https://linode.com/docs/platform/object-storage/how-to-use-object-storage/#object-storage-tools"
+                to="https://techdocs.akamai.com/cloud-computing/docs/getting-started-with-object-storage#object-storage-tools"
               >
                 S3-compatible client
               </Link>

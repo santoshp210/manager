@@ -1,3 +1,4 @@
+import { Box, Chip, Divider, rotate360 } from '@linode/ui';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { IconButton } from '@mui/material';
 import Popover from '@mui/material/Popover';
@@ -6,9 +7,6 @@ import * as React from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Bell from 'src/assets/icons/notification.svg';
-import { Box } from 'src/components/Box';
-import { Chip } from 'src/components/Chip';
-import { Divider } from 'src/components/Divider';
 import { LinkButton } from 'src/components/LinkButton';
 import { Typography } from 'src/components/Typography';
 import { NotificationCenterEvent } from 'src/features/NotificationCenter/Events/NotificationCenterEvent';
@@ -23,10 +21,9 @@ import { usePrevious } from 'src/hooks/usePrevious';
 import { useNotificationsQuery } from 'src/queries/account/notifications';
 import { isInProgressEvent } from 'src/queries/events/event.helpers';
 import {
-  useEventsInfiniteQuery,
+  useInitialEventsQuery,
   useMarkEventsAsSeen,
 } from 'src/queries/events/events';
-import { rotate360 } from 'src/styles/keyframes';
 
 import { TopMenuTooltip, topMenuIconButtonSx } from '../TopMenuTooltip';
 
@@ -37,7 +34,8 @@ export const NotificationMenu = () => {
   const formattedNotifications = useFormattedNotifications();
   const notificationContext = React.useContext(_notificationContext);
 
-  const { data, events } = useEventsInfiniteQuery();
+  const { data, events } = useInitialEventsQuery();
+  const eventsData = data?.data ?? [];
   const { mutateAsync: markEventsAsSeen } = useMarkEventsAsSeen();
 
   const numNotifications =
@@ -88,7 +86,9 @@ export const NotificationMenu = () => {
         <IconButton
           sx={(theme) => ({
             ...topMenuIconButtonSx(theme),
-            color: notificationContext.menuOpen ? '#606469' : '#c9c7c7',
+            color: notificationContext.menuOpen
+              ? theme.tokens.color.Neutrals[70]
+              : theme.tokens.color.Neutrals[40],
           })}
           aria-describedby={id}
           aria-haspopup="true"
@@ -132,6 +132,7 @@ export const NotificationMenu = () => {
           },
         }}
         anchorEl={anchorRef.current}
+        data-qa-notification-menu
         id={id}
         onClose={handleClose}
         open={notificationContext.menuOpen}
@@ -150,13 +151,22 @@ export const NotificationMenu = () => {
             </LinkButton>
           </Box>
           <Divider spacingBottom={0} />
-          {data?.pages[0].data.slice(0, 20).map((event) => (
-            <NotificationCenterEvent
-              event={event}
-              key={event.id}
-              onClose={handleClose}
-            />
-          ))}
+
+          {eventsData.length > 0 ? (
+            eventsData
+              .slice(0, 20)
+              .map((event) => (
+                <NotificationCenterEvent
+                  event={event}
+                  key={event.id}
+                  onClose={handleClose}
+                />
+              ))
+          ) : (
+            <Box pt={2} px={2}>
+              No recent events to display
+            </Box>
+          )}
         </Box>
       </Popover>
     </>
@@ -183,7 +193,7 @@ const StyledChip = styled(Chip, {
   width: props.showPlus ? 22 : 18,
 }));
 
-const StyledAutorenewIcon = styled(AutorenewIcon)(({ theme }) => ({
+export const StyledAutorenewIcon = styled(AutorenewIcon)(({ theme }) => ({
   animation: `${rotate360} 2s linear infinite`,
   bottom: 4,
   color: theme.palette.primary.main,

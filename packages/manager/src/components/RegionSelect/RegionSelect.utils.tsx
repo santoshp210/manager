@@ -9,7 +9,7 @@ import type {
   RegionFilterValue,
 } from './RegionSelect.types';
 import type { AccountAvailability, Capabilities, Region } from '@linode/api-v4';
-import type { LinodeCreateType } from 'src/features/Linodes/LinodesCreate/types';
+import type { LinodeCreateType } from 'src/features/Linodes/LinodeCreate/types';
 
 const NORTH_AMERICA = CONTINENT_CODE_TO_CONTINENT.NA;
 
@@ -38,11 +38,10 @@ export const getRegionOptions = ({
         if (distributedContinentCode && distributedContinentCode !== 'ALL') {
           const group = getRegionCountryGroup(region);
           return (
-            region.site_type === 'edge' ||
-            (region.site_type === 'distributed' &&
-              CONTINENT_CODE_TO_CONTINENT[
-                distributedContinentCode as keyof typeof CONTINENT_CODE_TO_CONTINENT
-              ] === group)
+            region.site_type === 'distributed' &&
+            CONTINENT_CODE_TO_CONTINENT[
+              distributedContinentCode as keyof typeof CONTINENT_CODE_TO_CONTINENT
+            ] === group
           );
         }
         return regionFilter.includes(region.site_type);
@@ -130,7 +129,6 @@ export const isRegionOptionUnavailable = ({
 export const isDistributedRegionSupported = (createType: LinodeCreateType) => {
   const supportedDistributedRegionTypes = [
     'OS',
-    'StackScripts',
     'Images',
     undefined, // /linodes/create route
   ];
@@ -149,7 +147,7 @@ export const getIsDistributedRegion = (
   const region = regionsData.find(
     (region) => region.id === selectedRegion || region.label === selectedRegion
   );
-  return region?.site_type === 'distributed' || region?.site_type === 'edge';
+  return region?.site_type === 'distributed';
 };
 
 export const getNewRegionLabel = (region: Region) => {
@@ -163,15 +161,15 @@ export const getNewRegionLabel = (region: Region) => {
 
 export const useIsGeckoEnabled = () => {
   const flags = useFlags();
-  const isGeckoGA = flags?.gecko2?.enabled && flags.gecko2.ga;
-  const isGeckoBeta = flags.gecko2?.enabled && !flags.gecko2?.ga;
+  const isGeckoLA = flags?.gecko2?.enabled && flags.gecko2.la;
+  const isGeckoBeta = flags.gecko2?.enabled && !flags.gecko2?.la;
   const { data: regions } = useRegionsQuery();
 
   const hasDistributedRegionCapability = regions?.some((region: Region) =>
     region.capabilities.includes('Distributed Plans')
   );
-  const isGeckoGAEnabled = hasDistributedRegionCapability && isGeckoGA;
+  const isGeckoLAEnabled = hasDistributedRegionCapability && isGeckoLA;
   const isGeckoBetaEnabled = hasDistributedRegionCapability && isGeckoBeta;
 
-  return { isGeckoBetaEnabled, isGeckoGAEnabled };
+  return { isGeckoBetaEnabled, isGeckoLAEnabled };
 };

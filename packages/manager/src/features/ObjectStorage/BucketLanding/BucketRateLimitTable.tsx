@@ -1,10 +1,9 @@
+import { Box, Radio } from '@linode/ui';
 import React from 'react';
 
-import { Box } from 'src/components/Box';
 import { FormControlLabel } from 'src/components/FormControlLabel';
 import { FormLabel } from 'src/components/FormLabel';
 import { Link } from 'src/components/Link';
-import { Radio } from 'src/components/Radio/Radio';
 import { SupportLink } from 'src/components/SupportLink';
 import { Table } from 'src/components/Table';
 import { TableBody } from 'src/components/TableBody';
@@ -84,7 +83,11 @@ export const BucketRateLimitTable = ({
         ) : (
           'This endpoint type supports up to 750 Requests Per Second (RPS). '
         )}
-        Understand <Link to="#">bucket rate limits</Link>.
+        Understand{' '}
+        <Link to="https://techdocs.akamai.com/cloud-computing/docs/create-and-manage-buckets">
+          bucket rate limits
+        </Link>
+        .
       </Typography>
 
       {isGen2EndpointType && (

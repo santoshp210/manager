@@ -8,7 +8,7 @@ import { renderWithTheme } from 'src/utilities/testHelpers';
 import { CloudPulseDashboardLanding } from './CloudPulseDashboardLanding';
 
 const dashboardLabel = 'Factory Dashboard-1';
-const selectDashboardLabel = 'Select Dashboard';
+const selectDashboardLabel = 'Select a Dashboard';
 const queryMocks = vi.hoisted(() => ({
   useCloudPulseDashboardsQuery: vi.fn().mockReturnValue({}),
   useLoadUserPreferences: vi.fn().mockReturnValue({}),
@@ -56,7 +56,7 @@ describe('CloudPulseDashboardFilterBuilder component tests', () => {
     );
 
     expect(
-      screen.getByText('Select Dashboard and filters to visualize metrics.')
+      screen.getByText('Select a dashboard and filters to visualize metrics.')
     ).toBeDefined();
   });
 
@@ -103,7 +103,7 @@ describe('CloudPulseDashboardFilterBuilder component tests', () => {
     );
 
     expect(
-      screen.getByText('Select Dashboard and filters to visualize metrics.')
+      screen.getByText('Select a dashboard and filters to visualize metrics.')
     ).toBeDefined();
   });
 });

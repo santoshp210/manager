@@ -13,13 +13,14 @@ export interface LinodeSpecs {
   vcpus: number;
   transfer: number;
   gpus: number;
+  accelerated_devices: number;
 }
 
 export interface Linode {
   id: number;
   alerts: LinodeAlerts;
   backups: LinodeBackups;
-  bs_encryption_supported?: boolean; // @TODO BSE: Remove optionality once BSE is fully rolled out
+  capabilities?: LinodeCapabilities[]; // @TODO BSE: Remove optionality once BSE is fully rolled out
   created: string;
   disk_encryption?: EncryptionStatus; // @TODO LDE: Remove optionality once LDE is fully rolled out
   region: string;
@@ -53,6 +54,8 @@ export interface LinodeBackups {
   schedule: LinodeBackupSchedule;
   last_successful: string | null;
 }
+
+export type LinodeCapabilities = 'Block Storage Encryption' | 'SMTP Enabled';
 
 export type Window =
   | 'Scheduling'
@@ -320,6 +323,7 @@ export interface LinodeType extends BaseType {
   successor: string | null;
   network_out: number;
   gpus: number;
+  accelerated_devices: number;
   price: PriceObject;
   region_prices: RegionPriceObject[];
   addons: {
@@ -328,6 +332,7 @@ export interface LinodeType extends BaseType {
 }
 
 export type LinodeTypeClass =
+  | 'accelerated'
   | 'nanode'
   | 'standard'
   | 'dedicated'
@@ -335,8 +340,7 @@ export type LinodeTypeClass =
   | 'gpu'
   | 'metal'
   | 'prodedicated'
-  | 'premium'
-  | 'edge';
+  | 'premium';
 
 export interface IPAllocationRequest {
   type: 'ipv4';
