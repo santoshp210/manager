@@ -30,7 +30,8 @@ describe('AlertDefinition Create', () => {
 
     await userEvent.click(submitButton!);
 
-    expect(getByText('Name is required')).toBeVisible();
-    expect(getByText('Severity is required')).toBeVisible();
+    expect(getByText('Name is required.')).toBeVisible();
+    expect(getByText('Severity is required.')).toBeVisible();
+    expect(getByText('Service type is required.')).toBeVisible();
   });
 });

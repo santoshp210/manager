@@ -106,10 +106,12 @@ import { getStorage } from 'src/utilities/storage';
 const getRandomWholeNumber = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1) + min);
 
+import { alertFactory } from 'src/factories/cloudpulse/alerts';
 import { pickRandom } from 'src/utilities/random';
 
 import type {
   AccountMaintenance,
+  CreateAlertDefinitionPayload,
   CreateObjectStorageKeyPayload,
   Dashboard,
   FirewallStatus,
@@ -2333,28 +2335,16 @@ export const handlers = [
 
     return HttpResponse.json(response);
   }),
-  http.post('*/monitor/alert-definitions', async ({ request }) => {
-    const reqBody = await request.json();
-    const response = {
-      data: [
-        {
-          created: '2021-10-16T04:00:00',
-          created_by: 'user1',
-          id: '35892357',
-          notifications: [
-            {
-              notification_id: '42804',
-              template_name: 'notification',
-            },
-          ],
-          reqBody,
-          updated: '2021-10-16T04:00:00',
-          updated_by: 'user2',
-        },
-      ],
-    };
-    return HttpResponse.json(response);
-  }),
+  http.post(
+    '*/monitor/services/:service_type/alert-definitions',
+    async ({ request }) => {
+      const reqBody = await request.json();
+      const response = alertFactory.build({
+        ...(reqBody as CreateAlertDefinitionPayload),
+      });
+      return HttpResponse.json(response);
+    }
+  ),
   http.get('*/monitor/services', () => {
     const response: ServiceTypesList = {
       data: [

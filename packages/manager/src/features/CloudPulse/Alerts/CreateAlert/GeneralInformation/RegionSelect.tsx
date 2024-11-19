@@ -1,13 +1,12 @@
-import { useFormikContext } from 'formik';
 import * as React from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 
-import { Box } from 'src/components/Box';
 import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
 import { useRegionsQuery } from 'src/queries/regions/regions';
 
 export interface CloudViewRegionSelectProps {
   /**
-   * name used for the component to set formik field
+   * name used for the component to set in the form
    */
   name: string;
 }
@@ -15,28 +14,33 @@ export interface CloudViewRegionSelectProps {
 export const CloudPulseRegionSelect = React.memo(
   (props: CloudViewRegionSelectProps) => {
     const { name } = props;
-    const { data: regions } = useRegionsQuery();
-    const formik = useFormikContext();
-    const values = formik.getFieldProps(name);
+    const { data: regions, isError, isLoading } = useRegionsQuery();
+    const { control } = useFormContext();
     return (
-      <Box onBlur={() => formik.setFieldTouched(`${name}`, true)}>
-        <RegionSelect
-          onBlur={(event) => {
-            formik.handleBlur(event);
-            formik.setFieldTouched(`${name}`, true);
-          }}
-          onChange={(_, value) => {
-            formik.setFieldValue(`${name}`, value ? value.id : '');
-          }}
-          currentCapability={undefined}
-          disableClearable={false}
-          fullWidth
-          label="Region"
-          noMarginTop
-          regions={regions ?? []}
-          value={values.value ?? null}
-        />
-      </Box>
+      <Controller
+        render={({ field, fieldState }) => (
+          <RegionSelect
+            errorText={
+              fieldState.error?.message ??
+              (isError ? 'Failed to fetch Region.' : '')
+            }
+            onChange={(_, value) => {
+              field.onChange(value?.id);
+            }}
+            currentCapability={undefined}
+            disableClearable={false}
+            fullWidth
+            label="Region"
+            loading={isLoading}
+            placeholder="Select a Region"
+            regions={regions ?? []}
+            textFieldProps={{ onBlur: field.onBlur }}
+            value={field.value}
+          />
+        )}
+        control={control}
+        name={name}
+      />
     );
   }
 );

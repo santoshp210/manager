@@ -1,20 +1,19 @@
-import { useFormikContext } from 'formik';
 import * as React from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useCloudPulseServiceTypes } from 'src/queries/cloudpulse/services';
 
+import type { Item } from '../../constants';
+import type { CreateAlertDefinitionForm } from '@linode/api-v4';
+import type { FieldPathByValue } from 'react-hook-form';
+
 interface CloudPulseServiceSelectProps {
   /**
-   * name used for the component to set formik field
+   * name used for the component in the form
    */
-  name: string;
+  name: FieldPathByValue<CreateAlertDefinitionForm, null | string>;
 }
-
-type CloudPulseServiceTypeOptions = {
-  label: string;
-  value: string;
-};
 
 export const CloudPulseServiceSelect = (
   props: CloudPulseServiceSelectProps
@@ -25,49 +24,50 @@ export const CloudPulseServiceSelect = (
     error: serviceTypesError,
     isLoading: serviceTypesLoading,
   } = useCloudPulseServiceTypes(true);
-  const formik = useFormikContext();
+  const { control } = useFormContext<CreateAlertDefinitionForm>();
 
-  const [
-    selectedService,
-    setSelectedService,
-  ] = React.useState<CloudPulseServiceTypeOptions | null>(null);
-
-  React.useEffect(() => {
-    formik.setFieldValue(name, selectedService?.value ?? '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedService]);
-
-  const getServicesList = (): CloudPulseServiceTypeOptions[] => {
-    return serviceOptions
+  const getServicesList = React.useMemo((): Item<string, string>[] => {
+    return serviceOptions && serviceOptions.data.length > 0
       ? serviceOptions.data.map((service) => ({
-          label: service.service_type.toUpperCase(),
+          label: service.label,
           value: service.service_type,
         }))
       : [];
-  };
+  }, [serviceOptions]);
 
   return (
-    <Autocomplete
-      isOptionEqualToValue={(option, value) => {
-        return option.value === value.value;
-      }}
-      onBlur={(event) => {
-        formik.handleBlur(event);
-        formik.setFieldTouched(name, true);
-      }}
-      onChange={(_: React.SyntheticEvent<Element, Event>, newValue) => {
-        setSelectedService(newValue);
-      }}
-      data-testid="servicetype-select"
-      errorText={serviceTypesError ? 'Unable to load service types' : ''}
-      fullWidth
-      label="Service"
-      loading={serviceTypesLoading && !serviceTypesError}
-      noMarginTop
-      options={getServicesList()}
-      placeholder="Select a service"
-      sx={{ marginTop: '5px' }}
-      value={selectedService}
+    <Controller
+      render={({ field, fieldState }) => (
+        <Autocomplete
+          errorText={
+            fieldState.error?.message ??
+            (serviceTypesError ? 'Failed to fetch the service types.' : '')
+          }
+          onChange={(_, selected: { label: string; value: string }, reason) => {
+            if (selected) {
+              field.onChange(selected.value);
+            }
+            if (reason === 'clear') {
+              field.onChange(null);
+            }
+          }}
+          value={
+            field.value !== null
+              ? getServicesList.find((option) => option.value === field.value)
+              : null
+          }
+          data-testid="servicetype-select"
+          fullWidth
+          label="Service"
+          loading={serviceTypesLoading && !serviceTypesError}
+          onBlur={field.onBlur}
+          options={getServicesList}
+          placeholder="Select a Service"
+          sx={{ marginTop: '5px' }}
+        />
+      )}
+      control={control}
+      name={name}
     />
   );
 };
