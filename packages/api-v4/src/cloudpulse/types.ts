@@ -158,14 +158,14 @@ export interface CreateAlertDefinitionForm
   extends CreateAlertDefinitionPayload {
   region: string;
   service_type: string | null;
-  engine_type: string;
+  engine_type: string | null;
 }
 export interface MetricCriteria {
   metric: string;
   aggregation_type: MetricAggregationType;
   operator: MetricOperatorType;
   value: number;
-  dimension_filters: DimensionFilter[];
+  dimension_filters?: DimensionFilter[];
 }
 
 export interface DimensionFilter {
