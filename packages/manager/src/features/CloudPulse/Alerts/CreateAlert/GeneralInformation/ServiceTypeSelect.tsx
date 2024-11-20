@@ -4,17 +4,16 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useCloudPulseServiceTypes } from 'src/queries/cloudpulse/services';
 
+import type { Item } from '../../constants';
+import type { CreateAlertDefinitionForm } from '@linode/api-v4';
+import type { FieldPathByValue } from 'react-hook-form';
+
 interface CloudPulseServiceSelectProps {
   /**
-   * name used for the component to set formik field
+   * name used for the component in the form
    */
-  name: string;
+  name: FieldPathByValue<CreateAlertDefinitionForm, null | string>;
 }
-
-type CloudPulseServiceTypeOptions = {
-  label: string;
-  value: string;
-};
 
 export const CloudPulseServiceSelect = (
   props: CloudPulseServiceSelectProps
@@ -25,50 +24,46 @@ export const CloudPulseServiceSelect = (
     error: serviceTypesError,
     isLoading: serviceTypesLoading,
   } = useCloudPulseServiceTypes(true);
-  const { control, setValue } = useFormContext();
+  const { control } = useFormContext<CreateAlertDefinitionForm>();
 
-  const [
-    selectedService,
-    setSelectedService,
-  ] = React.useState<CloudPulseServiceTypeOptions | null>(null);
-
-  React.useEffect(() => {
-    setValue(name, selectedService?.value ?? '');
-  }, [name, selectedService, setValue]);
-
-  const getServicesList = (): CloudPulseServiceTypeOptions[] => {
-    return serviceOptions
+  const getServicesList = React.useMemo((): Item<string, string>[] => {
+    return serviceOptions && serviceOptions.data.length > 0
       ? serviceOptions.data.map((service) => ({
           label: service.label,
           value: service.service_type,
         }))
       : [];
-  };
- 
+  }, [serviceOptions]);
+
   return (
     <Controller
       render={({ field, fieldState }) => (
         <Autocomplete
           errorText={
-            fieldState.error?.message ?? serviceTypesError
-              ? 'Unable to load service types'
-              : ''
+            fieldState.error?.message ??
+            (serviceTypesError ? 'Failed to fetch the service types.' : '')
           }
-          isOptionEqualToValue={(option, value) => {
-            return option.value === value.value;
+          onChange={(_, selected: { label: string; value: string }, reason) => {
+            if (selected) {
+              field.onChange(selected.value);
+            }
+            if (reason === 'clear') {
+              field.onChange(null);
+            }
           }}
-          onChange={(_, newValue) => {
-            setSelectedService(newValue);
-          }}
+          value={
+            field.value !== null
+              ? getServicesList.find((option) => option.value === field.value)
+              : null
+          }
           data-testid="servicetype-select"
           fullWidth
           label="Service"
           loading={serviceTypesLoading && !serviceTypesError}
           onBlur={field.onBlur}
-          options={getServicesList()}
+          options={getServicesList}
           placeholder="Select a Service"
           sx={{ marginTop: '5px' }}
-          value={selectedService}
         />
       )}
       control={control}

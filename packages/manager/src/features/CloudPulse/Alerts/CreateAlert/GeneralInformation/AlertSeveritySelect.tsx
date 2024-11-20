@@ -3,56 +3,60 @@ import { Controller, useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 
-import { AlertSeverityOptions } from '../../constants';
+import { alertSeverityOptions } from '../../constants';
 
-export interface CloudViewRegionSelectProps {
+import type {
+  AlertSeverityType,
+  CreateAlertDefinitionForm,
+} from '@linode/api-v4';
+import type { FieldPathByValue } from 'react-hook-form';
+export interface CloudPulseAlertSeveritySelectProps {
   /**
    * name used for the component in the form
    */
-  name: string;
+  name: FieldPathByValue<CreateAlertDefinitionForm, AlertSeverityType>;
 }
 
-type CloudPulseAlertSeverityOptions = {
-  label: string;
-  value: string;
-};
-
 export const CloudPulseAlertSeveritySelect = (
-  props: CloudViewRegionSelectProps
+  props: CloudPulseAlertSeveritySelectProps
 ) => {
   const { name } = props;
-
-  const { control, setValue } = useFormContext();
-
-  const [
-    selectedSeverity,
-    setSelectedSeverity,
-  ] = React.useState<CloudPulseAlertSeverityOptions | null>(null);
-
-  React.useEffect(() => {
-    setValue(name, selectedSeverity?.value ?? '');
-  }, [name, selectedSeverity, setValue]);
+  const { control } = useFormContext<CreateAlertDefinitionForm>();
 
   return (
     <Controller
       render={({ field, fieldState }) => (
         <Autocomplete
-          onChange={(_, value) => {
-            setSelectedSeverity(value);
+          onChange={(
+            _,
+            selected: { label: string; value: AlertSeverityType },
+            reason
+          ) => {
+            if (selected) {
+              field.onChange(selected.value);
+            }
+            if (reason === 'clear') {
+              field.onChange(null);
+            }
           }}
           textFieldProps={{
             labelTooltipText:
-              'Define a severity level associated with the alert to help you prioritize and manage alerts.',
+              'Define a severity level associated with the alert to help you prioritize and manage alerts in the Recent activity tab.',
           }}
+          value={
+            field.value !== null
+              ? alertSeverityOptions.find(
+                  (option) => option.value === field.value
+                )
+              : null
+          }
           data-testid={'severity'}
           errorText={fieldState.error?.message}
-          isOptionEqualToValue={(option, value) => option.label === value.label}
           label="Severity"
           onBlur={field.onBlur}
-          options={AlertSeverityOptions}
-          size="medium"
+          options={alertSeverityOptions}
           placeholder="Select a Severity"
-          value={selectedSeverity}
+          size="medium"
         />
       )}
       control={control}

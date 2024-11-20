@@ -1,6 +1,8 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
+import { serviceTypesFactory } from 'src/factories';
 import { renderWithThemeAndHookFormContext } from 'src/utilities/testHelpers';
 
 import { CloudPulseServiceSelect } from './ServiceTypeSelect';
@@ -17,51 +19,72 @@ vi.mock('src/queries/cloudpulse/services', async () => {
   };
 });
 
+const mockResponse = {
+  data: [
+    serviceTypesFactory.build({
+      label: 'Linode',
+      service_type: 'linode',
+    }),
+    serviceTypesFactory.build({
+      label: 'Databases',
+      service_type: 'dbaas',
+    }),
+  ],
+};
+
+queryMocks.useCloudPulseServiceTypes.mockReturnValue({
+  data: mockResponse,
+  isError: true,
+  isLoading: false,
+  status: 'success',
+});
 describe('ServiceTypeSelect component tests', () => {
   it('should render the Autocomplete component', () => {
-    const {
-      getAllByText,
-      getByPlaceholderText,
-      getByTestId,
-    } = renderWithThemeAndHookFormContext({
+    const { getAllByText, getByTestId } = renderWithThemeAndHookFormContext({
       component: <CloudPulseServiceSelect name="service_type" />,
     });
-    expect(getByPlaceholderText('Select a service')).toBeInTheDocument();
     expect(getByTestId('servicetype-select')).toBeInTheDocument();
     getAllByText('Service');
   });
 
-  it('should render service types happy path', (_) => {
-    queryMocks.useCloudPulseServiceTypes.mockReturnValue({
-      data: {
-        data: [{ service_type: 'linode' }, { service_type: 'dbaas' }],
-      },
-      isError: false,
-      isLoading: false,
-      status: 'success',
-    });
+  it('should render service types happy path', async () => {
     renderWithThemeAndHookFormContext({
       component: <CloudPulseServiceSelect name="service_type" />,
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-    expect(screen.getByRole('option', { name: 'LINODE' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'DBAAS' })).toBeInTheDocument();
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    expect(
+      await screen.findByRole('option', {
+        name: 'Linode',
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', {
+        name: 'Databases',
+      })
+    ).toBeInTheDocument();
   });
 
-  it('should be able to select a service type', () => {
+  it('should be able to select a service type', async () => {
+    renderWithThemeAndHookFormContext({
+      component: <CloudPulseServiceSelect name="service_type" />,
+    });
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    await userEvent.click(
+      await screen.findByRole('option', { name: 'Linode' })
+    );
+    expect(screen.getByRole('combobox')).toHaveAttribute('value', 'Linode');
+  });
+  it('should render error messages when there is an API call failure', () => {
     queryMocks.useCloudPulseServiceTypes.mockReturnValue({
-      data: {
-        data: [{ service_type: 'linode' }, { service_type: 'dbaas' }],
-      },
-      isError: false,
+      data: undefined,
+      error: 'an error happened',
       isLoading: false,
-      status: 'success',
     });
     renderWithThemeAndHookFormContext({
       component: <CloudPulseServiceSelect name="service_type" />,
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-    fireEvent.click(screen.getByRole('option', { name: 'LINODE' }));
-    expect(screen.getByRole('combobox')).toHaveAttribute('value', 'LINODE');
+    expect(
+      screen.getByText('Failed to fetch the service types.')
+    ).toBeInTheDocument();
   });
 });

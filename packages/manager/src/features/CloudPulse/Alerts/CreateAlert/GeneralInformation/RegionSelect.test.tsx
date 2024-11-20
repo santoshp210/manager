@@ -14,8 +14,20 @@ describe('RegionSelect', () => {
 
   it('should render a RegionSelect component', () => {
     const { getByTestId } = renderWithThemeAndHookFormContext({
-      component: <CloudPulseRegionSelect name={'region'} />,
+      component: <CloudPulseRegionSelect name="region" />,
     });
     expect(getByTestId('region-select')).toBeInTheDocument();
+  });
+  it('should render a Region Select component with proper error message on api call failure', () => {
+    vi.spyOn(regions, 'useRegionsQuery').mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+    } as ReturnType<typeof regions.useRegionsQuery>);
+    const { getByText } = renderWithThemeAndHookFormContext({
+      component: <CloudPulseRegionSelect name="region" />,
+    });
+
+    expect(getByText('Failed to fetch Region.'));
   });
 });
