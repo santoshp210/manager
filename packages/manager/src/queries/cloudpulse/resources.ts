@@ -17,7 +17,6 @@ export const useResourcesQuery = (
     select: (resources) => {
       return resources.map((resource) => {
         return {
-          engine: resource.engine ?? '',
           id: resource.id,
           label: resource.label,
           region: resource.region,

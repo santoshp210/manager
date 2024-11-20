@@ -3,6 +3,7 @@ import Factory from 'src/factories/factoryProxy';
 import type {
   Alert,
   AlertDefinitionType,
+  AlertServiceType,
   AlertSeverityType,
   AlertStatusType,
 } from '@linode/api-v4';
@@ -11,12 +12,14 @@ const types: AlertDefinitionType[] = ['custom', 'default'];
 const status: AlertStatusType[] = ['enabled', 'disabled'];
 const severity: AlertSeverityType[] = [0, 1, 2, 3];
 const users = ['user1', 'user2', 'user3'];
-const serviceTypes = ['linode', 'dbaas'];
+const serviceTypes: AlertServiceType[] = ['linode', 'dbaas'];
 export const alertFactory = Factory.Sync.makeFactory<Alert>({
   channels: [],
   created: new Date().toISOString(),
   created_by: Factory.each((i) => users[i % users.length]),
   description: '',
+  entity_ids: ['entity-1', 'entity-2'],
+  has_more_resources: false,
   id: Factory.each(() => Math.floor(Math.random() * 1000000)),
   label: Factory.each((id) => `Alert-${id}`),
   resource_ids: ['0', '1', '2', '3'],

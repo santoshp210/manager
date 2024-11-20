@@ -5,14 +5,17 @@ import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useCloudPulseServiceTypes } from 'src/queries/cloudpulse/services';
 
 import type { Item } from '../../constants';
-import type { CreateAlertDefinitionForm } from '@linode/api-v4';
+import type {
+  AlertServiceType,
+  CreateAlertDefinitionForm,
+} from '@linode/api-v4';
 import type { FieldPathByValue } from 'react-hook-form';
 
 interface CloudPulseServiceSelectProps {
   /**
    * name used for the component in the form
    */
-  name: FieldPathByValue<CreateAlertDefinitionForm, null | string>;
+  name: FieldPathByValue<CreateAlertDefinitionForm, AlertServiceType>;
 }
 
 export const CloudPulseServiceSelect = (

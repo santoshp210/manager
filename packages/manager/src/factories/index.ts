@@ -52,7 +52,7 @@ export * from './vlans';
 export * from './volume';
 export * from './vpcs';
 export * from './dashboards';
-export * from './alerts';
+export * from './cloudpulse/alerts';
 export * from './cloudpulse/services';
 
 // Convert factory output to our itemsById pattern

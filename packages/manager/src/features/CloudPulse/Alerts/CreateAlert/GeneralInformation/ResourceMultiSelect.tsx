@@ -4,15 +4,23 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { useResourcesQuery } from 'src/queries/cloudpulse/resources';
 
+import type { Item } from '../../constants';
+import type {
+  AlertServiceType,
+  CreateAlertDefinitionForm,
+} from '@linode/api-v4';
+import type { FieldPathByValue } from 'react-hook-form';
+import type { CloudPulseResources } from 'src/features/CloudPulse/shared/CloudPulseResourcesSelect';
+
 interface CloudPulseResourceSelectProps {
   /**
    * engine option type selected by the user
    */
-  engine: string;
+  engine: null | string;
   /**
-   * name used for the component to set the form field
+   * name used for the component to set in the form
    */
-  name: string;
+  name: FieldPathByValue<CreateAlertDefinitionForm, string[]>;
   /**
    * region selected by the user
    */
@@ -20,13 +28,7 @@ interface CloudPulseResourceSelectProps {
   /**
    * service type selected by the user
    */
-  serviceType: string | undefined;
-}
-export interface CloudPulseResources {
-  engine?: string;
-  id: string;
-  label: string;
-  region?: string;
+  serviceType: AlertServiceType;
 }
 
 export const CloudPulseMultiResourceSelect = (
@@ -35,47 +37,45 @@ export const CloudPulseMultiResourceSelect = (
   const { engine, name, region, serviceType } = { ...props };
   const { control, setValue } = useFormContext();
 
-  const [selectedResources, setSelectedResources] = React.useState<
-    CloudPulseResources[]
-  >([]);
   const { data: resources, isError, isLoading } = useResourcesQuery(
     Boolean(region && serviceType),
-    serviceType,
+    serviceType?.toString(),
     {},
-    engine !== '' ? { engine, region } : { region }
+    engine !== null ? { engine, region } : { region }
   );
-  const getResourcesList = (): CloudPulseResources[] => {
-    return resources && resources.length > 0 ? resources : [];
+
+  const getResourcesList = (): Item<string, string>[] => {
+    return resources && resources.length > 0
+      ? resources.map((resource) => ({
+          label: resource.label,
+          value: resource.id,
+        }))
+      : [];
   };
 
   React.useEffect(() => {
-    setValue(
-      `${name}`,
-      selectedResources.map((resource: CloudPulseResources) => {
-        return resource.id.toString();
-      })
-    );
-  }, [name, selectedResources, setValue]);
-
-  React.useEffect(() => {
-    setSelectedResources([]);
-  }, [region, serviceType, engine]);
+    setValue('resource_ids', []);
+  }, [region, serviceType, engine, setValue]);
 
   return (
     <Controller
       render={({ field, fieldState }) => (
         <Autocomplete
           errorText={
-            fieldState.error?.message ?? isError
-              ? 'Error in fetching the data'
-              : ''
+            fieldState.error?.message ??
+            (isError ? 'Error in fetching the data' : '')
           }
-          isOptionEqualToValue={(option, value) => {
-            return option.id === value.id;
+          onChange={(_, resources: { label: string; value: string }[]) => {
+            const resource_ids = resources.map((resource) => resource.value);
+            field.onChange(resource_ids);
           }}
-          onChange={(_, resources) => {
-            setSelectedResources(resources);
-          }}
+          value={
+            field.value
+              ? getResourcesList().filter((resource) =>
+                  field.value.includes(resource.value)
+                )
+              : []
+          }
           autoHighlight
           clearOnBlur
           data-testid="resource-select"
@@ -87,7 +87,6 @@ export const CloudPulseMultiResourceSelect = (
           onBlur={field.onBlur}
           options={getResourcesList()}
           placeholder="Select Resources"
-          value={selectedResources}
         />
       )}
       control={control}

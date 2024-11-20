@@ -32,6 +32,7 @@ import type {
   NotificationChannel,
   TriggerCondition,
 } from '@linode/api-v4/lib/cloudpulse/types';
+import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMultiSelect';
 
 const triggerConditionInitialValues: TriggerCondition = {
   evaluation_period_seconds: 0,
@@ -56,7 +57,7 @@ const initialValues: CreateAlertDefinitionForm = {
   severity: null,
   triggerCondition: triggerConditionInitialValues,
   engine_type: null,
-  region: ''
+  region: '',
 };
 
 const generateCrumbOverrides = () => {
@@ -76,12 +77,11 @@ const generateCrumbOverrides = () => {
 };
 
 export const CreateAlertDefinition = React.memo(() => {
-
-  const {
-    data: notificationChannels,
-    isError: notificationChannelError,
-    isLoading: notificationChannelLoading,
-  } = useNotificationChannels();
+  // const {
+  //   data: notificationChannels,
+  //   isError: notificationChannelError,
+  //   isLoading: notificationChannelLoading,
+  // } = useNotificationChannels();
 
   const history = useHistory();
   const alertCreateExit = () => {
@@ -109,7 +109,7 @@ export const CreateAlertDefinition = React.memo(() => {
     setError,
     setValue,
     watch,
-    getValues
+    getValues,
   } = formMethods;
   const { enqueueSnackbar } = useSnackbar();
   const serviceWatcher = watch('service_type');
@@ -199,8 +199,14 @@ export const CreateAlertDefinition = React.memo(() => {
           <CloudPulseServiceSelect name="service_type" />
           {serviceWatcher === 'dbaas' && <EngineOption name={'engine_type'} />}
           <CloudPulseRegionSelect name="region" />
-          <CloudPulseAlertSeveritySelect name='severity' />
-          <MetricCriteriaField
+          <CloudPulseMultiResourceSelect
+            engine={watch('engine_type')}
+            name={'resource_ids'}
+            region={watch('region')}
+            serviceType={watch('service_type')}
+          />
+          <CloudPulseAlertSeveritySelect name="severity" />
+          {/* <MetricCriteriaField
             getMaxInterval={(interval: number) =>
               setMaxScrapeInterval(interval)
             }
@@ -215,7 +221,7 @@ export const CreateAlertDefinition = React.memo(() => {
             notifications={notifications}
             onChangeNotifications={onChangeNotifications}
             onClickAddNotification={() => setOpenAddNotification(true)}
-          />
+          /> */}
           <ActionsPanel
             primaryButtonProps={{
               label: 'Submit',
@@ -230,7 +236,7 @@ export const CreateAlertDefinition = React.memo(() => {
           />
         </form>
       </FormProvider>
-      {openAddNotification && (
+      {/* {openAddNotification && (
         <Drawer
           onClose={() => setOpenAddNotification(false)}
           open={openAddNotification}
@@ -242,7 +248,7 @@ export const CreateAlertDefinition = React.memo(() => {
             templateData={notificationChannels?.data ?? []}
           />
         </Drawer>
-      )}
+      )} */}
     </Paper>
   );
 });

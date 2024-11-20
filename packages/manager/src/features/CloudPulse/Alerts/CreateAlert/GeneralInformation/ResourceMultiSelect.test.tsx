@@ -1,10 +1,11 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import * as React from 'react';
 
 import { linodeFactory } from 'src/factories';
 import { renderWithThemeAndHookFormContext } from 'src/utilities/testHelpers';
 
 import { CloudPulseMultiResourceSelect } from './ResourceMultiSelect';
+import userEvent from '@testing-library/user-event';
 
 const queryMocks = vi.hoisted(() => ({
   useResourcesQuery: vi.fn().mockReturnValue({}),
@@ -36,14 +37,14 @@ describe('ResourceMultiSelect component tests', () => {
           engine="mysql"
           name="resource_ids"
           region={undefined}
-          serviceType={undefined}
+          serviceType={null}
         />
       ),
     });
     expect(getByTestId('resource-select')).toBeInTheDocument();
     expect(getByPlaceholderText('Select Resources')).toBeInTheDocument();
   });
-  it('should render resources happy path', () => {
+  it('should render resources happy path', async () => {
     queryMocks.useResourcesQuery.mockReturnValue({
       data: linodeFactory.buildList(2),
       isError: false,
@@ -60,9 +61,9 @@ describe('ResourceMultiSelect component tests', () => {
         />
       ),
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
     expect(
-      screen.getByRole('option', {
+      await screen.findByRole('option', {
         name: 'linode-3',
       })
     ).toBeInTheDocument();
@@ -72,7 +73,7 @@ describe('ResourceMultiSelect component tests', () => {
       })
     ).toBeInTheDocument();
   });
-  it('should be able to select all resources', () => {
+  it('should be able to select all resources', async () => {
     queryMocks.useResourcesQuery.mockReturnValue({
       data: linodeFactory.buildList(2),
       isError: false,
@@ -89,8 +90,10 @@ describe('ResourceMultiSelect component tests', () => {
         />
       ),
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-    fireEvent.click(screen.getByRole('option', { name: SELECT_ALL }));
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    await userEvent.click(
+      await screen.findByRole('option', { name: SELECT_ALL })
+    );
     expect(
       screen.getByRole('option', {
         name: 'linode-5',
@@ -102,7 +105,7 @@ describe('ResourceMultiSelect component tests', () => {
       })
     ).toHaveAttribute(ARIA_SELECTED, 'true');
   });
-  it('should be able to deselect the selected resources', () => {
+  it('should be able to deselect the selected resources', async () => {
     queryMocks.useResourcesQuery.mockReturnValue({
       data: linodeFactory.buildList(2),
       isError: false,
@@ -119,9 +122,13 @@ describe('ResourceMultiSelect component tests', () => {
         />
       ),
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-    fireEvent.click(screen.getByRole('option', { name: SELECT_ALL }));
-    fireEvent.click(screen.getByRole('option', { name: 'Deselect All' }));
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    await userEvent.click(
+      await screen.findByRole('option', { name: SELECT_ALL })
+    );
+    userEvent.click(
+      await screen.findByRole('option', { name: 'Deselect All' })
+    );
     expect(
       screen.getByRole('option', {
         name: 'linode-7',
@@ -134,7 +141,7 @@ describe('ResourceMultiSelect component tests', () => {
     ).toHaveAttribute(ARIA_SELECTED, 'false');
   });
 
-  it('should select multiple resources', () => {
+  it('should select multiple resources', async () => {
     queryMocks.useResourcesQuery.mockReturnValue({
       data: linodeFactory.buildList(3),
       isError: false,
@@ -151,9 +158,13 @@ describe('ResourceMultiSelect component tests', () => {
         />
       ),
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }));
-    fireEvent.click(screen.getByRole('option', { name: 'linode-9' }));
-    fireEvent.click(screen.getByRole('option', { name: 'linode-10' }));
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    await userEvent.click(
+      await screen.findByRole('option', { name: 'linode-9' })
+    );
+    await userEvent.click(
+      await screen.findByRole('option', { name: 'linode-10' })
+    );
 
     expect(
       screen.getByRole('option', {

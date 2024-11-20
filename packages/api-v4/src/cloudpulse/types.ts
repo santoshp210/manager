@@ -152,7 +152,8 @@ export interface CreateAlertDefinitionPayload {
   channel_ids: number[];
 }
 
-export interface CreateAlertDefinitionForm extends CreateAlertDefinitionPayload{
+export interface CreateAlertDefinitionForm
+  extends CreateAlertDefinitionPayload {
   service_type: AlertServiceType;
   engine_type: string | null;
   region: string;
@@ -179,13 +180,16 @@ export interface Alert {
   id: number;
   label: string;
   description: string;
-  status: string;
-  severity: string;
-  service_type: string;
+  status: AlertStatusType;
+  type: AlertDefinitionType;
+  severity: AlertSeverityType;
+  service_type: AlertServiceType;
   resource_ids: string[];
   rule_criteria: {
     rules: MetricCriteria[];
   };
+  entity_ids: string[];
+  has_more_resources: boolean;
   triggerCondition: TriggerCondition;
   channels: {
     id: number;

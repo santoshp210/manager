@@ -1,13 +1,19 @@
 import { createAlertDefinition } from '@linode/api-v4/lib/cloudpulse';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryFactory } from './queries';
 
 import type {
   Alert,
   CreateAlertDefinitionPayload,
+  NotificationChannel,
 } from '@linode/api-v4/lib/cloudpulse';
-import type { APIError } from '@linode/api-v4/lib/types';
+import type {
+  APIError,
+  Filter,
+  Params,
+  ResourcePage,
+} from '@linode/api-v4/lib/types';
 
 export const useCreateAlertDefinition = (service_type: string) => {
   const queryClient = useQueryClient();
@@ -25,13 +31,13 @@ export const useAlertDefinitionsQuery = (
   filter?: Filter
 ) => {
   return useQuery<ResourcePage<Alert>, APIError[]>({
-    ...queryFactory.lists._ctx.alerts(serviceType, params, filter),
+    ...queryFactory.alerts._ctx.alerts(serviceType, params, filter),
   });
 };
 
 export const useAlertDefinitionQuery = (alertId: number) => {
   return useQuery<Alert, APIError[]>({
-    ...queryFactory.alerts(alertId),
+    ...queryFactory.alertById(alertId),
     enabled: alertId !== undefined,
   });
 };
