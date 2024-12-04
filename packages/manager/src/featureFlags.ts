@@ -81,6 +81,11 @@ interface gpuV2 {
   transferBanner: boolean;
 }
 
+interface AcceleratedPlansFlag {
+  linodePlans: boolean;
+  lkePlans: boolean;
+}
+
 interface DesignUpdatesBannerFlag extends BaseFeatureFlag {
   key: string;
   link: string;
@@ -93,6 +98,7 @@ interface AclpAlerting {
 }
 
 export interface Flags {
+  acceleratedPlans: AcceleratedPlansFlag;
   aclp: AclpFlag;
   aclpAlerting: AclpAlerting;
   aclpReadEndpoint: string;

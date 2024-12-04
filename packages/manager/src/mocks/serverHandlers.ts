@@ -111,6 +111,10 @@ import { pickRandom } from 'src/utilities/random';
 
 import type {
   AccountMaintenance,
+  AlertDefinitionType,
+  AlertServiceType,
+  AlertSeverityType,
+  AlertStatusType,
   CreateAlertDefinitionPayload,
   CreateObjectStorageKeyPayload,
   Dashboard,
@@ -402,6 +406,9 @@ const gpuTypesRX = linodeTypeFactory.buildList(7, {
   gpus: 1,
   transfer: 5000,
 });
+const premiumTypes = linodeTypeFactory.buildList(7, {
+  class: 'premium',
+});
 const acceleratedType = linodeTypeFactory.buildList(7, {
   accelerated_devices: 1,
   class: 'accelerated',
@@ -603,6 +610,7 @@ export const handlers = [
         ...dedicatedTypes,
         ...gpuTypesAda,
         ...gpuTypesRX,
+        ...premiumTypes,
         ...acceleratedType,
         proDedicatedType,
       ])
@@ -2338,9 +2346,21 @@ export const handlers = [
   http.post(
     '*/monitor/services/:service_type/alert-definitions',
     async ({ request }) => {
+      const types: AlertDefinitionType[] = ['custom', 'default'];
+      const status: AlertStatusType[] = ['enabled', 'disabled'];
+      const severity: AlertSeverityType[] = [0, 1, 2, 3];
+      const users = ['user1', 'user2', 'user3'];
+      const serviceTypes: AlertServiceType[] = ['linode', 'dbaas'];
+
       const reqBody = await request.json();
       const response = alertFactory.build({
         ...(reqBody as CreateAlertDefinitionPayload),
+        created_by: pickRandom(users),
+        service_type: pickRandom(serviceTypes),
+        severity: pickRandom(severity),
+        status: pickRandom(status),
+        type: pickRandom(types),
+        updated_by: pickRandom(users),
       });
       return HttpResponse.json(response);
     }
@@ -2432,7 +2452,7 @@ export const handlers = [
   http.get('*/monitor/alert-definitions', () => {
     const alerts = alertFactory.buildList(5);
 
-    return HttpResponse.json(makeResourcePage(alerts));
+    return HttpResponse.json([makeResourcePage(alerts)]);
   }),
   http.get('*/monitor/alert-definitions/:id', ({ params }) => {
     if (params.id !== undefined) {

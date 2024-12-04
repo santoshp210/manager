@@ -5,6 +5,7 @@ import { queryFactory } from './queries';
 
 import type {
   Alert,
+  AlertServiceType,
   CreateAlertDefinitionPayload,
   NotificationChannel,
 } from '@linode/api-v4/lib/cloudpulse';
@@ -15,10 +16,10 @@ import type {
   ResourcePage,
 } from '@linode/api-v4/lib/types';
 
-export const useCreateAlertDefinition = (service_type: string) => {
+export const useCreateAlertDefinition = (serviceType: AlertServiceType) => {
   const queryClient = useQueryClient();
   return useMutation<Alert, APIError[], CreateAlertDefinitionPayload>({
-    mutationFn: (data) => createAlertDefinition(data, service_type),
+    mutationFn: (data) => createAlertDefinition(data, serviceType),
     onSuccess() {
       queryClient.invalidateQueries(queryFactory.alerts);
     },

@@ -56,6 +56,7 @@ export const queryFactory = createQueryKeys(key, {
     },
     queryKey: null,
   },
+
   metrics: (
     token: string,
     readApiEndpoint: string,
@@ -68,7 +69,6 @@ export const queryFactory = createQueryKeys(key, {
       fetchCloudPulseMetrics(token, readApiEndpoint, serviceType, requestData),
     queryKey: [requestData, timeStamp, label],
   }),
-
   metricsDefinitons: (serviceType: string | undefined) => ({
     queryFn: () => getMetricDefinitionsByServiceType(serviceType!),
     queryKey: [serviceType],
@@ -77,6 +77,7 @@ export const queryFactory = createQueryKeys(key, {
     queryFn: () => getNotificationChannels(),
     queryKey: null,
   },
+
   resources: (
     resourceType: string | undefined,
     params?: Params,
@@ -104,6 +105,6 @@ export const queryFactory = createQueryKeys(key, {
   },
   token: (serviceType: string | undefined, request: JWETokenPayLoad) => ({
     queryFn: () => getJWEToken(request, serviceType!),
-    queryKey: [serviceType],
+    queryKey: [serviceType, { resource_ids: request.resource_ids.sort() }],
   }),
 });

@@ -1,14 +1,15 @@
+import { Box, Button, Stack, Typography } from '@linode/ui';
 import * as React from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
-import { Box } from '@linode/ui';
-import { Button } from 'src/components/Button/Button';
-import { Stack } from 'src/components/Stack';
-import { Typography } from 'src/components/Typography';
 import { useGetCloudPulseMetricDefinitionsByServiceType } from 'src/queries/cloudpulse/services';
 
 import { convertSeconds } from '../../constants';
 import { Metric } from './Metric';
+
+import type { CreateAlertDefinitionForm, MetricCriteriaForm } from '../types';
+import type { MetricCriteria } from '@linode/api-v4';
+import type { FieldPathByValue } from 'react-hook-form';
 
 interface MetricCriteriaProps {
   /**
@@ -20,7 +21,7 @@ interface MetricCriteriaProps {
   /**
    * name used for the component to set formik field
    */
-  name: string;
+  name: FieldPathByValue<CreateAlertDefinitionForm, MetricCriteriaForm[]>;
   /**
    * serviceType used by the api to fetch the metric definitions
    */
@@ -35,15 +36,15 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
     isLoading: isMetricDefinitionLoading,
   } = useGetCloudPulseMetricDefinitionsByServiceType(
     serviceType,
-    serviceType !== ''
+    serviceType !== null
   );
 
-  const { control, watch } = useFormContext();
+  const { control, watch } = useFormContext<CreateAlertDefinitionForm>();
 
   const metricCriteriaWatcher = watch(name);
   React.useEffect(() => {
     const formikMetricValues = new Set(
-      metricCriteriaWatcher.map((item: any) => item.metric)
+      metricCriteriaWatcher.map((item: MetricCriteriaForm) => item.metric)
     );
 
     const intervalList =
@@ -55,8 +56,7 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
       ...convertSeconds(intervalList ? intervalList : [])
     );
     getMaxInterval(maxInterval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [metricCriteriaWatcher]);
+  }, [getMaxInterval, metricCriteriaWatcher, metricDefinitions]);
 
   const { append, fields, remove } = useFieldArray({
     control,
@@ -75,10 +75,11 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
       <Stack spacing={2} sx={(theme) => ({ marginTop: theme.spacing(3) })}>
         {fields.map((_, index) => (
           <Metric
+            showDeleteIcon={fields.length > 1}
             apiError={[isMetricDefinitionError, isMetricDefinitionLoading]}
             data={metricDefinitions ? metricDefinitions.data : []}
             key={index}
-            name={`criteria[${index}]`}
+            name={`rule_criteria.rules.${index}`}
             onMetricDelete={() => remove(index)}
           />
         ))}
@@ -86,11 +87,11 @@ export const MetricCriteriaField = React.memo((props: MetricCriteriaProps) => {
       <Button
         onClick={() =>
           append({
-            aggregation_type: '',
+            aggregation_type: null,
             dimension_filters: [],
-            metric: '',
-            operator: '',
-            value: '',
+            metric: null,
+            operator: null,
+            threshold: 0,
           })
         }
         buttonType={'outlined'}

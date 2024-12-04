@@ -1,10 +1,5 @@
 import { array, number, object, string } from 'yup';
 
-const engineOptionValidation = string().when('service_type', {
-  is: 'dbaas',
-  then: string().required('Engine type is required.').nullable(),
-  otherwise: string().notRequired().nullable(),
-});
 const dimensionFilters = object({
   dimension_label: string().required('Label is required for the filter.'),
   operator: string().required('Operator is required.'),
@@ -12,9 +7,11 @@ const dimensionFilters = object({
 });
 
 const metricCriteria = object({
-  metric: string().required('Metric Data Field is required.'),
-  aggregation_type: string().required('Aggregation type is required.'),
-  operator: string().required('Criteria Operator is required.'),
+  metric: string().required('Metric Data Field is required.').nullable(),
+  aggregation_type: string()
+    .required('Aggregation type is required.')
+    .nullable(),
+  operator: string().required('Criteria Operator is required.').nullable(),
   threshold: number()
     .required('Threshold value is required.')
     .min(0, 'Threshold value cannot be negative.'),
@@ -32,14 +29,11 @@ const triggerCondition = object({
     .positive('Number of occurrences must be greater than zero.'),
 });
 
-export const createAlertDefinitionSchema = object().shape({
+export const createAlertDefinitionSchema = object({
   label: string().required('Name is required.'),
   description: string().optional(),
-  region: string().required('Region is required.'),
-  engine_type: engineOptionValidation,
-  service_type: string().required('Service is required.').nullable(),
-  resource_ids: array().of(string()).min(1, 'At least one resource is needed.'),
-  severity: string().required('Severity is required.').nullable(),
+  entity_ids: array().of(string()).min(1, 'At least one resource is needed.'),
+  severity: string().required('Severity is required.'),
   criteria: array()
     .of(metricCriteria)
     .min(1, 'At least one metric criteria is needed.'),

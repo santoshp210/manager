@@ -1,6 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Paper } from '@linode/ui';
-import { createAlertDefinitionSchema } from '@linode/validation';
+import { Paper, TextField, Typography } from '@linode/ui';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -9,92 +8,74 @@ import { useHistory } from 'react-router-dom';
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Breadcrumb } from 'src/components/Breadcrumb/Breadcrumb';
 import { Drawer } from 'src/components/Drawer';
-import { TextField } from 'src/components/TextField';
-import { Typography } from 'src/components/Typography';
 import {
   useCreateAlertDefinition,
   useNotificationChannels,
 } from 'src/queries/cloudpulse/alerts';
 
 import { MetricCriteriaField } from './Criteria/MetricCriteria';
-import { TriggerConditions } from './Criteria/TriggerConditions';
 import { CloudPulseAlertSeveritySelect } from './GeneralInformation/AlertSeveritySelect';
 import { EngineOption } from './GeneralInformation/EngineOption';
 import { CloudPulseRegionSelect } from './GeneralInformation/RegionSelect';
+import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMultiSelect';
 import { CloudPulseServiceSelect } from './GeneralInformation/ServiceTypeSelect';
 import { AddChannelListing } from './NotificationChannel/AddChannelListing';
 import { AddNotificationChannel } from './NotificationChannel/AddNotificationChannel';
+import { CreateAlertDefinitionFormSchema } from './schemas';
+import { filterFormValues, filterMetricCriteriaFormValues } from './utilities';
 
+import type { CreateAlertDefinitionForm, MetricCriteriaForm } from './types';
 import type {
-  CreateAlertDefinitionForm,
-  CreateAlertDefinitionPayload,
-  MetricCriteria,
   NotificationChannel,
   TriggerCondition,
 } from '@linode/api-v4/lib/cloudpulse/types';
-import { CloudPulseMultiResourceSelect } from './GeneralInformation/ResourceMultiSelect';
 
 const triggerConditionInitialValues: TriggerCondition = {
   evaluation_period_seconds: 0,
   polling_interval_seconds: 0,
   trigger_occurrences: 0,
 };
-const criteriaInitialValues: MetricCriteria[] = [
-  {
-    aggregation_type: null,
-    dimension_filters: [],
-    metric: '',
-    operator: null,
-    threshold: 0,
-  },
-];
+const criteriaInitialValues: MetricCriteriaForm = {
+  aggregation_type: null,
+  dimension_filters: [],
+  metric: null,
+  operator: null,
+  threshold: 0,
+};
 const initialValues: CreateAlertDefinitionForm = {
   channel_ids: [],
+  engineType: null,
+  entity_ids: [],
   label: '',
-  resource_ids: [],
-  rule_criteria: { rules: criteriaInitialValues },
-  service_type: null,
+  region: '',
+  rule_criteria: {
+    rules: [criteriaInitialValues],
+  },
+  serviceType: null,
   severity: null,
   triggerCondition: triggerConditionInitialValues,
-  engine_type: null,
-  region: '',
 };
 
-const generateCrumbOverrides = () => {
-  const overrides = [
-    {
-      label: 'Definitions',
-      linkTo: '/monitor/cloudpulse/alerts/definitions',
-      position: 1,
-    },
-    {
-      label: 'Create',
-      linkTo: `/monitor/cloudpulse/alerts/definitions/create`,
-      position: 2,
-    },
-  ];
-  return { newPathname: '/definitions/create', overrides };
-};
-
-export const CreateAlertDefinition = React.memo(() => {
-  // const {
-  //   data: notificationChannels,
-  //   isError: notificationChannelError,
-  //   isLoading: notificationChannelLoading,
-  // } = useNotificationChannels();
-
+const overrides = [
+  {
+    label: 'Definitions',
+    linkTo: '/monitor/alerts/definitions',
+    position: 1,
+  },
+  {
+    label: 'Details',
+    linkTo: `/monitor/alerts/definitions/create`,
+    position: 2,
+  },
+];
+export const CreateAlertDefinition = () => {
   const history = useHistory();
-  const alertCreateExit = () => {
-    const pathParts = location.pathname.split('/');
-    pathParts.pop();
-    const previousPage = pathParts.join('/');
-    history.push(previousPage);
-  };
+  const alertCreateExit = () => history.push('/monitor/alerts/definitions');
 
   const formMethods = useForm<CreateAlertDefinitionForm>({
     defaultValues: initialValues,
     mode: 'onBlur',
-    resolver: yupResolver(createAlertDefinitionSchema),
+    resolver: yupResolver(CreateAlertDefinitionFormSchema),
   });
 
   const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
@@ -105,18 +86,18 @@ export const CreateAlertDefinition = React.memo(() => {
   const {
     control,
     formState,
+    getValues,
     handleSubmit,
     setError,
     setValue,
     watch,
-    getValues,
   } = formMethods;
   const { enqueueSnackbar } = useSnackbar();
-  const serviceWatcher = watch('service_type');
   const { mutateAsync: createAlert } = useCreateAlertDefinition(
-    getValues('service_type')!
+    getValues('serviceType')!
   );
 
+  const serviceTypeWatcher = watch('serviceType');
   const onChangeNotifications = (notifications: NotificationChannel[]) => {
     const notificationTemplateList = notifications.map(
       (notification) => notification.id
@@ -136,8 +117,8 @@ export const CreateAlertDefinition = React.memo(() => {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await createAlert(values);
-      enqueueSnackbar(`${watch('label')} alert has been successfully created`, {
+      await createAlert(filterFormValues(values));
+      enqueueSnackbar('Alert successfully created', {
         variant: 'success',
       });
       alertCreateExit();
@@ -152,17 +133,13 @@ export const CreateAlertDefinition = React.memo(() => {
     }
   });
 
-  const { newPathname, overrides } = generateCrumbOverrides();
   return (
-    <Paper sx={{ paddingTop: 2 }}>
-      <Breadcrumb
-        crumbOverrides={overrides}
-        pathname={newPathname}
-      ></Breadcrumb>
+    <Paper sx={{ paddingLeft: 1, paddingRight: 1, paddingTop: 2 }}>
+      <Breadcrumb crumbOverrides={overrides} pathname="/Definitions/Create" />
       <FormProvider {...formMethods}>
         <form onSubmit={onSubmit}>
           <Typography marginTop={2} variant="h2">
-            1. General information
+            1. General Information
           </Typography>
           <Controller
             render={({ field, fieldState }) => (
@@ -196,24 +173,24 @@ export const CreateAlertDefinition = React.memo(() => {
             control={control}
             name="description"
           />
-          <CloudPulseServiceSelect name="service_type" />
-          {serviceWatcher === 'dbaas' && <EngineOption name={'engine_type'} />}
+          <CloudPulseServiceSelect name="serviceType" />
+          {serviceTypeWatcher === 'dbaas' && <EngineOption name="engineType" />}
           <CloudPulseRegionSelect name="region" />
           <CloudPulseMultiResourceSelect
-            engine={watch('engine_type')}
-            name={'resource_ids'}
+            engine={watch('engineType')}
+            name="entity_ids"
             region={watch('region')}
-            serviceType={watch('service_type')}
+            serviceType={serviceTypeWatcher}
           />
           <CloudPulseAlertSeveritySelect name="severity" />
-          {/* <MetricCriteriaField
+          <MetricCriteriaField
             getMaxInterval={(interval: number) =>
               setMaxScrapeInterval(interval)
             }
             name="rule_criteria.rules"
-            serviceType={watch('service_type')!}
+            serviceType={serviceTypeWatcher!}
           />
-          <TriggerConditions
+          {/* <TriggerConditions
             maxScrapingInterval={maxScrapeInterval}
             name={'triggerCondition'}
           />
@@ -236,19 +213,6 @@ export const CreateAlertDefinition = React.memo(() => {
           />
         </form>
       </FormProvider>
-      {/* {openAddNotification && (
-        <Drawer
-          onClose={() => setOpenAddNotification(false)}
-          open={openAddNotification}
-          title="Add Notification Channel"
-        >
-          <AddNotificationChannel
-            onCancel={() => setOpenAddNotification(false)}
-            onClickAddNotification={onSubmitAddNotification}
-            templateData={notificationChannels?.data ?? []}
-          />
-        </Drawer>
-      )} */}
     </Paper>
   );
-});
+};

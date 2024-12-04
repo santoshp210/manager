@@ -1,14 +1,12 @@
+import { Button, Stack, Typography } from '@linode/ui';
 import { Box } from '@linode/ui';
 import React from 'react';
-import { useFieldArray, useFormContext } from 'react-hook-form';
-
-import { Button } from 'src/components/Button/Button';
-import { Stack } from 'src/components/Stack';
-import { Typography } from 'src/components/Typography';
+import { FieldPathByValue, useFieldArray, useFormContext } from 'react-hook-form';
 
 import { DimensionFilterField } from './DimensionFilterField';
 
-import type { Dimension } from '@linode/api-v4';
+import type { Dimension, DimensionFilter } from '@linode/api-v4';
+import { CreateAlertDefinitionForm } from '../types';
 
 interface DimensionFilterProps {
   /**
@@ -18,12 +16,11 @@ interface DimensionFilterProps {
   /**
    * name used for the component to set formik field
    */
-  name: string;
+  name: FieldPathByValue<CreateAlertDefinitionForm, DimensionFilter[]>;
 }
 export const DimensionFilter = (props: DimensionFilterProps) => {
   const { dimensionOptions, name } = props;
-  // const formik = useFormikContext();
-  const { control } = useFormContext();
+  const { control } = useFormContext<CreateAlertDefinitionForm>();
 
   const { append, fields, remove } = useFieldArray({
     control,

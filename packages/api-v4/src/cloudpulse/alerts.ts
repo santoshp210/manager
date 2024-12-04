@@ -8,6 +8,7 @@ import Request, {
 } from '../request';
 import {
   Alert,
+  AlertServiceType,
   CreateAlertDefinitionPayload,
   NotificationChannel,
 } from './types';
@@ -16,11 +17,13 @@ import { Filter, Params, ResourcePage } from 'src/types';
 
 export const createAlertDefinition = (
   data: CreateAlertDefinitionPayload,
-  serviceType: string
+  service_type: AlertServiceType
 ) =>
   Request<Alert>(
     setURL(
-      `${API_ROOT}/monitor/${encodeURIComponent(serviceType)}/alert-definitions`
+      `${API_ROOT}/monitor/services/${encodeURIComponent(
+        service_type!
+      )}/alert-definitions`
     ),
     setMethod('POST'),
     setData(data, createAlertDefinitionSchema)

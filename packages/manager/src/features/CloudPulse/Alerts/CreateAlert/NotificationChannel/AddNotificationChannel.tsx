@@ -1,3 +1,5 @@
+import { Chip, Typography } from '@linode/ui';
+import { Box } from '@linode/ui';
 import { Grid } from '@mui/material';
 import React from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -5,13 +7,9 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 
-import { Chip } from 'src/components/Chip';
-import { Typography } from 'src/components/Typography';
-
 import { ChannelTypeOptions } from '../../constants';
 
-import type { NotificationChannel } from '@linode/api-v4';
-import { Box } from '@linode/ui';
+import type { ChannelTypes, NotificationChannel } from '@linode/api-v4';
 
 interface AddNotificationChannelProps {
   onCancel: () => void;
@@ -47,7 +45,7 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
   });
 
   React.useEffect(() => {
-    setValue('channel_type', selectedType?.value ?? '');
+    setValue('channel_type', selectedType?.value as ChannelTypes);
   }, [setValue, selectedType]);
 
   React.useEffect(() => {
@@ -103,7 +101,7 @@ export const AddNotificationChannel = (props: AddNotificationChannelProps) => {
             )}
             control={control}
             name={'channel_type'}
-          ></Controller>
+          />
           <Box>
             <Controller
               render={({ field }) => (

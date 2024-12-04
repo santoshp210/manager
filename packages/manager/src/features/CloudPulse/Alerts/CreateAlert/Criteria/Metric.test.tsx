@@ -63,7 +63,7 @@ describe('Metric component tests', () => {
         <Metric
           apiError={[false, false]}
           data={mockData.data}
-          name={'criteria'}
+          name={`rule_criteria.rules.${1}`}
           onMetricDelete={vi.fn()}
         />
       ),

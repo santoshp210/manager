@@ -3,16 +3,15 @@ export type ChannelTypes = 'email' | 'slack' | 'pagerduty' | 'webhook';
 export type AlertNotificationType = 'default' | 'custom';
 export type ALERT_DEFINTION_ENTITY = 'alerts-definitions';
 export type AlertDefinitionType = 'default' | 'custom';
-export type AlertSeverityType = 0 | 1 | 2 | 3 | null;
-export type AlertServiceType = 'linode' | 'aclb' | 'dbaas' | 'lke' | null;
-type MetricAggregationType = 'avg' | 'sum' | 'min' | 'max' | 'count' | null;
-type MetricOperatorType = 'eq' | 'gt' | 'lt' | 'gte' | 'lte' | null;
-type DimensionFilterOperatorType =
+export type AlertSeverityType = 0 | 1 | 2 | 3;
+export type AlertServiceType = 'linode' | 'dbaas';
+export type MetricAggregationType = 'avg' | 'sum' | 'min' | 'max' | 'count';
+export type MetricOperatorType = 'eq' | 'gt' | 'lt' | 'gte' | 'lte';
+export type DimensionFilterOperatorType =
   | 'eq'
   | 'neq'
   | 'startswith'
-  | 'endswith'
-  | null;
+  | 'endswith';
 export type AlertStatusType = 'enabled' | 'disabled';
 export interface Dashboard {
   id: number;
@@ -44,7 +43,7 @@ export interface Widgets {
   namespace_id: number;
   color: string;
   size: number;
-  chart_type: string;
+  chart_type: 'line' | 'area';
   y_label: string;
   filters: Filters[];
   serviceType: string;
@@ -143,20 +142,13 @@ export interface CloudPulseMetricsList {
 export interface CreateAlertDefinitionPayload {
   label: string;
   description?: string;
-  resource_ids: string[];
+  entity_ids?: string[];
   severity: AlertSeverityType;
   rule_criteria: {
     rules: MetricCriteria[];
   };
   triggerCondition: TriggerCondition;
   channel_ids: number[];
-}
-
-export interface CreateAlertDefinitionForm
-  extends CreateAlertDefinitionPayload {
-  service_type: AlertServiceType;
-  engine_type: string | null;
-  region: string;
 }
 export interface MetricCriteria {
   metric: string;
@@ -184,7 +176,6 @@ export interface Alert {
   type: AlertDefinitionType;
   severity: AlertSeverityType;
   service_type: AlertServiceType;
-  resource_ids: string[];
   rule_criteria: {
     rules: MetricCriteria[];
   };

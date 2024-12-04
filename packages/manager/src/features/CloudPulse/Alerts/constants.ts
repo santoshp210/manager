@@ -1,4 +1,8 @@
-import type { AlertSeverityType } from '@linode/api-v4';
+import type {
+  AlertSeverityType,
+  DimensionFilterOperatorType,
+  MetricOperatorType,
+} from '@linode/api-v4';
 
 export interface Item<L extends string, T> {
   label: L;
@@ -22,37 +26,48 @@ export const engineTypeOptions: Item<string, string>[] = [
   },
 ];
 
-export const DimensionOperatorOptions = [
+export const DimensionOperatorOptions: Item<
+  string,
+  DimensionFilterOperatorType
+>[] = [
   {
-    label: 'is',
-    value: 'is',
+    label: 'Equal',
+    value: 'eq',
   },
   {
-    label: 'contains',
-    value: 'contains',
+    label: 'Ends with',
+    value: 'endswith',
+  },
+  {
+    label: 'Not Equal',
+    value: 'neq',
+  },
+  {
+    label: 'Starts with',
+    value: 'startswith',
   },
 ];
 
-export const MetricOperatorOptions = [
+export const MetricOperatorOptions: Item<string, MetricOperatorType>[] = [
   {
     label: '>',
-    value: '>',
+    value: 'gt',
   },
   {
     label: '<',
-    value: '<',
+    value: 'lt',
   },
   {
     label: '>=',
-    value: '>=',
+    value: 'gte',
   },
   {
     label: '<=',
-    value: '<=',
+    value: 'lte',
   },
   {
     label: '==',
-    value: '==',
+    value: 'eq',
   },
 ];
 export const EvaluationPeriodOptions = [
@@ -76,11 +91,6 @@ export const PollingIntervalOptions = [
     label: '10m',
     value: '600',
   },
-];
-
-export const TriggerOptions = [
-  { label: 'ALL', value: 'ALL' },
-  { label: 'ANY', value: 'ANY' },
 ];
 
 export const convertSeconds = (secondsList: string[]) => {
