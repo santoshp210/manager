@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Paper, TextField, Typography } from '@linode/ui';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
@@ -22,15 +22,14 @@ import { CloudPulseServiceSelect } from './GeneralInformation/ServiceTypeSelect'
 import { AddChannelListing } from './NotificationChannel/AddChannelListing';
 import { AddNotificationChannel } from './NotificationChannel/AddNotificationChannel';
 import { CreateAlertDefinitionFormSchema } from './schemas';
-import { filterFormValues, filterMetricCriteriaFormValues } from './utilities';
+import { filterFormValues } from './utilities';
 
 import type { CreateAlertDefinitionForm, MetricCriteriaForm } from './types';
-import type {
-  NotificationChannel,
-  TriggerCondition,
-} from '@linode/api-v4/lib/cloudpulse/types';
+import type { TriggerCondition } from '@linode/api-v4/lib/cloudpulse/types';
+import type { ObjectSchema } from 'yup';
 
 const triggerConditionInitialValues: TriggerCondition = {
+  criteria_condition: 'ALL',
   evaluation_period_seconds: 0,
   polling_interval_seconds: 0,
   trigger_occurrences: 0,
@@ -53,7 +52,8 @@ const initialValues: CreateAlertDefinitionForm = {
   },
   serviceType: null,
   severity: null,
-  triggerCondition: triggerConditionInitialValues,
+  tags: [''],
+  trigger_conditions: triggerConditionInitialValues,
 };
 
 const overrides = [
@@ -75,9 +75,12 @@ export const CreateAlertDefinition = () => {
   const formMethods = useForm<CreateAlertDefinitionForm>({
     defaultValues: initialValues,
     mode: 'onBlur',
-    resolver: yupResolver(CreateAlertDefinitionFormSchema),
+    resolver: yupResolver(
+      CreateAlertDefinitionFormSchema as ObjectSchema<CreateAlertDefinitionForm>
+    ),
   });
 
+  const { control, formState, getValues, handleSubmit, setError } = formMethods;
   const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
   const [openAddNotification, setOpenAddNotification] = React.useState(false);
   const [notifications, setNotifications] = React.useState<
@@ -97,7 +100,12 @@ export const CreateAlertDefinition = () => {
     getValues('serviceType')!
   );
 
-  const serviceTypeWatcher = watch('serviceType');
+  /**
+   * The maxScrapeInterval variable will be required for the Trigger Conditions part of the Critieria section.
+   */
+  const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
+
+  const serviceTypeWatcher = useWatch({ control, name: 'serviceType' });
   const onChangeNotifications = (notifications: NotificationChannel[]) => {
     const notificationTemplateList = notifications.map(
       (notification) => notification.id
@@ -127,6 +135,9 @@ export const CreateAlertDefinition = () => {
         if (error.field) {
           setError(error.field, { message: error.reason });
         } else {
+          enqueueSnackbar(`Alert failed: ${error.reason}`, {
+            variant: 'error',
+          });
           setError('root', { message: error.reason });
         }
       }
@@ -177,9 +188,9 @@ export const CreateAlertDefinition = () => {
           {serviceTypeWatcher === 'dbaas' && <EngineOption name="engineType" />}
           <CloudPulseRegionSelect name="region" />
           <CloudPulseMultiResourceSelect
-            engine={watch('engineType')}
+            engine={useWatch({ control, name: 'engineType' })}
             name="entity_ids"
-            region={watch('region')}
+            region={useWatch({ control, name: 'region' })}
             serviceType={serviceTypeWatcher}
           />
           <CloudPulseAlertSeveritySelect name="severity" />

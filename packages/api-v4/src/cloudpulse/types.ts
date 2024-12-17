@@ -2,17 +2,24 @@ export type NotificationStatus = 'Enabled' | 'Disabled';
 export type ChannelTypes = 'email' | 'slack' | 'pagerduty' | 'webhook';
 export type AlertNotificationType = 'default' | 'custom';
 export type ALERT_DEFINTION_ENTITY = 'alerts-definitions';
-export type AlertDefinitionType = 'default' | 'custom';
 export type AlertSeverityType = 0 | 1 | 2 | 3;
-export type AlertServiceType = 'linode' | 'dbaas';
 export type MetricAggregationType = 'avg' | 'sum' | 'min' | 'max' | 'count';
 export type MetricOperatorType = 'eq' | 'gt' | 'lt' | 'gte' | 'lte';
-export type DimensionFilterOperatorType =
-  | 'eq'
-  | 'neq'
-  | 'startswith'
-  | 'endswith';
+export type AlertServiceType = 'linode' | 'dbaas';
+type DimensionFilterOperatorType = 'eq' | 'neq' | 'startswith' | 'endswith';
+export type AlertDefinitionType = 'system' | 'user';
 export type AlertStatusType = 'enabled' | 'disabled';
+export type CriteriaConditionType = 'ALL';
+export type MetricUnitType =
+  | 'number'
+  | 'byte'
+  | 'second'
+  | 'percent'
+  | 'bit_per_second'
+  | 'millisecond'
+  | 'KB'
+  | 'MB'
+  | 'GB';
 export interface Dashboard {
   id: number;
   label: string;
@@ -141,13 +148,14 @@ export interface CloudPulseMetricsList {
 
 export interface CreateAlertDefinitionPayload {
   label: string;
+  tags?: string[];
   description?: string;
   entity_ids?: string[];
   severity: AlertSeverityType;
   rule_criteria: {
     rules: MetricCriteria[];
   };
-  triggerCondition: TriggerCondition;
+  trigger_conditions: TriggerCondition;
   channel_ids: number[];
 }
 export interface MetricCriteria {
@@ -158,7 +166,12 @@ export interface MetricCriteria {
   dimension_filters?: DimensionFilter[];
 }
 
+export interface AlertDefinitionMetricCriteria extends MetricCriteria {
+  unit: string;
+  label: string;
+}
 export interface DimensionFilter {
+  label: string;
   dimension_label: string;
   operator: DimensionFilterOperatorType;
   value: string;
@@ -167,21 +180,21 @@ export interface TriggerCondition {
   polling_interval_seconds: number;
   evaluation_period_seconds: number;
   trigger_occurrences: number;
+  criteria_condition: CriteriaConditionType;
 }
 export interface Alert {
   id: number;
   label: string;
+  tags: string[];
   description: string;
   status: AlertStatusType;
   type: AlertDefinitionType;
   severity: AlertSeverityType;
   service_type: AlertServiceType;
   rule_criteria: {
-    rules: MetricCriteria[];
+    rules: AlertDefinitionMetricCriteria[];
   };
-  entity_ids: string[];
-  has_more_resources: boolean;
-  triggerCondition: TriggerCondition;
+  trigger_conditions: TriggerCondition;
   channels: {
     id: number;
     label: string;

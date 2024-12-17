@@ -2,6 +2,7 @@ import type {
   AlertSeverityType,
   DimensionFilterOperatorType,
   MetricOperatorType,
+  MetricAggregationType
 } from '@linode/api-v4';
 
 export interface Item<L extends string, T> {
@@ -23,6 +24,29 @@ export const engineTypeOptions: Item<string, string>[] = [
   {
     label: 'PostgreSQL',
     value: 'postgresql',
+  },
+];
+
+export const MetricAggregationOptions: Item<string, MetricAggregationType>[] = [
+  {
+    label: 'Average',
+    value: 'avg',
+  },
+  {
+    label: 'Minimum',
+    value: 'min',
+  },
+  {
+    label: 'Maximum',
+    value: 'max',
+  },
+  {
+    label: 'Count',
+    value: 'count',
+  },
+  {
+    label: 'Sum',
+    value: 'sum',
   },
 ];
 
