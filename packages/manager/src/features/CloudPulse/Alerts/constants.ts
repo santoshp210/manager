@@ -2,7 +2,7 @@ import type {
   AlertSeverityType,
   DimensionFilterOperatorType,
   MetricOperatorType,
-  MetricAggregationType
+  MetricAggregationType,
 } from '@linode/api-v4';
 
 export interface Item<L extends string, T> {
@@ -94,28 +94,25 @@ export const MetricOperatorOptions: Item<string, MetricOperatorType>[] = [
     value: 'eq',
   },
 ];
-export const EvaluationPeriodOptions = [
-  { label: '1m', value: '60' },
-  { label: '5m', value: '300' },
-  { label: '15m', value: '900' },
-  { label: '30m', value: '1800' },
-  { label: '1hr', value: '3600' },
-];
+export const EvaluationPeriodOptions = {
+  dbaas: [{ label: '5m', value: 300 }],
+  linode: [
+    { label: '1m', value: 60 },
+    { label: '5m', value: 300 },
+    { label: '15m', value: 900 },
+    { label: '30m', value: 1800 },
+    { label: '1hr', value: 3600 },
+  ],
+};
 
-export const PollingIntervalOptions = [
-  {
-    label: '1m',
-    value: '60',
-  },
-  {
-    label: '5m',
-    value: '300',
-  },
-  {
-    label: '10m',
-    value: '600',
-  },
-];
+export const PollingIntervalOptions = {
+  dbaas: [{ label: '5m', value: 300 }],
+  linode: [
+    { label: '1m', value: 60 },
+    { label: '5m', value: 300 },
+    { label: '10m', value: 600 },
+  ],
+};
 
 export const convertSeconds = (secondsList: string[]) => {
   return secondsList.map((second) => {

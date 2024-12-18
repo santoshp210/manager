@@ -111,6 +111,7 @@ import { pickRandom } from 'src/utilities/random';
 
 import type {
   AccountMaintenance,
+  AlertDefinitionMetricCriteria,
   AlertDefinitionType,
   AlertServiceType,
   AlertSeverityType,
@@ -2351,17 +2352,40 @@ export const handlers = [
       const severity: AlertSeverityType[] = [0, 1, 2, 3];
       const users = ['user1', 'user2', 'user3'];
       const serviceTypes: AlertServiceType[] = ['linode', 'dbaas'];
-
       const reqBody = await request.json();
+      const reqRules = (reqBody as CreateAlertDefinitionPayload).rule_criteria
+        .rules;
       const response = alertFactory.build({
         ...(reqBody as CreateAlertDefinitionPayload),
         created_by: pickRandom(users),
+        rule_criteria: {
+          rules: reqRules.map((metricCriteria) => {
+            const { dimension_filters, metric } = metricCriteria;
+            const unit = 'units';
+            const label = `Label ${metric}`;
+
+            const alertDefinitionDimensionFilters = dimension_filters?.map(
+              (filter) => ({
+                ...filter,
+                label: `Label ${filter.dimension_label}`,
+              })
+            );
+
+            return {
+              ...metricCriteria,
+              dimension_filters: alertDefinitionDimensionFilters,
+              label,
+              unit,
+            } as AlertDefinitionMetricCriteria;
+          }),
+        },
         service_type: pickRandom(serviceTypes),
         severity: pickRandom(severity),
         status: pickRandom(status),
         type: pickRandom(types),
         updated_by: pickRandom(users),
       });
+
       return HttpResponse.json(response);
     }
   ),

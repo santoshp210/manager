@@ -1,12 +1,13 @@
-import { Button, Stack, Typography } from '@linode/ui';
 import { Box } from '@linode/ui';
+import { Button, Stack, Typography } from '@linode/ui';
 import React from 'react';
-import { FieldPathByValue, useFieldArray, useFormContext } from 'react-hook-form';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 
 import { DimensionFilterField } from './DimensionFilterField';
 
-import type { Dimension, DimensionFilter } from '@linode/api-v4';
-import { CreateAlertDefinitionForm } from '../types';
+import type { CreateAlertDefinitionForm, DimensionFilterForm } from '../types';
+import type { Dimension } from '@linode/api-v4';
+import type { FieldPathByValue } from 'react-hook-form';
 
 interface DimensionFilterProps {
   /**
@@ -16,9 +17,12 @@ interface DimensionFilterProps {
   /**
    * name used for the component to set formik field
    */
-  name: FieldPathByValue<CreateAlertDefinitionForm, DimensionFilter[]>;
+  name: FieldPathByValue<
+    CreateAlertDefinitionForm,
+    DimensionFilterForm[] | null
+  >;
 }
-export const DimensionFilter = (props: DimensionFilterProps) => {
+export const DimensionFilters = (props: DimensionFilterProps) => {
   const { dimensionOptions, name } = props;
   const { control } = useFormContext<CreateAlertDefinitionForm>();
 
@@ -35,27 +39,29 @@ export const DimensionFilter = (props: DimensionFilterProps) => {
           justifyContent={'space-between'}
         >
           <Typography variant={'h3'}>
-            Dimension Filter{' '}
+            Dimension Filter
             <Typography component="span"> (optional)</Typography>
           </Typography>
         </Box>
 
-        <Stack spacing={2}>
-          {fields.map((_, index) => (
-            <DimensionFilterField
-              dimensionOptions={dimensionOptions}
-              key={index}
-              name={`${name}[${index}]`}
-              onFilterDelete={() => remove(index)}
-            />
-          ))}
+        <Stack>
+          {fields !== null &&
+            fields.length !== 0 &&
+            fields.map((field, index) => (
+              <DimensionFilterField
+                dimensionOptions={dimensionOptions}
+                key={field.id}
+                name={`${name}.${index}`}
+                onFilterDelete={() => remove(index)}
+              />
+            ))}
         </Stack>
         <Button
           onClick={() =>
             append({
-              dimension_label: '',
-              operator: '',
-              value: '',
+              dimension_label: null,
+              operator: null,
+              value: null,
             })
           }
           buttonType="secondary"

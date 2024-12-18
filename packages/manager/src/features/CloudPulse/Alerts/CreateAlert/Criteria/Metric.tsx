@@ -9,6 +9,7 @@ import {
   MetricOperatorOptions,
 } from '../../constants';
 import { ClearIconButton } from './ClearIconButton';
+import { DimensionFilters } from './DimensionFilter';
 
 import type { Item } from '../../constants';
 import type { CreateAlertDefinitionForm, MetricCriteriaForm } from '../types';
@@ -16,7 +17,6 @@ import type {
   AvailableMetrics,
   MetricAggregationType,
   MetricOperatorType,
-  MetricUnitType,
 } from '@linode/api-v4';
 import type { FieldPathByValue } from 'react-hook-form';
 
@@ -49,7 +49,7 @@ export const Metric = (props: MetricCriteriaProps) => {
   const { control, setValue } = useFormContext<CreateAlertDefinitionForm>();
 
   const handleDataFieldChange = (
-    selected: { label: string; unit: MetricUnitType; value: string },
+    selected: { label: string; value: string },
     operation: string
   ) => {
     const fieldValue: MetricCriteriaForm = {
@@ -132,7 +132,6 @@ export const Metric = (props: MetricCriteriaProps) => {
                     _,
                     newValue: {
                       label: string;
-                      unit: MetricUnitType;
                       value: string;
                     },
                     reason
@@ -265,7 +264,13 @@ export const Metric = (props: MetricCriteriaProps) => {
                   name={`${name}.threshold`}
                 />
               </Grid>
-              <Grid item marginTop={1.75} md={6} sm={6} xs={6}>
+              <Grid
+                item
+                marginTop={{ md: 1.75, xs: 0 }}
+                md={6}
+                sm={6}
+                xs={'auto'}
+              >
                 <Typography
                   sx={{
                     alignItems: 'flex-end',
@@ -283,6 +288,11 @@ export const Metric = (props: MetricCriteriaProps) => {
             </Grid>
           </Grid>
         </Grid>
+        <DimensionFilters
+          dimensionOptions={selectedMetric?.dimensions ?? []}
+          key={metricWatcher}
+          name={`${name}.dimension_filters`}
+        />
       </Stack>
     </Box>
   );

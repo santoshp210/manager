@@ -1,12 +1,15 @@
 export type NotificationStatus = 'Enabled' | 'Disabled';
 export type ChannelTypes = 'email' | 'slack' | 'pagerduty' | 'webhook';
 export type AlertNotificationType = 'default' | 'custom';
-export type ALERT_DEFINTION_ENTITY = 'alerts-definitions';
 export type AlertSeverityType = 0 | 1 | 2 | 3;
 export type MetricAggregationType = 'avg' | 'sum' | 'min' | 'max' | 'count';
 export type MetricOperatorType = 'eq' | 'gt' | 'lt' | 'gte' | 'lte';
 export type AlertServiceType = 'linode' | 'dbaas';
-type DimensionFilterOperatorType = 'eq' | 'neq' | 'startswith' | 'endswith';
+export type DimensionFilterOperatorType =
+  | 'eq'
+  | 'neq'
+  | 'startswith'
+  | 'endswith';
 export type AlertDefinitionType = 'system' | 'user';
 export type AlertStatusType = 'enabled' | 'disabled';
 export type CriteriaConditionType = 'ALL';
@@ -166,15 +169,20 @@ export interface MetricCriteria {
   dimension_filters?: DimensionFilter[];
 }
 
-export interface AlertDefinitionMetricCriteria extends MetricCriteria {
+export interface AlertDefinitionMetricCriteria
+  extends Omit<MetricCriteria, 'dimension_filters'> {
   unit: string;
   label: string;
+  dimension_filters?: AlertDefinitionDimensionFilter;
 }
 export interface DimensionFilter {
-  label: string;
   dimension_label: string;
   operator: DimensionFilterOperatorType;
   value: string;
+}
+
+export interface AlertDefinitionDimensionFilter extends DimensionFilter {
+  label: string;
 }
 export interface TriggerCondition {
   polling_interval_seconds: number;
@@ -187,6 +195,8 @@ export interface Alert {
   label: string;
   tags: string[];
   description: string;
+  entity_ids: string[];
+  has_more_resources: boolean;
   status: AlertStatusType;
   type: AlertDefinitionType;
   severity: AlertSeverityType;
@@ -226,7 +236,7 @@ interface NotificationChannelBase {
     id: number;
     label: string;
     url: string;
-    type: ALERT_DEFINTION_ENTITY;
+    type: 'alert-definitions';
   };
   created_by: string;
   updated_by: string;

@@ -1,60 +1,49 @@
-import { Box } from '@linode/ui';
+import { Autocomplete, Box, TextField, Typography } from '@linode/ui';
 import { Grid } from '@mui/material';
 import * as React from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
-
-import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
-import { TextField } from 'src/components/TextField';
-import { Typography } from 'src/components/Typography';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
 import {
   EvaluationPeriodOptions,
   PollingIntervalOptions,
 } from '../../constants';
+
+import type { CreateAlertDefinitionForm } from '../types';
+import type {
+  CreateAlertDefinitionPayload,
+  TriggerCondition,
+} from '@linode/api-v4';
+import type { FieldPathByValue } from 'react-hook-form';
 interface TriggerConditionProps {
   /**
    * maximum scraping interval value for a metric to filter the evaluation period and polling interval options
    */
   maxScrapingInterval: number;
   /**
-   * name used for the component to set formik field
+   * name used for the component to set in form
    */
-  name: string;
+  name: FieldPathByValue<CreateAlertDefinitionPayload, TriggerCondition>;
 }
-type IntervalOptions = {
-  label: '';
-  value: '';
-};
 export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
-  const [
-    selectedEvaluationPeriod,
-    setEvaluationPeriod,
-  ] = React.useState<IntervalOptions | null>(null);
-  const [
-    selectedPollingInterval,
-    setPollingInterval,
-  ] = React.useState<IntervalOptions | null>(null);
-
   const { maxScrapingInterval, name } = props;
 
-  const { control, setValue } = useFormContext();
+  const { control } = useFormContext<CreateAlertDefinitionForm>();
+  const serviceTypeWatcher = useWatch({
+    control,
+    name: 'serviceType',
+  });
   const getPollingIntervalOptions = () => {
-    return PollingIntervalOptions.filter(
-      (item) => parseInt(item.value, 10) >= maxScrapingInterval
-    );
+    const options = serviceTypeWatcher
+      ? PollingIntervalOptions[serviceTypeWatcher]
+      : [];
+    return options.filter((item) => item.value >= maxScrapingInterval);
   };
 
   const getEvaluationPeriodOptions = () => {
-    return EvaluationPeriodOptions.filter(
-      (item) => parseInt(item.value, 10) >= maxScrapingInterval
-    );
-  };
-  const handleSelectChange = (field: string, value: any, operation: string) => {
-    if (operation === 'selectOption') {
-      setValue(`${name}.${field}`, value);
-    } else {
-      setValue(`${name}.${field}`, '');
-    }
+    const options = serviceTypeWatcher
+      ? EvaluationPeriodOptions[serviceTypeWatcher]
+      : [];
+    return options.filter((item) => item.value >= maxScrapingInterval);
   };
 
   return (
@@ -68,33 +57,41 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
       })}
     >
       <Typography variant="h3"> Trigger Conditions</Typography>
-      <Grid alignItems="center" container spacing={2}>
+      <Grid alignItems="flex-start" container spacing={2}>
         <Grid item md={3} sm={6} xs={12}>
           <Controller
             render={({ field, fieldState }) => (
               <Autocomplete
-                isOptionEqualToValue={(option, value) =>
-                  option.value === value.value
-                }
-                onChange={(_, value: IntervalOptions, operation) => {
-                  handleSelectChange(
-                    'evaluation_period_seconds',
-                    value?.value ?? '',
-                    operation
-                  );
-                  setEvaluationPeriod(value);
+                onChange={(
+                  _,
+                  selected: { label: string; value: number },
+                  operation
+                ) => {
+                  if (operation === 'selectOption') {
+                    field.onChange(selected.value);
+                  }
+                  if (operation === 'clear') {
+                    field.onChange(null);
+                  }
                 }}
                 textFieldProps={{
                   labelTooltipText:
                     'Defines the timeframe for collecting data in polling intervals to understand the service performance. Choose the data lookback period where the thresholds are applied to gather the information impactful for your business.',
                 }}
+                value={
+                  field.value !== null
+                    ? getEvaluationPeriodOptions().find(
+                        (option) => option.value === field.value
+                      ) ?? null
+                    : null
+                }
                 data-testid="Evaluation-period"
+                disabled={!serviceTypeWatcher}
                 errorText={fieldState.error?.message}
-                label={'Evaluation period'}
+                label={'Evaluation Period'}
                 onBlur={field.onBlur}
                 options={getEvaluationPeriodOptions()}
                 placeholder="Select an Evaluation period"
-                value={selectedEvaluationPeriod}
               />
             )}
             control={control}
@@ -105,43 +102,51 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
           <Controller
             render={({ field, fieldState }) => (
               <Autocomplete
-                isOptionEqualToValue={(option, value) =>
-                  option.value === value.value
-                }
-                onChange={(_, value: IntervalOptions, operation) => {
-                  handleSelectChange(
-                    'polling_interval_seconds',
-                    value?.value ?? '',
-                    operation
-                  );
-                  setPollingInterval(value);
+                onChange={(
+                  _,
+                  newValue: { label: string; value: number },
+                  operation
+                ) => {
+                  if (operation === 'selectOption') {
+                    field.onChange(newValue.value);
+                  }
+                  if (operation === 'clear') {
+                    field.onChange(null);
+                  }
                 }}
                 textFieldProps={{
                   labelTooltipText:
-                    'Choose how often you intend to evaulate the alert condition',
+                    'Choose how often you intend to evaulate the alert condition.',
                 }}
+                value={
+                  field.value !== null
+                    ? getPollingIntervalOptions().find(
+                        (option) => option.value === field.value
+                      ) ?? null
+                    : null
+                }
                 data-testid="Polling-interval"
+                disabled={!serviceTypeWatcher}
                 errorText={fieldState.error?.message}
-                label={'Polling interval'}
+                label={'Polling Interval'}
                 onBlur={field.onBlur}
                 options={getPollingIntervalOptions()}
                 placeholder="Select a Polling"
-                value={selectedPollingInterval}
               />
             )}
             control={control}
             name={`${name}.polling_interval_seconds`}
           />
         </Grid>
-        <Grid item md={'auto'} sm={12} xs={12}>
-          <Grid alignItems="center" container spacing={2}>
+        <Grid item marginTop={{ sm: 1, xs: 0 }} md={'auto'} sm={12} xs={12}>
+          <Grid alignItems="flex-start" container>
             <Grid item md={'auto'} sm={6} xs={12}>
-              <Box marginTop={1}>
+              <Box marginTop={{ md: 4 }}>
                 <Typography
                   sx={{
-                    alignItems: 'flex-end',
+                    alignItems: 'center',
                     display: 'flex',
-                    height: { sm: '56px', xs: '70px' },
+                    height: { sm: '56px', xs: '50px' },
                   }}
                   variant="body1"
                 >
@@ -153,7 +158,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
               item
               md={3}
               sm={'auto'}
-              sx={{ marginTop: { md: '27px' } }}
+              sx={{ marginTop: { md: 2.5 }, paddingLeft: { md: 1 } }}
               xs={'auto'}
             >
               <Controller
@@ -163,7 +168,7 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                       event.target instanceof HTMLElement && event.target.blur()
                     }
                     sx={{
-                      paddingTop: { sm: '26px', xs: 0 },
+                      height: '30px',
                       width: '30px',
                     }}
                     data-testid={'Trigger-occurences'}
@@ -181,13 +186,13 @@ export const TriggerConditions = React.memo((props: TriggerConditionProps) => {
                 name={`${name}.trigger_occurrences`}
               />
             </Grid>
-            <Grid item md={'auto'} sm={'auto'} xs={'auto'}>
-              <Box sx={{ marginTop: 1 }}>
+            <Grid item md={'auto'} paddingLeft={{ md: 2.5 }} sm={12} xs={12}>
+              <Box sx={{ marginTop: { md: 4, sx: 2 } }}>
                 <Typography
                   sx={{
-                    alignItems: 'flex-end',
+                    alignItems: 'center',
                     display: 'flex',
-                    height: { sm: '56px', xs: '26px' },
+                    height: { sm: '56px', xs: '50px' },
                   }}
                   variant="body1"
                 >

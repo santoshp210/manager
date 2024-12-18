@@ -14,6 +14,7 @@ import {
 } from 'src/queries/cloudpulse/alerts';
 
 import { MetricCriteriaField } from './Criteria/MetricCriteria';
+import { TriggerConditions } from './Criteria/TriggerConditions';
 import { CloudPulseAlertSeveritySelect } from './GeneralInformation/AlertSeveritySelect';
 import { EngineOption } from './GeneralInformation/EngineOption';
 import { CloudPulseRegionSelect } from './GeneralInformation/RegionSelect';
@@ -24,14 +25,17 @@ import { AddNotificationChannel } from './NotificationChannel/AddNotificationCha
 import { CreateAlertDefinitionFormSchema } from './schemas';
 import { filterFormValues } from './utilities';
 
-import type { CreateAlertDefinitionForm, MetricCriteriaForm } from './types';
-import type { TriggerCondition } from '@linode/api-v4/lib/cloudpulse/types';
+import type { CreateAlertDefinitionForm, MetricCriteriaForm, TriggerConditionForm } from './types';
+import type {
+  NotificationChannel,
+  TriggerCondition,
+} from '@linode/api-v4/lib/cloudpulse/types';
 import type { ObjectSchema } from 'yup';
 
-const triggerConditionInitialValues: TriggerCondition = {
+const triggerConditionInitialValues: TriggerConditionForm = {
   criteria_condition: 'ALL',
-  evaluation_period_seconds: 0,
-  polling_interval_seconds: 0,
+  evaluation_period_seconds: null,
+  polling_interval_seconds: null,
   trigger_occurrences: 0,
 };
 const criteriaInitialValues: MetricCriteriaForm = {
@@ -80,8 +84,6 @@ export const CreateAlertDefinition = () => {
     ),
   });
 
-  const { control, formState, getValues, handleSubmit, setError } = formMethods;
-  const [maxScrapeInterval, setMaxScrapeInterval] = React.useState<number>(0);
   const [openAddNotification, setOpenAddNotification] = React.useState(false);
   const [notifications, setNotifications] = React.useState<
     NotificationChannel[]
@@ -93,7 +95,6 @@ export const CreateAlertDefinition = () => {
     handleSubmit,
     setError,
     setValue,
-    watch,
   } = formMethods;
   const { enqueueSnackbar } = useSnackbar();
   const { mutateAsync: createAlert } = useCreateAlertDefinition(
@@ -195,17 +196,17 @@ export const CreateAlertDefinition = () => {
           />
           <CloudPulseAlertSeveritySelect name="severity" />
           <MetricCriteriaField
-            getMaxInterval={(interval: number) =>
+            setMaxInterval={(interval: number) =>
               setMaxScrapeInterval(interval)
             }
             name="rule_criteria.rules"
             serviceType={serviceTypeWatcher!}
           />
-          {/* <TriggerConditions
+          <TriggerConditions
             maxScrapingInterval={maxScrapeInterval}
-            name={'triggerCondition'}
+            name={'trigger_conditions'}
           />
-          <AddChannelListing
+          {/* <AddChannelListing
             notifications={notifications}
             onChangeNotifications={onChangeNotifications}
             onClickAddNotification={() => setOpenAddNotification(true)}
